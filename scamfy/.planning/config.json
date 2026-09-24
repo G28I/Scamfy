@@ -1,0 +1,23 @@
+{
+  "project": "Scamfy",
+  "version": "1.0.0",
+  "created_at": "2026-09-23",
+  "mode": "auto",
+  "agent": "Google Antigravity",
+  "methodology": "GSD Core",
+  "ai_provider": "NVIDIA API / NIM",
+  "model_family": "NVIDIA Nemotron",
+  "stack": {
+    "frontend": "Next.js (App Router) + TypeScript + Tailwind CSS + shadcn/ui",
+    "backend": "Python + FastAPI + SQLAlchemy",
+    "database": "PostgreSQL",
+    "object_storage": "Cloudflare R2 / S3-compatible",
+    "auth": "Clerk",
+    "testing": "Pytest + Playwright"
+  },
+  "workflow": {
+    "enforce_plans": true,
+    "atomic_commits": true,
+    "require_verification": true
+  }
+}

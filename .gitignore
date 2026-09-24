@@ -1,0 +1,45 @@
+# Dependencies
+**/node_modules/
+.pnp
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
+
+# Next.js
+**/.next/
+**/out/
+**/build/
+**/.vercel/
+
+# Testing & Coverage
+**/coverage/
+**/playwright-report/
+**/test-results/
+
+# Python & Backend
+**/__pycache__/
+*.py[cod]
+*$py.class
+**/.venv/
+**/venv/
+**/env/
+**/.pytest_cache/
+**/.mypy_cache/
+**/.ruff_cache/
+
+# Environment variables & secrets
+.env
+.env.*
+!.env.example
+*.pem
+
+# IDE & OS
+.DS_Store
+Thumbs.db
+*.tsbuildinfo
+next-env.d.ts
+.agents/
+.gemini/
