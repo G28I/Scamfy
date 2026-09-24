@@ -2,8 +2,8 @@
 
 ## Current Status
 - **Current Milestone**: Milestone 0 (Foundation)
-- **Active Phase**: Phase 2 (Project Structure, GSD Setup & Coding Standards)
-- **Status**: Phase 2 Plan Created — Ready for Execution
+- **Active Phase**: Phase 3 (Core Data Model & Migrations)
+- **Status**: Phase 2 Complete — Ready to Plan Phase 3
 - **Last Updated**: 2026-09-24
 
 ---
@@ -13,8 +13,8 @@
 | Phase | Title | Milestone | Status | Completed At |
 | :--- | :--- | :--- | :--- | :--- |
 | **01** | Product Definition, Safety Boundaries & Threat Model | Foundation | 🟢 **Complete** | 2026-09-24 |
-| **02** | Project Structure, GSD Setup & Coding Standards | Foundation | 🟡 In Progress (Planned) | — |
-| **03** | Core Data Model & Migrations | Foundation | ⚪ Planned | — |
+| **02** | Project Structure, GSD Setup & Coding Standards | Foundation | 🟢 **Complete** | 2026-09-24 |
+| **03** | Core Data Model & Migrations | Foundation | ⚪ Ready to Plan | — |
 | **04** | Design System & Interaction Primitives | Foundation | ⚪ Planned | — |
 | **05** | Scam Check Input & Analysis Slice | Slice 1 | ⚪ Planned | — |
 | **06** | Deterministic Risk Engine + Nemotron NIM | Slice 1 | ⚪ Planned | — |
@@ -29,13 +29,13 @@
 ---
 
 ## Phase 2 Execution Checklist
-- [ ] Task 1: Repository Layout & Backend Directory Scaffolding (`backend/` app structure, `pyproject.toml`, `requirements.txt`)
-- [ ] Task 2: Environment Variable Templates & Secrets Policy (`.env.example`, `backend/.env.example`)
-- [ ] Task 3: Coding Standards & Definition of Done (`docs/coding-standards.md`)
-- [ ] Task 4: Frontend & Backend Tooling Verification
-- [ ] Phase 2 Verification & Summary (`.planning/phases/02-project-structure-and-standards/SUMMARY.md`)
+- [x] Task 1: Next.js Frontend Scaffolding & Strict TypeScript Tooling (`app/`, `components/`, `lib/`, `tsconfig.json`, `eslint.config.mjs`, `vitest.config.ts`)
+- [x] Task 2: FastAPI Backend Scaffolding & Python Tooling (`backend/app/`, `pyproject.toml`, `requirements.txt`, `main.py`, `tests/test_health.py`)
+- [x] Task 3: Environment Variable Templates & Secrets Policy (`.env.example`, `backend/.env.example`, `SEC-02`)
+- [x] Task 4: Pre-Commit Enforcement & Canonical Local Verification Scripts (`scripts/verify.ps1`, `scripts/verify.sh`, `.githooks/pre-commit`, `docs/coding-standards.md`)
+- [x] Phase 2 Verification & Summary (`VERIFICATION.md`, `SUMMARY.md`)
 
 ---
 
 ## Immediate Next Actions
-Run `/gsd-execute-phase 2` to execute Phase 2.
+Run `/gsd-plan-phase 3` to plan Phase 3 (Core Data Model & Migrations).

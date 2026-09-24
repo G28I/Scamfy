@@ -7,11 +7,12 @@ export default defineConfig({
   test: {
     environment: "node",
     globals: true,
-    include: ["lib/**/*.test.ts", "lib/**/*.test.tsx"],
+    include: ["**/*.test.ts", "**/*.test.tsx"],
+    exclude: ["node_modules", "backend", ".next"],
   },
   resolve: {
     alias: {
-      "@": path.resolve(__dirname),
+      "@": path.resolve(__dirname, "./"),
     },
   },
 });
