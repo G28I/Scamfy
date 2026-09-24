@@ -67,6 +67,40 @@ graph LR
 | Abuse Vector | Target Feature | Preventive Control |
 | :--- | :--- | :--- |
 | **Defamation / Personal Vendettas** | Community Scam Reports | Indicators require minimum corroboration thresholds before public listing; names of private individuals are disallowed and flagged for moderation. |
-| **Malicious File Uploads (Web Shells/Executables)** | Case Evidence Upload | Server independently validates file signatures and magic bytes (file header inspection) regardless of the client-provided `Content-Type` header; restricts formats strictly to JPEG, PNG, WEBP, and PDF; enforces maximum file size (10MB); disables script execution and static asset serving in object storage. |
+| **Malicious File Uploads (Web Shells, Polyglots, Renamed Executables)** | Case Evidence Upload | Multi-stage ingestion pipeline: (1) Client-declared MIME types are discarded as untrusted; (2) Server performs deep magic-byte / file signature inspection and structure validation, rejecting polyglots and disguised binaries; (3) Pre-storage asynchronous malware scanning in quarantine before persistence; (4) Uploads restricted to strictly validated JPEG, PNG, WEBP, and PDF files (max 10MB); (5) Object storage enforces private-only buckets with execution disabled; (6) Files served strictly with `Content-Disposition: attachment`, `X-Content-Type-Options: nosniff`, and short-lived signed URLs to prevent inline browser execution. |
 | **Automated Sybil Reporting** | Community Reporting | Account age requirements, rate limiting per account, and moderator review queues for bulk submissions. |
+
+---
+
+## 4. Secure Evidence Ingestion Pipeline
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Victim as Authenticated User
+    participant API as FastAPI Backend
+    participant Scanner as Quarantine & Malware Scanner
+    participant Vault as Private S3/R2 Vault
+
+    Victim->>API: Upload File (Screenshot/PDF Receipt)
+    Note over API: Discard client Content-Type
+    API->>API: Magic-Byte & Header Signature Verification
+    alt Invalid Signature or Polyglot Detected
+        API-->>Victim: 400 Bad Request (Invalid File Signature)
+    else Valid Format (JPEG/PNG/WEBP/PDF <= 10MB)
+        API->>Scanner: Stage to Isolated Quarantine
+        Scanner->>Scanner: Deep Malware & Web-Shell Scan
+        alt Infection Detected
+            Scanner-->>API: Quarantine Alert
+            API-->>Victim: 422 Unprocessable Entity (Malicious File Rejected)
+        else Clean File
+            Scanner->>Vault: Persist with Random UUID Key
+            Vault-->>API: Object Key & ETag
+            API->>API: Record Metadata in PostgreSQL & Audit Log
+            API-->>Victim: 201 Created (Evidence Attached)
+        end
+    end
+
+    Note over Victim,Vault: Safe Retrieval: Short-lived Signed URL with Content-Disposition: attachment and nosniff
+```
 

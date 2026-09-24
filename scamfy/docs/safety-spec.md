@@ -70,3 +70,18 @@ For fraudulent transfers occurring beyond 24 hours or recurring unauthorized deb
 1. Provide guided instructions to contact the issuing bank's fraud and dispute department to flag unauthorized transactions, dispute charges, and block compromised credentials/cards.
 2. Guide formal complaint filing on **cybercrime.gov.in** with full transaction timelines and beneficiary account details.
 3. Organize evidence through the Victim Case Center for documentation and dispute support.
+
+---
+
+## 5. Evidence Handling & File Integrity Invariants
+
+1. **Independent Content-Signature Verification**:
+   - Declared client MIME types are discarded as untrusted.
+   - The backend enforces deep magic-byte and file signature inspection before acceptance, strictly rejecting polyglots, dual-extension tricks, and disguised executables.
+2. **Quarantine & Malware Scanning**:
+   - Uploaded files are staged into an isolated quarantine zone and scanned for malware and web shells before persistence to the private evidence vault.
+3. **Non-Executable Storage & Safe Serving**:
+   - Evidence object storage buckets have direct public access and script execution disabled.
+   - Files are retrieved exclusively via short-lived signed URLs with forced `Content-Disposition: attachment` and `X-Content-Type-Options: nosniff` headers to prevent browser-level script execution.
+4. **Metadata Privacy**:
+   - EXIF metadata (GPS coordinates, device serials) is scrubbed from uploaded images upon ingestion to protect victim physical safety.
