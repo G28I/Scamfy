@@ -18,15 +18,15 @@ No database models, tables, or product domain business logic were introduced, ke
 ## Key Deliverables Completed
 
 ### 1. Next.js Frontend Scaffolding & Strict TypeScript
-- **App Router Scaffolding**: Structured directory layout with `app/cases/`, `app/intel/`, `app/report/`, `components/ui/`, `components/shared/`, `lib/api/`, `lib/schemas/`, and `lib/utils.ts`.
+- **App Router Scaffolding**: Structured directory layout with `app/cases/page.tsx`, `app/intel/page.tsx`, `app/report/page.tsx`, `components/ui/button.tsx`, `components/shared/risk-badge.tsx`, `lib/api/client.ts`, `lib/schemas/index.ts`, and `lib/utils.ts`.
 - **Strict TypeScript**: Configured `tsconfig.json` with strict mode (`strict: true`, `noImplicitAny: true`, `noUncheckedIndexedAccess: true`, `@/*` alias).
-- **Linting & Testing**: Configured ESLint (`eslint.config.mjs`) and Vitest test runner (`vitest.config.ts`, `lib/test-sanity.test.ts`).
+- **Linting & Testing**: Configured ESLint (`eslint.config.mjs`) and Vitest test runner (`vitest.config.ts`, `lib/test-sanity.test.ts`) with npm scripts `typecheck` (`tsc --noEmit`), `lint` (`eslint .`), `test` (`vitest` watch mode), and `test:run` (`vitest run` CI mode).
 
 ### 2. FastAPI Backend Scaffolding & Python Tooling
 - **Modular Directory Layout**: Established `backend/app/api/v1/`, `backend/app/core/`, `backend/app/models/`, `backend/app/schemas/`, `backend/app/services/`, and `backend/tests/`.
 - **FastAPI Core & Error Sanitization (`SEC-03`)**: Created `backend/app/main.py` with CORS middleware, health endpoint `/api/v1/health`, and global exception handlers that mask internal provider errors and stack traces.
-- **Validated Config**: Configured `backend/app/core/config.py` using Pydantic `BaseSettings` for fail-fast environment validation.
-- **Python Quality Tooling**: Configured Ruff linter/formatter in `backend/pyproject.toml` and Pytest suite in `backend/tests/test_health.py`.
+- **Validated Config**: Configured `backend/app/core/config.py` using `pydantic-settings` (`BaseSettings`) for fail-fast environment validation.
+- **Python Quality Tooling**: Configured Ruff linter/formatter in `backend/pyproject.toml` and Pytest suite in `backend/tests/test_health.py` with dependencies in `backend/requirements.txt`.
 
 ### 3. Environment Variable Isolation (`SEC-02`)
 - **Templates Created**:
