@@ -7,35 +7,33 @@ Scamfy implements a strict least-privilege Role-Based Access Control (RBAC) mode
 ```mermaid
 graph TD
     User([Incoming User]) -->|No Token| Anon["anonymous (Public Visitor)"]
-    User -->|Clerk JWT| Auth["student_user (Student / Victim)"]
+    User -->|Clerk JWT| Auth["student_user (Authenticated Student / Victim)"]
     Auth -->|Org Membership| College["college_admin (Institutional Admin)"]
-    Auth -->|Staff Role Claim| Mod["moderator (Community Moderator)"]
-    Auth -->|Superadmin Claim| Admin["superadmin (System Admin)"]
+    Auth -->|Staff Claim| Mod["moderator (Moderator / System Admin)"]
 ```
 
 ### Canonical Role Identifiers
 - **`anonymous`**: Unauthenticated public visitors.
-- **`student_user`**: Authenticated individual users. *(Note: `verified_victim` is an incident-level verification capability/flag within a `student_user` account that unlocks dispute summaries, not a separate diverging RBAC role).*
+- **`student_user`**: Authenticated individual users (students, victims, community reporters).
 - **`college_admin`**: Institutional administrators with aggregate, privacy-safe visibility for their campus domain.
-- **`moderator`**: Platform moderators handling community report triage, deduplication, indicator vetting, and audit log inspection.
-- **`superadmin`**: System administrators with full platform control (route definitions, RBAC assignments, global configurations).
+- **`moderator`**: Platform moderators and administrators handling report triage, indicator vetting, route configuration, and audit log inspection.
 
 ---
 
 ## 2. Detailed Permission Matrix
 
-| Feature / Resource | `anonymous` | `student_user` | `college_admin` | `moderator` | `superadmin` |
-| :--- | :---: | :---: | :---: | :---: | :---: |
-| **Basic Scam Text Check** | ✅ Full Access | ✅ Full Access | ✅ Full Access | ✅ Full Access | ✅ Full Access |
-| **Emergency 1930 / Official Guide**| ✅ Full Access | ✅ Full Access | ✅ Full Access | ✅ Full Access | ✅ Full Access |
-| **Public Pattern Search** | ✅ Anonymized View | ✅ Anonymized View | ✅ Aggregate View | ✅ Full Access | ✅ Full Access |
-| **Submit Community Indicator** | ❌ Blocked | ✅ Create Only | ✅ Create Only | ✅ Create & Verify | ✅ Full CRUD |
-| **Create Victim Incident Case** | ❌ Blocked | ✅ Create & Manage Own | ❌ Blocked | ✅ Read (Assigned/Audit) | ✅ Full Access |
-| **Upload Private Case Evidence** | ❌ Blocked | ✅ Upload Own | ❌ Blocked | ❌ Blocked (Private) | ❌ Blocked (Private) |
-| **Generate Incident Export/Summary**| ❌ Blocked | ✅ Export Own | ❌ Blocked | ✅ Auditable Access | ✅ Full Access |
-| **Moderate Community Reports** | ❌ Blocked | ❌ Blocked | ❌ Blocked | ✅ Full (Merge/Hide/Approve)| ✅ Full CRUD |
-| **View Audit Logs (`audit_events`)**| ❌ Blocked | ❌ Blocked | ❌ Blocked | ✅ Read Only | ✅ Full Read |
-| **Manage Official Routes & Rules** | ❌ Blocked | ❌ Blocked | ❌ Blocked | ❌ Blocked | ✅ Full CRUD |
+| Feature / Resource | `anonymous` | `student_user` | `college_admin` | `moderator` |
+| :--- | :---: | :---: | :---: | :---: |
+| **Basic Scam Text Check** | ✅ Full Access | ✅ Full Access | ✅ Full Access | ✅ Full Access |
+| **Emergency 1930 / Official Guide**| ✅ Full Access | ✅ Full Access | ✅ Full Access | ✅ Full Access |
+| **Public Pattern Search** | ✅ Anonymized View | ✅ Anonymized View | ✅ Aggregate View | ✅ Full Access |
+| **Submit Community Indicator** | ❌ Blocked | ✅ Create Only | ✅ Create Only | ✅ Create, Verify & Manage |
+| **Create Victim Incident Case** | ❌ Blocked | ✅ Create & Manage Own | ❌ Blocked | ✅ Read (Assigned/Audit) |
+| **Upload Private Case Evidence** | ❌ Blocked | ✅ Upload Own | ❌ Blocked | ❌ Blocked (Private) |
+| **Generate Incident Export/Summary**| ❌ Blocked | ✅ Export Own | ❌ Blocked | ✅ Auditable Access |
+| **Moderate Community Reports** | ❌ Blocked | ❌ Blocked | ❌ Blocked | ✅ Full (Merge/Hide/Approve) |
+| **View Audit Logs (`audit_events`)**| ❌ Blocked | ❌ Blocked | ❌ Blocked | ✅ Full Read |
+| **Manage Official Routes & Rules** | ❌ Blocked | ❌ Blocked | ❌ Blocked | ✅ Full CRUD |
 
 ---
 

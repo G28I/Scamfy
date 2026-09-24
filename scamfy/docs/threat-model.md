@@ -19,8 +19,8 @@ graph LR
 - **Threat**: Attackers masquerading as official moderators, law enforcement representatives, or legitimate institutional admins to alter community patterns or access victim case data.
 - **Mitigation**:
   - Centralized Clerk JWT authentication on all privileged API endpoints.
-  - Granular, canonical Role-Based Access Control (RBAC): `anonymous`, `student_user`, `college_admin`, `moderator`, `superadmin`. (Victim status is a verified case-level capability granted to `student_user` rather than a separate role).
-  - Admin/Moderator claims validated server-side against cryptographic token metadata.
+  - Granular, canonical Role-Based Access Control (RBAC): `anonymous`, `student_user`, `college_admin`, `moderator`.
+  - Moderator / Administrator claims validated server-side against cryptographic Clerk token metadata.
 
 ### 2.2. Tampering
 - **Threat**: Tampering with submitted incident timelines, altering uploaded transaction screenshots, or modifying community scam indicator scores.
