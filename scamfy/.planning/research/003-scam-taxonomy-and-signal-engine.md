@@ -15,8 +15,8 @@
    - Unregulated 7-day loan apps deducting 40% processing fees upfront, demanding contacts/gallery permissions, and using coercive/blackmail recovery tactics.
 5. **Guaranteed-Return / Fake Investment Schemes**:
    - Promises of guaranteed fixed daily/monthly returns (e.g. "₹1,000 → 3.5% daily", "Double your money in 7 days"), fake trading dashboards, VIP Telegram stock/forex tip channels, Ponzi pyramid structures, and crypto trading pools.
-6. **Urgent Impersonation & Digital Arrest / Sextortion**:
-   - Fake police/customs/courier calls threatening arrest or legal action, fake parcel contraband claims, deepfake/video extortion, demanding immediate transfer to "verification/clearing accounts".
+6. **Urgent Impersonation & Digital Arrest**:
+   - Fake police/customs/courier/TRAI calls threatening arrest or legal action, fake parcel contraband claims, demanding immediate transfer to "verification/clearing accounts".
 7. **Marketplace & Advance Fee Fraud**:
    - OLX/marketplace QR code payment scams ("Scan to receive money"), fake advance delivery charges, fake buyer escrow demands.
 
