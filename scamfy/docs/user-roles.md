@@ -30,6 +30,7 @@ graph TD
 | **Submit Community Indicator** | ❌ Blocked | ✅ Create Only | ✅ Create Only | ✅ Create, Verify & Manage |
 | **Create Victim Incident Case** | ❌ Blocked | ✅ Create & Manage Own | ❌ Blocked | ✅ Read (Assigned/Audit) |
 | **Upload Private Case Evidence** | ❌ Blocked | ✅ Upload Own | ❌ Blocked | ❌ Blocked (Private) |
+| **Retrieve / View Private Evidence Files** | ❌ Blocked | ✅ Own Evidence Only | ❌ Blocked | ⚠️ Explicit User Support Grant Only |
 | **Generate Incident Export/Summary**| ❌ Blocked | ✅ Export Own | ❌ Blocked | ✅ Auditable Access |
 | **Moderate Community Reports** | ❌ Blocked | ❌ Blocked | ❌ Blocked | ✅ Full (Merge/Hide/Approve) |
 | **View Audit Logs (`audit_events`)**| ❌ Blocked | ❌ Blocked | ❌ Blocked | ✅ Full Read |

@@ -40,7 +40,7 @@ graph LR
 - **Mitigation**:
   - Strict separation of **Private Evidence Vault** and **Public Scam Intelligence**.
   - Public pattern indicators are anonymized and deduplicated into hashes / public tokens; victim narratives and attachments are never public.
-  - Private object files accessible exclusively via short-lived (max 15-minute) pre-signed URLs verified against user case ownership (`CASE-06`, `SEC-07`).
+  - Private object files accessible exclusively via short-lived (max 15-minute) pre-signed URLs issued only after server-side authorization verifies the caller is either the verified **case owner** or an authorized **moderator holding an active, unexpired, user-granted temporary support authorization** (`CASE-06`, `SEC-07`).
   - Strict PII redaction filters for analytics (`SEC-04`).
 
 ### 2.5. Denial of Service (DoS / Resource Exhaustion)
@@ -101,6 +101,6 @@ sequenceDiagram
         end
     end
 
-    Note over Victim,Vault: Safe Retrieval: Short-lived Signed URL with Content-Disposition: attachment and nosniff
+    Note over Victim,Vault: Safe Retrieval: Server validates caller is case owner OR holds active user support grant, then issues short-lived signed URL with Content-Disposition: attachment and nosniff
 ```
 
