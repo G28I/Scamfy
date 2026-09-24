@@ -3,7 +3,7 @@
 ## Current Status
 - **Current Milestone**: Milestone 0 (Foundation)
 - **Active Phase**: Phase 2 (Project Structure, GSD Setup & Coding Standards)
-- **Status**: Phase 1 Complete — Ready for Phase 2
+- **Status**: Phase 2 Plan Created — Ready for Execution
 - **Last Updated**: 2026-09-24
 
 ---
@@ -13,7 +13,7 @@
 | Phase | Title | Milestone | Status | Completed At |
 | :--- | :--- | :--- | :--- | :--- |
 | **01** | Product Definition, Safety Boundaries & Threat Model | Foundation | 🟢 **Complete** | 2026-09-24 |
-| **02** | Project Structure, GSD Setup & Coding Standards | Foundation | 🟡 **Ready to Plan** | — |
+| **02** | Project Structure, GSD Setup & Coding Standards | Foundation | 🟡 In Progress (Planned) | — |
 | **03** | Core Data Model & Migrations | Foundation | ⚪ Planned | — |
 | **04** | Design System & Interaction Primitives | Foundation | ⚪ Planned | — |
 | **05** | Scam Check Input & Analysis Slice | Slice 1 | ⚪ Planned | — |
@@ -28,15 +28,14 @@
 
 ---
 
-## Phase 1 Deliverables
-- [x] `docs/safety-spec.md` (Trust boundaries, legal posture, OOS invariants)
-- [x] `docs/threat-model.md` (STRIDE threat analysis & prompt injection defense)
-- [x] `docs/scam-taxonomy.md` (7 Core categories including honey-trap & guaranteed-return schemes)
-- [x] `docs/user-roles.md` (RBAC matrix & privacy fences)
-- [x] `.planning/phases/01-safety-and-threat-model/VERIFICATION.md`
+## Phase 2 Execution Checklist
+- [ ] Task 1: Repository Layout & Backend Directory Scaffolding (`backend/` app structure, `pyproject.toml`, `requirements.txt`)
+- [ ] Task 2: Environment Variable Templates & Secrets Policy (`.env.example`, `backend/.env.example`)
+- [ ] Task 3: Coding Standards & Definition of Done (`docs/coding-standards.md`)
+- [ ] Task 4: Frontend & Backend Tooling Verification
+- [ ] Phase 2 Verification & Summary (`.planning/phases/02-project-structure-and-standards/SUMMARY.md`)
 
 ---
 
 ## Immediate Next Actions
-1. Review and merge Pull Request #1 (`feat/phase-1-safety-foundation`).
-2. Plan Phase 2 (`/gsd-plan-phase 2`: Project Structure, GSD Setup & Coding Standards).
+Run `/gsd-execute-phase 2` to execute Phase 2.
