@@ -42,8 +42,10 @@ graph TD
 
 1. **Zero-Friction Anonymous Scam Check (`SEC-01`)**:
    - A student encountering an urgent suspicious message can paste and analyze it immediately without mandatory signup or email verification.
-2. **Private Evidence Isolation (`SEC-07`, `CASE-06`)**:
+2. **Private Evidence Isolation & Grant Expiry (`SEC-07`, `CASE-06`)**:
    - Evidence uploaded to a victim's case is bound to `user_id`. Even moderators cannot view private victim files unless the user explicitly grants temporary sharing/support authorization.
+   - Pre-signed URLs issued for moderator support access are dynamically bounded to `min(15_minutes, remaining_grant_duration)`.
+   - User revocation of the support grant immediately terminates access via server-side reauthorization on the download gateway.
 3. **Public Anonymity (`SEC-04`)**:
    - When an authenticated user reports a community indicator (e.g., a fraudulent Telegram handle or UPI ID), the public database records only the pattern metadata. The reporter's identity and personal financial accounts are never exposed.
 4. **Immutable Auditability (`SEC-06`)**:

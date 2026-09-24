@@ -40,7 +40,8 @@ graph LR
 - **Mitigation**:
   - Strict separation of **Private Evidence Vault** and **Public Scam Intelligence**.
   - Public pattern indicators are anonymized and deduplicated into hashes / public tokens; victim narratives and attachments are never public.
-  - Private object files accessible exclusively via short-lived (max 15-minute) pre-signed URLs issued only after server-side authorization verifies the caller is either the verified **case owner** or an authorized **moderator holding an active, unexpired, user-granted temporary support authorization** (`CASE-06`, `SEC-07`).
+  - Private object files accessible exclusively via short-lived pre-signed URLs issued only after server-side authorization verifies the caller is either the verified **case owner** or an authorized **moderator holding an active, unexpired, user-granted temporary support authorization** (`CASE-06`, `SEC-07`).
+  - **Grant-Bounded Expiry & Immediate Revocation**: Moderator pre-signed URL lifetimes are dynamically capped to `min(15_minutes, remaining_grant_duration)`. If the victim revokes support access, downloads are mediated through server-side reauthorization on the download gateway to ensure immediate termination of access without waiting for lingering URLs to expire.
   - Strict PII redaction filters for analytics (`SEC-04`).
 
 ### 2.5. Denial of Service (DoS / Resource Exhaustion)
@@ -64,8 +65,9 @@ graph LR
      - Deterministic rule evaluators (e.g., regex detection of upfront fees, QR code PIN prompts, APK download links) execute completely independently of the model. Hardcoded red flags cannot be overridden or diluted by model inference.
   4. **Pydantic Schema Output Enforcement (`AI-03`)**:
      - Model output must conform to strict Pydantic JSON schemas with typed enums (`risk_level`, `category_code`, `action_code`, `confidence_score`), eliminating unstructured free-form code execution.
-  5. **Post-Generation Allowlisting & Action Validation**:
+  5. **Post-Generation Allowlisting & Explanation Validation**:
      - **Controlled Action Matrix**: Action advice displayed to the user is rendered exclusively from a server-side allowlist of verified safety templates mapped to canonical `action_code` enums (e.g., `ACT_DO_NOT_PAY`, `ACT_CALL_1930`, `ACT_VERIFY_NBFC`, `ACT_BLOCK_CONTACT`). The user interface does not render unvalidated, arbitrary free-form action directives from the model.
+     - **Explanation Validation Against Aggregated Risk**: Model-derived explanation text is validated against the computed risk result before display. Explanations must conform to approved templates or pass assertion checks verifying that the text contains no contradictory claims (e.g., asserting an offer is safe or genuine when aggregated risk is HIGH, CRITICAL, or UNCERTAIN). In ambiguous cases bounded to `UNCERTAIN / CAUTION`, explanations are strictly constrained to pre-approved verification checklists.
      - **Echoed Content Sanitization**: Any model-generated explanation snippets are stripped of clickable URLs, HTML/script tags, and markdown redirects to prevent the model from echoing injected scam links or payloads back to the user.
   6. **Semantic Validation & Risk Aggregation Bounds (`DET-05`)**:
      - The Risk Aggregator evaluates model claims against available corroborating signals. When **no deterministic rule matches**, the model cannot unilaterally assign a "CRITICAL" risk without verifiable indicators, nor can it issue a "SAFE / VERIFIED" label on unverified financial offers. Uncorroborated submissions are bounded to "UNCERTAIN / CAUTION" with objective verification checklists.
