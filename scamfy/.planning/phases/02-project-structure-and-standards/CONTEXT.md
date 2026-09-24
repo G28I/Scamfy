@@ -1,22 +1,25 @@
 # Phase 2: Project Structure, GSD Setup & Coding Standards — Context
 
 ## Goal
-Establish the clean modular monolith workspace structure, backend FastAPI foundation, Next.js frontend structure, testing frameworks (Pytest & Vitest/Playwright), linting/formatting tools (Ruff, ESLint), environment variable policy, and Definition of Done standards.
+Establish the clean modular monolith workspace structure, Next.js frontend scaffolding with strict TypeScript, FastAPI backend scaffolding with Ruff/Pytest, environment variable policy, repository verification hooks, and the canonical Definition of Done standards.
 
 ## Scope & Deliverables
-1. **Unified Modular Directory Layout**:
-   - Establish clean directory separation between Next.js frontend (`app/`, `components/`, `lib/`), FastAPI backend (`backend/app/`, `backend/core/`, `backend/api/`, `backend/tests/`), and documentation (`docs/`, `.planning/`).
-2. **Backend Environment & Dependency Management**:
-   - Setup `backend/pyproject.toml` or `backend/requirements.txt` with FastAPI, Pydantic v2, SQLAlchemy, Uvicorn, SlowAPI, Pytest, HTTPX.
-   - Configure backend test harness with Pytest.
-3. **Frontend Build & Testing Tooling**:
-   - Verify Next.js App Router configuration, TypeScript strict mode, Tailwind CSS tokens.
-   - Configure Vitest / Playwright test harness for web flows.
-4. **Environment & Secrets Policy**:
+1. **Next.js Frontend Scaffolding & Strict TypeScript**:
+   - Establish App Router directories (`app/(public)/`, `app/(auth)/`, `app/cases/`, `app/intel/`, `app/report/`, `components/ui/`, `components/shared/`, `lib/api/`, `lib/schemas/`, `lib/utils/`).
+   - Configure strict TypeScript (`strict: true`, `noImplicitAny: true`, `noUncheckedIndexedAccess: true`).
+   - Configure ESLint, Prettier, and Vitest test runners with npm scripts.
+2. **FastAPI Backend Scaffolding & Python Tooling**:
+   - Scaffold backend structure (`backend/app/api/v1/`, `backend/app/core/`, `backend/app/models/`, `backend/app/schemas/`, `backend/app/services/`, `backend/tests/`).
+   - Setup `backend/requirements.txt` and `backend/pyproject.toml` (Ruff & Pytest).
+   - Create FastAPI application factory (`backend/app/main.py`) with sanitized global exception handling (`SEC-03`) and health check test.
+3. **Environment Isolation & Secrets Policy**:
    - Create `.env.example` templates for both frontend and backend.
-   - Document credential isolation rules (`SEC-02`, `SEC-03`).
-5. **Engineering Standards & Definition of Done (`docs/coding-standards.md`)**:
-   - Document coding conventions, commit conventions, architectural layering, and testing gates (`ENG-04`, `ENG-05`).
+   - Formalize secret boundaries ensuring zero private credentials enter client bundles (`SEC-02`).
+4. **Repository Verification Hooks & Engineering Standards**:
+   - Set up automated local CI verification script (`scripts/verify.ps1` / `scripts/verify.sh`).
+   - Author `docs/coding-standards.md` documenting final repository layout, architecture layers, commit standards, and Phase Definition of Done (`ENG-04`, `ENG-05`).
+5. **Scope Fences**:
+   - PostgreSQL schema models, database relationships, and Alembic migrations belong strictly to Phase 3 and are excluded from Phase 2.
 
 ## Linked Requirements
 - `ENG-04`: Documented verification trail and quality gates for every phase.
