@@ -38,6 +38,5 @@
 ---
 
 ## Immediate Next Actions
-1. Commit Phase 1 deliverables to `feat/phase-1-safety-foundation` and push to GitHub.
-2. Create GitHub Pull Request comparing `feat/phase-1-safety-foundation` ➔ `main`.
-3. Plan Phase 2 (`/gsd-plan-phase 2`).
+1. Review and merge Pull Request #1 (`feat/phase-1-safety-foundation`).
+2. Plan Phase 2 (`/gsd-plan-phase 2`: Project Structure, GSD Setup & Coding Standards).

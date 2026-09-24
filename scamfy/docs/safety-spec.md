@@ -52,13 +52,21 @@ Scamfy strictly enforces the following non-goals across product interfaces and b
 ### Universal Banner Copy
 Every scan result, report export, and case summary must include the standard disclaimer:
 
-> **Notice:** *Scamfy provides automated risk analysis and educational guidance based on detected patterns. It does not provide legal advice, financial advice, or official criminal determinations. If you have transferred money in an active scam, immediately dial **1930** or report to **cybercrime.gov.in**.*
+> **Notice:** *Scamfy provides automated risk analysis and educational guidance based on detected patterns. It does not provide legal advice, financial advice, or official criminal determinations. If you have transferred money in an active scam, immediately dial **1930**, contact your issuing bank's fraud desk to dispute the transaction and secure your account/cards, or report to **cybercrime.gov.in**.*
 
-### Emergency Golden-Hour Rule (1930 Priority)
+### Incident Response Guidance by Transfer Age
+
+#### 1. Emergency Golden-Hour Prioritization (< 24 Hours)
 When the user indicates that a financial transfer has occurred within the past 24 hours:
 1. Normal UI is superseded by the **Emergency Action Banner**.
-2. Direct action instructions are displayed immediately:
-   - **Call 1930** immediately to alert beneficiary banks.
+2. Immediate priority action instructions are displayed:
+   - **Call 1930** immediately to alert intermediary and beneficiary banks to freeze funds in transit.
    - Lodge an official complaint on **cybercrime.gov.in** with transaction UTR/RRN numbers.
-   - Inform the issuing bank's fraud desk to freeze the associated account/card.
-3. The platform transitions into **Evidence Preservation Mode** to collect screenshots, receipts, and timestamps.
+   - Inform the issuing bank's fraud desk to freeze/dispute the associated account, UPI handle, or card.
+3. The platform immediately transitions into **Evidence Preservation Mode** to collect screenshots, receipts, and timestamps before evidence is deleted by the fraudster.
+
+#### 2. Standard Incident & Account Protection (Any Age)
+For fraudulent transfers occurring beyond 24 hours or recurring unauthorized debits:
+1. Provide guided instructions to contact the issuing bank's fraud and dispute department to flag unauthorized transactions, dispute charges, and block compromised credentials/cards.
+2. Guide formal complaint filing on **cybercrime.gov.in** with full transaction timelines and beneficiary account details.
+3. Organize evidence through the Victim Case Center for documentation and dispute support.

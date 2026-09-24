@@ -19,7 +19,7 @@ graph LR
 - **Threat**: Attackers masquerading as official moderators, law enforcement representatives, or legitimate institutional admins to alter community patterns or access victim case data.
 - **Mitigation**:
   - Centralized Clerk JWT authentication on all privileged API endpoints.
-  - Granular Role-Based Access Control (RBAC): `anonymous`, `student_user`, `verified_victim`, `moderator`, `superadmin`.
+  - Granular, canonical Role-Based Access Control (RBAC): `anonymous`, `student_user`, `college_admin`, `moderator`, `superadmin`. (Victim status is a verified case-level capability granted to `student_user` rather than a separate role).
   - Admin/Moderator claims validated server-side against cryptographic token metadata.
 
 ### 2.2. Tampering
@@ -58,6 +58,7 @@ graph LR
   - **Defensive Boundary Architecture**: User-submitted text is treated strictly as untrusted data and wrapped in structural XML/JSON delimiters (e.g., `<user_submission>`).
   - **Deterministic Rule Precedence**: Hardcoded deterministic rules (e.g., upfront payment for job = RED FLAG) execute independently and cannot be overridden by model inference (`AI-01`).
   - **Pydantic Schema Output Enforcement**: Model responses must strictly adhere to typed JSON schema (`AI-03`). Free-form arbitrary model code execution is impossible.
+  - **Semantic Validation & Risk Aggregation**: Structural schema validation alone is insufficient to guarantee semantic safety. The backend Risk Aggregator semantically validates model-derived risk levels and recommendations against a bounded action matrix. When **no deterministic rule matches**, the model cannot unilaterally assign a "CRITICAL" risk without corroborated indicators, nor can it issue a "SAFE / VERIFIED" label on unverified financial requests. In the absence of definitive signals, the aggregator bounds the assessment to "UNCERTAIN / CAUTION" and enforces objective verification steps (`DET-05`).
 
 ---
 
@@ -66,5 +67,6 @@ graph LR
 | Abuse Vector | Target Feature | Preventive Control |
 | :--- | :--- | :--- |
 | **Defamation / Personal Vendettas** | Community Scam Reports | Indicators require minimum corroboration thresholds before public listing; names of private individuals are disallowed and flagged for moderation. |
-| **Malicious File Uploads (Web Shells/Executables)** | Case Evidence Upload | Strict MIME type validation (JPEG, PNG, WEBP, PDF only); maximum file size limit (10MB); direct execution disabled in object storage bucket. |
+| **Malicious File Uploads (Web Shells/Executables)** | Case Evidence Upload | Server independently validates file signatures and magic bytes (file header inspection) regardless of the client-provided `Content-Type` header; restricts formats strictly to JPEG, PNG, WEBP, and PDF; enforces maximum file size (10MB); disables script execution and static asset serving in object storage. |
 | **Automated Sybil Reporting** | Community Reporting | Account age requirements, rate limiting per account, and moderator review queues for bulk submissions. |
+

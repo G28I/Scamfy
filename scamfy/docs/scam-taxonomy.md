@@ -81,7 +81,7 @@ graph TD
 
 ---
 
-### Category 6: Urgent Impersonation & Digital Arrest / Sextortion (`CAT_IMPERSONATION_ARREST`)
+### Category 6: Urgent Impersonation & Digital Arrest (`CAT_IMPERSONATION_ARREST`)
 - **Description**: Scammers posing as police officers, CBI, Customs, TRAI, FedEx, or Supreme Court judges alleging illegal parcels (narcotics, fake passports) or cyber crimes, placing the victim under "digital arrest" via video call.
 - **Deterministic Red Flags**:
   - Demand to transfer funds to a "Secret Government Account" or "Verification Account" for asset clearance.
