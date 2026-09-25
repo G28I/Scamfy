@@ -47,7 +47,7 @@ class User(Base, UUIDMixin, TimestampMixin):
     scam_checks: Mapped[list["ScamCheck"]] = relationship(
         "ScamCheck",
         back_populates="user",
-        cascade="all, delete-orphan",
+        passive_deletes=True,
         lazy="selectin",
     )
 

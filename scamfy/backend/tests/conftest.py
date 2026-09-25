@@ -21,17 +21,6 @@ TEST_DATABASE_URL = os.getenv(
 @pytest_asyncio.fixture(scope="function")
 async def test_engine() -> AsyncGenerator[AsyncEngine, None]:
     """Function-scoped async PostgreSQL engine using NullPool for isolated, clean connection lifecycle."""
-    import asyncpg
-
-    try:
-        root_conn = await asyncpg.connect("postgresql://postgres:postgres@localhost:5432/postgres")
-        exists = await root_conn.fetchval("SELECT 1 FROM pg_database WHERE datname = 'scamfy_test'")
-        if not exists:
-            await root_conn.execute("CREATE DATABASE scamfy_test")
-        await root_conn.close()
-    except Exception:
-        pass
-
     engine = create_async_engine(
         TEST_DATABASE_URL,
         echo=False,

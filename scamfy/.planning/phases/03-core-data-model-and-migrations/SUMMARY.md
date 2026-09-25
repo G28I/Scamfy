@@ -26,11 +26,12 @@ No UI components, scoring heuristics, Nemotron AI inference clients, R2 storage 
 - **`ScamCheck` (`backend/app/models/scam_check.py`)**: Private/anonymous scam analysis records (`SEC-01`), `user_id` (nullable FK to `users.id`), `input_hash`, `overall_risk`, `primary_category`, `secondary_categories` (JSONB), `signals` (JSONB), `extracted_entities` (JSONB), `model_metadata` (JSONB `AI-04`), and `action_recommendations` (JSONB).
 - **`ScamPattern` (`backend/app/models/scam_pattern.py`)**: Normalized indicator database (`indicator_type`, `indicator_value` indexed, `category`, `risk_level`, `verification_status` indexed, `report_count`, `first_reported_at`, `last_reported_at`, `metadata_payload` JSONB).
 - **`CommunityReport` (`backend/app/models/community_report.py`)**: Authenticated community submission (`reporter_user_id` FK to `users.id`, non-nullable `REP-01`), `pattern_id` (nullable FK to `scam_patterns.id`), indicator attributes, narrative `description`, `status` (`PENDING`, `APPROVED`, `REJECTED`, `MERGED`), and `moderator_notes`.
-- **`VictimCase` (`backend/app/models/victim_case.py`)**: Private victim case record (`user_id` FK to `users.id`, non-nullable owner), `title`, `category`, `financial_loss_amount` (`Numeric(12, 2)`), `currency`, `status`, `official_complaint_ack_no`, and `support_grant_expires_at` (`SEC-07`).
+- **`VictimCase` (`backend/app/models/victim_case.py`)**: Private victim case record (`user_id` FK to `users.id`, non-nullable owner), `title`, `category`, `financial_loss_amount` (`Numeric(12, 2)`), `currency`, `status`, and `official_complaint_ack_no`.
 - **`CaseTimelineEvent` (`backend/app/models/victim_case.py`)**: Chronological event (`case_id` FK with cascade delete, `event_timestamp`, `event_type`, `description`, `amount`, `counterparty_identifier`).
 - **`CaseEvidence` (`backend/app/models/victim_case.py`)**: Private evidence file metadata (`case_id` FK with cascade delete, `file_key` unique indexed, `file_name`, `file_size_bytes`, `content_type`, `sha256_checksum`, `magic_signature_verified`).
+- **`CaseSupportGrant` (`backend/app/models/victim_case.py` — `SEC-07`)**: Explicit, time-bounded user authorization for moderator access (`case_id` FK with cascade delete, `granted_by_user_id` FK to `users.id`, `grantee_user_id` FK to `users.id`, `expires_at`, `revoked_at`, `rationale`).
 - **`AuditEvent` (`backend/app/models/audit_event.py` — `SEC-06`)**: Append-only security audit log (`actor_id`, `actor_role`, `action`, `target_resource_type`, `target_resource_id`, `details` JSONB without raw PII/secrets, `ip_address_hash`, `created_at`).
-- **Export Package**: `backend/app/models/__init__.py` exporting all 8 models and base classes.
+- **Export Package**: `backend/app/models/__init__.py` exporting all 9 models and base classes.
 
 ### 3. Alembic Async Migration Pipeline
 - Configured `backend/alembic.ini`, `backend/alembic/env.py`, and `backend/alembic/script.py.mako`.

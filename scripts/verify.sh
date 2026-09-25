@@ -30,15 +30,25 @@ echo -e "\n[3/5] Running Frontend Unit & Component Tests..."
 npm run test:run
 echo "✅ Frontend Tests Passed"
 
+# Select available Python executable
+if command -v python3 &>/dev/null; then
+    PYTHON_BIN="python3"
+elif command -v python &>/dev/null; then
+    PYTHON_BIN="python"
+else
+    echo "❌ Error: Neither python3 nor python executable found in PATH" >&2
+    exit 1
+fi
+
 # --- Gate 4: Backend Ruff Lint & Format Check ---
 echo -e "\n[4/5] Checking Backend Ruff Lint & Formatting..."
-python -m ruff check backend/
-python -m ruff format --check backend/
+"$PYTHON_BIN" -m ruff check backend/
+"$PYTHON_BIN" -m ruff format --check backend/
 echo "✅ Backend Ruff Lint & Format Passed"
 
 # --- Gate 5: Backend Pytest Suite ---
 echo -e "\n[5/5] Running Backend Pytest Suite..."
-python -m pytest backend/tests
+"$PYTHON_BIN" -m pytest backend/tests
 echo "✅ Backend Pytest Passed"
 
 echo "========================================"
