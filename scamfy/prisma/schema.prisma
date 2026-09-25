@@ -7,12 +7,65 @@ generator client {
   provider = "prisma-client-js"
 }
 
+// ==============================================================================
+// Prisma Enums for Controlled-Vocabulary Fields
+// ==============================================================================
+
+enum UserRole {
+  student_user
+  college_admin
+  moderator
+}
+
+enum RiskLevel {
+  SAFE
+  CAUTION
+  SUSPICIOUS
+  HIGH_RISK
+  CRITICAL
+}
+
+enum VerificationStatus {
+  UNVERIFIED
+  COMMUNITY_FLAGGED
+  MODERATOR_VERIFIED
+  DISMISSED
+}
+
+enum IndicatorType {
+  UPI_ID
+  PHONE
+  DOMAIN
+  HANDLE
+  BANK_ACC
+  SCRIPT
+}
+
+enum ReportStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  MERGED
+}
+
+enum CaseStatus {
+  DRAFT
+  OPEN
+  OFFICIAL_REPORTED
+  RESOLVED
+  ARCHIVED
+}
+
+// ==============================================================================
+// Domain Models (9 Core Entities)
+// ==============================================================================
+
 // 1. User profile mapping external Clerk authentication identity to internal Scamfy UUID
 model User {
   id            String   @id @default(uuid()) @db.Uuid
   clerkUserId   String   @unique @map("clerk_user_id") @db.VarChar(128)
   email         String?  @db.VarChar(255)
-  role          String   @default("student_user") @db.VarChar(32)
+  role          UserRole @default(student_user)
   collegeDomain String?  @map("college_domain") @db.VarChar(255)
   createdAt     DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt     DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
@@ -24,25 +77,24 @@ model User {
   grantedSupportGrants  CaseSupportGrant[] @relation("GrantedSupportGrants")
   receivedSupportGrants CaseSupportGrant[] @relation("ReceivedSupportGrants")
 
-  @@index([clerkUserId])
   @@index([email])
   @@map("users")
 }
 
 // 2. ScamCheck: Private / anonymous analysis records (SEC-01, AI-04)
 model ScamCheck {
-  id                    String   @id @default(uuid()) @db.Uuid
-  userId                String?  @map("user_id") @db.Uuid
-  inputHash             String   @map("input_hash") @db.VarChar(64)
-  overallRisk           String   @map("overall_risk") @db.VarChar(32)
-  primaryCategory       String   @map("primary_category") @db.VarChar(64)
-  secondaryCategories   Json     @default("[]") @map("secondary_categories")
-  signals               Json     @default("[]")
-  extractedEntities     Json     @default("{}") @map("extracted_entities")
-  modelMetadata         Json     @default("{}") @map("model_metadata")
-  actionRecommendations Json     @default("[]") @map("action_recommendations")
-  createdAt             DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt             DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+  id                    String    @id @default(uuid()) @db.Uuid
+  userId                String?   @map("user_id") @db.Uuid
+  inputHash             String    @map("input_hash") @db.VarChar(64)
+  overallRisk           RiskLevel @map("overall_risk")
+  primaryCategory       String    @map("primary_category") @db.VarChar(64)
+  secondaryCategories   Json      @default("[]") @map("secondary_categories")
+  signals               Json      @default("[]")
+  extractedEntities     Json      @default("{}") @map("extracted_entities")
+  modelMetadata         Json      @default("{}") @map("model_metadata")
+  actionRecommendations Json      @default("[]") @map("action_recommendations")
+  createdAt             DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt             DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
 
   // Relations
   user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
@@ -54,18 +106,19 @@ model ScamCheck {
 
 // 3. ScamPattern: Normalized scam indicator directory with composite uniqueness (REP-03)
 model ScamPattern {
-  id                 String   @id @default(uuid()) @db.Uuid
-  indicatorType      String   @map("indicator_type") @db.VarChar(32)
-  indicatorValue     String   @map("indicator_value") @db.VarChar(512)
-  category           String   @db.VarChar(64)
-  riskLevel          String   @default("HIGH") @map("risk_level") @db.VarChar(32)
-  verificationStatus String   @default("UNVERIFIED") @map("verification_status") @db.VarChar(32)
-  reportCount        Int      @default(1) @map("report_count")
-  firstReportedAt    DateTime @default(now()) @map("first_reported_at") @db.Timestamptz(6)
-  lastReportedAt     DateTime @default(now()) @updatedAt @map("last_reported_at") @db.Timestamptz(6)
-  metadataPayload    Json     @default("{}") @map("metadata_payload")
-  createdAt          DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt          DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+  id                 String             @id @default(uuid()) @db.Uuid
+  indicatorType      IndicatorType      @map("indicator_type")
+  indicatorValue     String             @map("indicator_value") @db.VarChar(512)
+  category           String             @db.VarChar(64)
+  riskLevel          RiskLevel          @default(HIGH_RISK) @map("risk_level")
+  verificationStatus VerificationStatus @default(UNVERIFIED) @map("verification_status")
+  reportCount        Int                @default(1) @map("report_count")
+  firstReportedAt    DateTime           @default(now()) @map("first_reported_at") @db.Timestamptz(6)
+  /// Represents timestamp of the most recent report or observation matching this indicator (not generic row metadata mutation)
+  lastReportedAt     DateTime           @default(now()) @map("last_reported_at") @db.Timestamptz(6)
+  metadataPayload    Json               @default("{}") @map("metadata_payload")
+  createdAt          DateTime           @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt          DateTime           @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
 
   // Relations
   communityReports CommunityReport[]
@@ -79,17 +132,17 @@ model ScamPattern {
 
 // 4. CommunityReport: Authenticated community indicator submissions (REP-01..03)
 model CommunityReport {
-  id             String       @id @default(uuid()) @db.Uuid
-  reporterUserId String       @map("reporter_user_id") @db.Uuid
-  patternId      String?      @map("pattern_id") @db.Uuid
-  indicatorType  String       @map("indicator_type") @db.VarChar(32)
-  indicatorValue String       @map("indicator_value") @db.VarChar(512)
-  category       String       @db.VarChar(64)
-  description    String       @db.Text
-  status         String       @default("PENDING") @db.VarChar(32)
-  moderatorNotes String?      @map("moderator_notes") @db.Text
-  createdAt      DateTime     @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt      DateTime     @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+  id             String        @id @default(uuid()) @db.Uuid
+  reporterUserId String        @map("reporter_user_id") @db.Uuid
+  patternId      String?       @map("pattern_id") @db.Uuid
+  indicatorType  IndicatorType @map("indicator_type")
+  indicatorValue String        @map("indicator_value") @db.VarChar(512)
+  category       String        @db.VarChar(64)
+  description    String        @db.Text
+  status         ReportStatus  @default(PENDING)
+  moderatorNotes String?       @map("moderator_notes") @db.Text
+  createdAt      DateTime      @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt      DateTime      @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
 
   // Relations
   reporter User         @relation(fields: [reporterUserId], references: [id], onDelete: Cascade)
@@ -104,16 +157,16 @@ model CommunityReport {
 
 // 5. VictimCase: Private incident case record (CASE-01..04, SEC-07)
 model VictimCase {
-  id                     String   @id @default(uuid()) @db.Uuid
-  userId                 String   @map("user_id") @db.Uuid
-  title                  String   @db.VarChar(255)
-  category               String   @db.VarChar(64)
-  financialLossAmount    Decimal? @map("financial_loss_amount") @db.Decimal(12, 2)
-  currency               String   @default("INR") @db.VarChar(3)
-  status                 String   @default("OPEN") @db.VarChar(32)
-  officialComplaintAckNo String?  @map("official_complaint_ack_no") @db.VarChar(64)
-  createdAt              DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt              DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+  id                     String     @id @default(uuid()) @db.Uuid
+  userId                 String     @map("user_id") @db.Uuid
+  title                  String     @db.VarChar(255)
+  category               String     @db.VarChar(64)
+  financialLossAmount    Decimal?   @map("financial_loss_amount") @db.Decimal(12, 2)
+  currency               String     @default("INR") @db.VarChar(3)
+  status                 CaseStatus @default(OPEN)
+  officialComplaintAckNo String?    @map("official_complaint_ack_no") @db.VarChar(64)
+  createdAt              DateTime   @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt              DateTime   @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
 
   // Relations
   user           User                @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -129,15 +182,15 @@ model VictimCase {
 
 // 6. CaseTimelineEvent: Chronological event in victim's incident timeline
 model CaseTimelineEvent {
-  id                     String     @id @default(uuid()) @db.Uuid
-  caseId                 String     @map("case_id") @db.Uuid
-  eventTimestamp         DateTime   @map("event_timestamp") @db.Timestamptz(6)
-  eventType              String     @map("event_type") @db.VarChar(64)
-  description            String     @db.Text
-  amount                 Decimal?   @db.Decimal(12, 2)
-  counterpartyIdentifier String?    @map("counterparty_identifier") @db.VarChar(255)
-  createdAt              DateTime   @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt              DateTime   @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+  id                     String   @id @default(uuid()) @db.Uuid
+  caseId                 String   @map("case_id") @db.Uuid
+  eventTimestamp         DateTime @map("event_timestamp") @db.Timestamptz(6)
+  eventType              String   @map("event_type") @db.VarChar(64)
+  description            String   @db.Text
+  amount                 Decimal? @db.Decimal(12, 2)
+  counterpartyIdentifier String?  @map("counterparty_identifier") @db.VarChar(255)
+  createdAt              DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt              DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
 
   // Relations
   case VictimCase @relation(fields: [caseId], references: [id], onDelete: Cascade)
@@ -148,36 +201,35 @@ model CaseTimelineEvent {
 
 // 7. CaseEvidence: Private evidence artifact attached to a victim case (CASE-03, SEC-07)
 model CaseEvidence {
-  id                     String     @id @default(uuid()) @db.Uuid
-  caseId                 String     @map("case_id") @db.Uuid
-  fileKey                String     @unique @map("file_key") @db.VarChar(512)
-  fileName               String     @map("file_name") @db.VarChar(255)
-  fileSizeBytes          BigInt     @map("file_size_bytes")
-  contentType            String     @map("content_type") @db.VarChar(128)
-  sha256Checksum         String     @map("sha256_checksum") @db.VarChar(64)
-  magicSignatureVerified Boolean    @default(false) @map("magic_signature_verified")
-  createdAt              DateTime   @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt              DateTime   @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+  id                     String   @id @default(uuid()) @db.Uuid
+  caseId                 String   @map("case_id") @db.Uuid
+  fileKey                String   @unique @map("file_key") @db.VarChar(512)
+  fileName               String   @map("file_name") @db.VarChar(255)
+  fileSizeBytes          BigInt   @map("file_size_bytes")
+  contentType            String   @map("content_type") @db.VarChar(128)
+  sha256Checksum         String   @map("sha256_checksum") @db.VarChar(64)
+  magicSignatureVerified Boolean  @default(false) @map("magic_signature_verified")
+  createdAt              DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt              DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
 
   // Relations
   case VictimCase @relation(fields: [caseId], references: [id], onDelete: Cascade)
 
   @@index([caseId])
-  @@index([fileKey])
   @@map("case_evidence")
 }
 
 // 8. CaseSupportGrant: Explicit, user-granted, time-bounded moderator authorization (SEC-07)
 model CaseSupportGrant {
-  id              String     @id @default(uuid()) @db.Uuid
-  caseId          String     @map("case_id") @db.Uuid
-  grantedByUserId String     @map("granted_by_user_id") @db.Uuid
-  granteeUserId   String     @map("grantee_user_id") @db.Uuid
-  expiresAt       DateTime   @map("expires_at") @db.Timestamptz(6)
-  revokedAt       DateTime?  @map("revoked_at") @db.Timestamptz(6)
-  rationale       String?    @db.VarChar(255)
-  createdAt       DateTime   @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt       DateTime   @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+  id              String    @id @default(uuid()) @db.Uuid
+  caseId          String    @map("case_id") @db.Uuid
+  grantedByUserId String    @map("granted_by_user_id") @db.Uuid
+  granteeUserId   String    @map("grantee_user_id") @db.Uuid
+  expiresAt       DateTime  @map("expires_at") @db.Timestamptz(6)
+  revokedAt       DateTime? @map("revoked_at") @db.Timestamptz(6)
+  rationale       String?   @db.VarChar(255)
+  createdAt       DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt       DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
 
   // Relations
   case         VictimCase @relation(fields: [caseId], references: [id], onDelete: Cascade)

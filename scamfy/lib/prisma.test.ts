@@ -129,7 +129,7 @@ describe('Prisma PostgreSQL Schema & Domain Integration Tests', () => {
           indicatorType: 'UPI_ID',
           indicatorValue: 'suspicious.mule@ybl',
           category: 'Duplicate Submission',
-          riskLevel: 'HIGH',
+          riskLevel: 'HIGH_RISK',
         },
       })
     ).rejects.toThrow(/Unique constraint failed/);

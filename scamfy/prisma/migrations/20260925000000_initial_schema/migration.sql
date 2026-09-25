@@ -1,9 +1,27 @@
+-- CreateEnum
+CREATE TYPE "UserRole" AS ENUM ('student_user', 'college_admin', 'moderator');
+
+-- CreateEnum
+CREATE TYPE "RiskLevel" AS ENUM ('SAFE', 'CAUTION', 'SUSPICIOUS', 'HIGH_RISK', 'CRITICAL');
+
+-- CreateEnum
+CREATE TYPE "VerificationStatus" AS ENUM ('UNVERIFIED', 'COMMUNITY_FLAGGED', 'MODERATOR_VERIFIED', 'DISMISSED');
+
+-- CreateEnum
+CREATE TYPE "IndicatorType" AS ENUM ('UPI_ID', 'PHONE', 'DOMAIN', 'HANDLE', 'BANK_ACC', 'SCRIPT');
+
+-- CreateEnum
+CREATE TYPE "ReportStatus" AS ENUM ('PENDING', 'APPROVED', 'REJECTED', 'MERGED');
+
+-- CreateEnum
+CREATE TYPE "CaseStatus" AS ENUM ('DRAFT', 'OPEN', 'OFFICIAL_REPORTED', 'RESOLVED', 'ARCHIVED');
+
 -- CreateTable
 CREATE TABLE "users" (
     "id" UUID NOT NULL,
     "clerk_user_id" VARCHAR(128) NOT NULL,
     "email" VARCHAR(255),
-    "role" VARCHAR(32) NOT NULL DEFAULT 'student_user',
+    "role" "UserRole" NOT NULL DEFAULT 'student_user',
     "college_domain" VARCHAR(255),
     "created_at" TIMESTAMPTZ(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMPTZ(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -16,7 +34,7 @@ CREATE TABLE "scam_checks" (
     "id" UUID NOT NULL,
     "user_id" UUID,
     "input_hash" VARCHAR(64) NOT NULL,
-    "overall_risk" VARCHAR(32) NOT NULL,
+    "overall_risk" "RiskLevel" NOT NULL,
     "primary_category" VARCHAR(64) NOT NULL,
     "secondary_categories" JSONB NOT NULL DEFAULT '[]',
     "signals" JSONB NOT NULL DEFAULT '[]',
@@ -32,11 +50,11 @@ CREATE TABLE "scam_checks" (
 -- CreateTable
 CREATE TABLE "scam_patterns" (
     "id" UUID NOT NULL,
-    "indicator_type" VARCHAR(32) NOT NULL,
+    "indicator_type" "IndicatorType" NOT NULL,
     "indicator_value" VARCHAR(512) NOT NULL,
     "category" VARCHAR(64) NOT NULL,
-    "risk_level" VARCHAR(32) NOT NULL DEFAULT 'HIGH',
-    "verification_status" VARCHAR(32) NOT NULL DEFAULT 'UNVERIFIED',
+    "risk_level" "RiskLevel" NOT NULL DEFAULT 'HIGH_RISK',
+    "verification_status" "VerificationStatus" NOT NULL DEFAULT 'UNVERIFIED',
     "report_count" INTEGER NOT NULL DEFAULT 1,
     "first_reported_at" TIMESTAMPTZ(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "last_reported_at" TIMESTAMPTZ(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -52,11 +70,11 @@ CREATE TABLE "community_reports" (
     "id" UUID NOT NULL,
     "reporter_user_id" UUID NOT NULL,
     "pattern_id" UUID,
-    "indicator_type" VARCHAR(32) NOT NULL,
+    "indicator_type" "IndicatorType" NOT NULL,
     "indicator_value" VARCHAR(512) NOT NULL,
     "category" VARCHAR(64) NOT NULL,
     "description" TEXT NOT NULL,
-    "status" VARCHAR(32) NOT NULL DEFAULT 'PENDING',
+    "status" "ReportStatus" NOT NULL DEFAULT 'PENDING',
     "moderator_notes" TEXT,
     "created_at" TIMESTAMPTZ(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMPTZ(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -72,7 +90,7 @@ CREATE TABLE "victim_cases" (
     "category" VARCHAR(64) NOT NULL,
     "financial_loss_amount" DECIMAL(12,2),
     "currency" VARCHAR(3) NOT NULL DEFAULT 'INR',
-    "status" VARCHAR(32) NOT NULL DEFAULT 'OPEN',
+    "status" "CaseStatus" NOT NULL DEFAULT 'OPEN',
     "official_complaint_ack_no" VARCHAR(64),
     "created_at" TIMESTAMPTZ(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMPTZ(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -145,9 +163,6 @@ CREATE TABLE "audit_events" (
 CREATE UNIQUE INDEX "users_clerk_user_id_key" ON "users"("clerk_user_id");
 
 -- CreateIndex
-CREATE INDEX "users_clerk_user_id_idx" ON "users"("clerk_user_id");
-
--- CreateIndex
 CREATE INDEX "users_email_idx" ON "users"("email");
 
 -- CreateIndex
@@ -197,9 +212,6 @@ CREATE UNIQUE INDEX "case_evidence_file_key_key" ON "case_evidence"("file_key");
 
 -- CreateIndex
 CREATE INDEX "case_evidence_case_id_idx" ON "case_evidence"("case_id");
-
--- CreateIndex
-CREATE INDEX "case_evidence_file_key_idx" ON "case_evidence"("file_key");
 
 -- CreateIndex
 CREATE INDEX "case_support_grants_case_id_idx" ON "case_support_grants"("case_id");
