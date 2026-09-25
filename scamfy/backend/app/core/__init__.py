@@ -1,0 +1,1 @@
+"""Scamfy Backend Core Module"""

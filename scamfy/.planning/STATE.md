@@ -2,8 +2,8 @@
 
 ## Current Status
 - **Current Milestone**: Milestone 0 (Foundation)
-- **Active Phase**: Phase 2 (Project Structure, GSD Setup & Coding Standards)
-- **Status**: Phase 1 Complete — Ready for Phase 2
+- **Active Phase**: Phase 3 (Core Data Model & Migrations)
+- **Status**: Phase 3 Planned — Ready for Execution
 - **Last Updated**: 2026-09-24
 
 ---
@@ -13,8 +13,8 @@
 | Phase | Title | Milestone | Status | Completed At |
 | :--- | :--- | :--- | :--- | :--- |
 | **01** | Product Definition, Safety Boundaries & Threat Model | Foundation | 🟢 **Complete** | 2026-09-24 |
-| **02** | Project Structure, GSD Setup & Coding Standards | Foundation | 🟡 **Ready to Plan** | — |
-| **03** | Core Data Model & Migrations | Foundation | ⚪ Planned | — |
+| **02** | Project Structure, GSD Setup & Coding Standards | Foundation | 🟢 **Complete** | 2026-09-24 |
+| **03** | Core Data Model & Migrations | Foundation | 🟡 In Progress (Planned) | — |
 | **04** | Design System & Interaction Primitives | Foundation | ⚪ Planned | — |
 | **05** | Scam Check Input & Analysis Slice | Slice 1 | ⚪ Planned | — |
 | **06** | Deterministic Risk Engine + Nemotron NIM | Slice 1 | ⚪ Planned | — |
@@ -28,15 +28,14 @@
 
 ---
 
-## Phase 1 Deliverables
-- [x] `docs/safety-spec.md` (Trust boundaries, legal posture, OOS invariants)
-- [x] `docs/threat-model.md` (STRIDE threat analysis & prompt injection defense)
-- [x] `docs/scam-taxonomy.md` (7 Core categories including honey-trap & guaranteed-return schemes)
-- [x] `docs/user-roles.md` (RBAC matrix & privacy fences)
-- [x] `.planning/phases/01-safety-and-threat-model/VERIFICATION.md`
+## Phase 3 Execution Checklist
+- [ ] Task 1: Database Engine, Async Session Management & Base Classes (`backend/app/core/database.py`, `backend/app/models/base.py`)
+- [ ] Task 2: SQLAlchemy 2.0 Declarative Domain Models (`user.py`, `scam_check.py`, `scam_pattern.py`, `community_report.py`, `victim_case.py`, `audit_event.py`)
+- [ ] Task 3: Alembic Migration Pipeline & Initial Migration (`backend/alembic/`, `0001_initial_schema.py`)
+- [ ] Task 4: Pytest Database Fixtures & Model Test Suite (`backend/tests/conftest.py`, `backend/tests/test_models.py`)
+- [ ] Phase 3 Verification & Summary (`VERIFICATION.md`, `SUMMARY.md`)
 
 ---
 
 ## Immediate Next Actions
-1. Review and merge Pull Request #1 (`feat/phase-1-safety-foundation`).
-2. Plan Phase 2 (`/gsd-plan-phase 2`: Project Structure, GSD Setup & Coding Standards).
+Run `/gsd-execute-phase 3` to execute Phase 3.

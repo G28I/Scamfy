@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+# ==============================================================================
+# Git Pre-Commit Hook for Scamfy
+# Invokes the canonical verification suite before allowing git commits
+# ==============================================================================
+
+set -euo pipefail
+
+ROOT_DIR="$(git rev-parse --show-toplevel)"
+
+echo "Running Scamfy pre-commit verification..."
+
+if command -v pwsh &> /dev/null; then
+    pwsh -File "${ROOT_DIR}/scripts/verify.ps1"
+elif command -v powershell &> /dev/null; then
+    powershell -File "${ROOT_DIR}/scripts/verify.ps1"
+elif [ -f "${ROOT_DIR}/scripts/verify.sh" ]; then
+    bash "${ROOT_DIR}/scripts/verify.sh"
+else
+    echo "Error: Verification runner not found. Ensure scripts/verify.ps1 or scripts/verify.sh exists." >&2
+    exit 1
+fi
