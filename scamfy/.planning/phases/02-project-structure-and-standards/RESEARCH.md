@@ -5,60 +5,61 @@
 To prevent circular dependencies and avoid premature microservices complexity while maintaining clean separation of concerns, the repository is structured as a **co-located modular monolith**:
 
 ```
-scamfy/
+scamfy/ (repository root)
 ├── .githooks/              # Git hooks (pre-commit verification enforcement)
-├── .planning/              # Canonical GSD planning & verification trail
-│   └── phases/
-│       ├── 01-safety-and-threat-model/
-│       └── 02-project-structure-and-standards/
-│           ├── CONTEXT.md
-│           ├── RESEARCH.md
-│           ├── PLAN.md
-│           ├── VERIFICATION.md
-│           └── SUMMARY.md
 ├── scripts/                # Canonical local CI & verification entry points
 │   ├── verify.ps1          # Windows PowerShell verification runner
 │   └── verify.sh           # POSIX Bash verification runner
-├── scamfy/                 # Application root
-│   ├── app/                # Next.js App Router (UI routes & pages)
-│   │   ├── cases/          # Victim Case Center view
-│   │   ├── intel/          # Public community scam patterns
-│   │   ├── report/         # Official reporting & 1930 guided flow
-│   │   ├── favicon.ico
-│   │   ├── globals.css
-│   │   ├── layout.tsx
-│   │   └── page.tsx
-│   ├── components/         # Reusable UI components
-│   │   ├── ui/             # Atomic UI primitives (Button)
-│   │   └── shared/         # Shared domain components (RiskBadge)
-│   ├── lib/                # Frontend utilities, API clients, Zod schemas
-│   │   ├── api/            # Typed fetch client (client.ts)
-│   │   ├── schemas/        # Zod validation schemas (index.ts)
-│   │   ├── test-sanity.test.ts # Vitest sanity & component test suite
-│   │   └── utils.ts        # Styling and class merging utilities
-│   ├── backend/            # FastAPI Application & Server-side Trust Boundary
-│   │   ├── app/
-│   │   │   ├── api/v1/     # Route endpoints (health.py)
-│   │   │   ├── core/       # Settings & config (config.py with pydantic-settings)
-│   │   │   ├── models/     # (Deferred to Phase 3) SQLAlchemy ORM database models
-│   │   │   ├── schemas/    # Pydantic v2 request/response schemas
-│   │   │   ├── services/   # Domain services (rules, nemotron, storage)
-│   │   │   └── main.py     # FastAPI app factory with SEC-03 error sanitization
-│   │   ├── tests/          # Pytest async test suite (test_health.py)
-│   │   ├── requirements.txt # Python dependencies (pydantic-settings, fastapi, etc.)
-│   │   ├── pyproject.toml  # Ruff linter/formatter & Pytest configuration
-│   │   └── .env.example    # Backend environment variable template
-│   ├── docs/               # Human and architectural documentation
-│   │   ├── coding-standards.md # Engineering standards & DoD
-│   │   ├── safety-spec.md
-│   │   ├── scam-taxonomy.md
-│   │   ├── threat-model.md
-│   │   └── user-roles.md
-│   ├── package.json        # Frontend Next.js scripts & dependencies
-│   ├── tsconfig.json       # Strict TypeScript compiler configuration
-│   ├── eslint.config.mjs   # ESLint flat configuration (ignoring backend/)
-│   ├── vitest.config.ts    # Vitest runner configuration
-│   └── .env.example        # Frontend environment variable template
+└── scamfy/                 # Application root
+    ├── .planning/          # Canonical GSD planning & verification trail
+    │   └── phases/
+    │       ├── 01-safety-and-threat-model/
+    │       ├── 02-project-structure-and-standards/
+    │       │   ├── CONTEXT.md
+    │       │   ├── RESEARCH.md
+    │       │   ├── PLAN.md
+    │       │   ├── VERIFICATION.md
+    │       │   └── SUMMARY.md
+    │       └── 03-core-data-model-and-migrations/
+    ├── app/                # Next.js App Router (UI routes & pages)
+    │   ├── cases/          # Victim Case Center view
+    │   ├── intel/          # Public community scam patterns
+    │   ├── report/         # Official reporting & 1930 guided flow
+    │   ├── favicon.ico
+    │   ├── globals.css
+    │   ├── layout.tsx
+    │   └── page.tsx
+    ├── components/         # Reusable UI components
+    │   ├── ui/             # Atomic UI primitives (Button)
+    │   └── shared/         # Shared domain components (RiskBadge)
+    ├── lib/                # Frontend utilities, API clients, Zod schemas
+    │   ├── api/            # Typed fetch client (client.ts)
+    │   ├── schemas/        # Zod validation schemas (index.ts)
+    │   ├── test-sanity.test.ts # Vitest sanity & component test suite
+    │   └── utils.ts        # Styling and class merging utilities
+    ├── backend/            # FastAPI Application & Server-side Trust Boundary
+    │   ├── app/
+    │   │   ├── api/v1/     # Route endpoints (health.py)
+    │   │   ├── core/       # Settings & config (config.py with pydantic-settings)
+    │   │   ├── models/     # (Deferred to Phase 3) SQLAlchemy ORM database models
+    │   │   ├── schemas/    # Pydantic v2 request/response schemas
+    │   │   ├── services/   # Domain services (rules, nemotron, storage)
+    │   │   └── main.py     # FastAPI app factory with SEC-03 error sanitization
+    │   ├── tests/          # Pytest async test suite (test_health.py)
+    │   ├── requirements.txt # Python dependencies (pydantic-settings, fastapi, etc.)
+    │   ├── pyproject.toml  # Ruff linter/formatter & Pytest configuration
+    │   └── .env.example    # Backend environment variable template
+    ├── docs/               # Human and architectural documentation
+    │   ├── coding-standards.md # Engineering standards & DoD
+    │   ├── safety-spec.md
+    │   ├── scam-taxonomy.md
+    │   ├── threat-model.md
+    │   └── user-roles.md
+    ├── package.json        # Frontend Next.js scripts & dependencies
+    ├── tsconfig.json       # Strict TypeScript compiler configuration
+    ├── eslint.config.mjs   # ESLint flat configuration (ignoring backend/)
+    ├── vitest.config.ts    # Vitest runner configuration
+    └── .env.example        # Frontend environment variable template
 ```
 
 ---

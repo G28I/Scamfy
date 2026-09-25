@@ -59,7 +59,7 @@ backend/tests/test_health.py .. [100%]
 | 2 | **Frontend Linting** | `npm run lint` | `PASS` | ESLint (Flat Config) configured for Next.js and TypeScript. Zero warnings or errors. |
 | 3 | **Frontend Unit Tests** | `npm run test:run` | `PASS` | Vitest test runner passed all unit tests (`lib/test-sanity.test.ts`). |
 | 4 | **Backend Lint & Format** | `ruff check backend/`<br>`ruff format --check backend/` | `PASS` | Python 3.12+ style rules enforced via Ruff; 7 backend files formatted cleanly with 0 lint errors. |
-| 5 | **Backend Pytest Suite** | `pytest backend/tests` | `PASS` | 2 unit tests passed validating `/api/v1/health` and global exception handler provider error masking (`SEC-03`). |
+| 5 | **Backend Pytest Suite** | `pytest backend/tests` | `PASS` | 2 unit tests passed validating `/api/v1/health` and global exception handler error sanitization (`SEC-03`). |
 | 6 | **Canonical Verification Scripts** | `scripts/verify.ps1`<br>`scripts/verify.sh` | `PASS` | Canonical entry point verified and ready for CI/CD and developer workflows. |
 | 7 | **Pre-commit Enforcement** | `.githooks/pre-commit` | `PASS` | Pre-commit hook template configured to run verification prior to commit. |
 | 8 | **Secrets Boundary** | `.env.example` audit | `PASS` | Frontend and backend `.env.example` templates created. No actual secret files tracked in git (`SEC-02`). |
@@ -69,5 +69,5 @@ backend/tests/test_health.py .. [100%]
 ## Scope & Compliance Verification
 
 - **Database Separation**: No database models, tables, PostgreSQL queries, or Alembic migrations were introduced in Phase 2. The database boundary is cleanly deferred to Phase 3.
-- **Error Sanitization (`SEC-03`)**: Verified that internal server errors return generic message masks (`"An internal error occurred. Please try again later."`) and structured error responses rather than leaking stack traces.
+- **Error Sanitization (`SEC-03`)**: Verified that internal server errors return generic message masks (`"An unexpected error occurred. Please try again or contact support."`) and structured error responses rather than leaking stack traces.
 - **Secrets Isolation (`SEC-02`)**: Verified frontend environment variables are restricted to `NEXT_PUBLIC_*` while private API keys (`NVIDIA_API_KEY`, `CLERK_SECRET_KEY`) remain strictly on the backend.

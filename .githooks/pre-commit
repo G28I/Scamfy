@@ -17,5 +17,6 @@ elif command -v powershell &> /dev/null; then
 elif [ -f "${ROOT_DIR}/scripts/verify.sh" ]; then
     bash "${ROOT_DIR}/scripts/verify.sh"
 else
-    echo "Warning: Verification runner not found. Ensure scripts/verify.ps1 exists."
+    echo "Error: Verification runner not found. Ensure scripts/verify.ps1 or scripts/verify.sh exists." >&2
+    exit 1
 fi

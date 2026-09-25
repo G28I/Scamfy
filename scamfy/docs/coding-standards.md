@@ -5,37 +5,38 @@
 Scamfy is structured as a **co-located modular monolith**, enforcing strict boundary separation between client-side user interfaces and server-side trust domains.
 
 ```
-scamfy/
-├── app/                    # Next.js App Router (UI routes & pages)
-│   ├── (auth)/             # Authentication views (Clerk)
-│   ├── (public)/           # Public landing & basic scam check
-│   ├── cases/              # Victim Case Center dashboard & timeline
-│   ├── intel/              # Public community scam pattern intelligence
-│   └── report/             # Official reporting & 1930 guided flows
-├── components/             # Reusable UI components (shadcn/ui + custom)
-│   ├── ui/                 # Atomic design primitives (Button, Modal, Card, Badge)
-│   └── shared/             # Domain components (RiskBanner, EvidenceUploader)
-├── lib/                    # Frontend utilities, API clients, Zod schemas
-│   ├── api/                # Typed fetch client to FastAPI backend
-│   └── schemas/            # Zod validation schemas
-├── backend/                # FastAPI Application & Server-Side Trust Boundary
-│   ├── app/
-│   │   ├── api/v1/         # Versioned route endpoints (health, check, cases, intel, report)
-│   │   ├── core/           # Config, security, sanitized exceptions
-│   │   ├── models/         # (Phase 3) SQLAlchemy ORM database models
-│   │   ├── schemas/        # Pydantic v2 request/response schemas
-│   │   └── services/       # Domain business logic (rules, nemotron, storage)
-│   ├── tests/              # Pytest test suite (unit, integration, contracts)
-│   ├── requirements.txt    # Python dependencies
-│   └── pyproject.toml      # Ruff/Pytest configuration
+scamfy/ (repository root)
+├── .githooks/              # Git pre-commit enforcement hooks
 ├── scripts/                # Canonical local CI & verification entry points
 │   ├── verify.ps1          # PowerShell verification runner
 │   └── verify.sh           # POSIX Bash verification runner
-├── .githooks/              # Git pre-commit enforcement hooks
-├── docs/                   # Human & recruiter-facing architectural specifications
-├── .planning/              # Canonical GSD planning & verification trail
-├── package.json            # Frontend Next.js scripts & dependencies
-└── .env.example            # Environment variable template
+└── scamfy/                 # Application workspace root
+    ├── app/                # Next.js App Router (UI routes & pages)
+    │   ├── (auth)/         # Authentication views (Clerk)
+    │   ├── (public)/       # Public landing & basic scam check
+    │   ├── cases/          # Victim Case Center dashboard & timeline
+    │   ├── intel/          # Public community scam pattern intelligence
+    │   └── report/         # Official reporting & 1930 guided flows
+    ├── components/         # Reusable UI components (shadcn/ui + custom)
+    │   ├── ui/             # Atomic design primitives (Button, Modal, Card, Badge)
+    │   └── shared/         # Domain components (RiskBanner, EvidenceUploader)
+    ├── lib/                # Frontend utilities, API clients, Zod schemas
+    │   ├── api/            # Typed fetch client to FastAPI backend
+    │   └── schemas/        # Zod validation schemas
+    ├── backend/            # FastAPI Application & Server-Side Trust Boundary
+    │   ├── app/
+    │   │   ├── api/v1/     # Versioned route endpoints (health, check, cases, intel, report)
+    │   │   ├── core/       # Config, security, sanitized exceptions
+    │   │   ├── models/     # (Phase 3) SQLAlchemy ORM database models
+    │   │   ├── schemas/    # Pydantic v2 request/response schemas
+    │   │   └── services/   # Domain business logic (rules, nemotron, storage)
+    │   ├── tests/          # Pytest test suite (unit, integration, contracts)
+    │   ├── requirements.txt # Python dependencies
+    │   └── pyproject.toml  # Ruff/Pytest configuration
+    ├── docs/               # Human & recruiter-facing architectural specifications
+    ├── .planning/          # Canonical GSD planning & verification trail
+    ├── package.json        # Frontend Next.js scripts & dependencies
+    └── .env.example        # Environment variable template
 ```
 
 ---
@@ -85,16 +86,16 @@ All commits follow the **Conventional Commits** format:
 
 ## 5. Canonical Local Verification & Pre-Commit Hooks
 
-The repository provides two canonical local verification runners:
-- **Windows**: `powershell -File scripts/verify.ps1`
+The repository provides two canonical local verification runners, executed from the **repository root**:
+- **Windows**: `powershell -ExecutionPolicy Bypass -File scripts/verify.ps1`
 - **POSIX**: `bash scripts/verify.sh`
 
 ### Git Pre-Commit Hook Configuration
-To enable the pre-commit gate locally:
-```powershell
+To enable the pre-commit gate locally from the repository root:
+```bash
 git config core.hooksPath .githooks
 ```
-Once configured, git automatically runs `scripts/verify.ps1` before every commit, blocking non-compliant code from entering git history.
+Once configured, git automatically runs `scripts/verify.ps1` (or `scripts/verify.sh` on POSIX) before every commit, blocking non-compliant code from entering git history.
 
 ---
 

@@ -20,15 +20,6 @@ def create_application() -> FastAPI:
         redoc_url=f"{settings.API_V1_STR}/redoc",
     )
 
-    # Configure CORS
-    app.add_middleware(
-        CORSMiddleware,
-        allow_origins=settings.CORS_ORIGINS,
-        allow_credentials=True,
-        allow_methods=["*"],
-        allow_headers=["*"],
-    )
-
     # Global sanitized exception handler (SEC-03: Never leak internal traces/exceptions)
     @app.exception_handler(Exception)
     async def global_exception_handler(request: Request, exc: Exception) -> JSONResponse:
@@ -48,4 +39,11 @@ def create_application() -> FastAPI:
     return app
 
 
-app = create_application()
+# Wrap complete ASGI application with CORSMiddleware so all responses (including 500s) include CORS headers
+app = CORSMiddleware(
+    create_application(),
+    allow_origins=settings.CORS_ORIGINS,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
