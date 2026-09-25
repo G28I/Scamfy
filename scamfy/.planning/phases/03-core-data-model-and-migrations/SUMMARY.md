@@ -1,4 +1,4 @@
-# Phase 3 Summary: Core Data Model & Migrations
+# Phase 3 Summary: Core Data Model & Migrations (Prisma on PostgreSQL)
 
 - **Phase**: 03
 - **Milestone**: 0 (Foundation)
@@ -9,37 +9,41 @@
 
 ## Executive Summary
 
-Phase 3 delivered the asynchronous PostgreSQL relational foundation for Scamfy using SQLAlchemy 2.0 declarative models and Alembic async migrations. It established the 8 core domain models, explicit Clerk authentication identity boundaries (`users.id` vs `users.clerk_user_id`), structural privacy chains for victim cases and evidence files (`users` -> `victim_cases` -> `case_evidence`), clear privacy separation between private/anonymous scam checks and public community reports, an append-only audit logging architecture (`audit_events` `SEC-06`), and a comprehensive Pytest test suite verified against live PostgreSQL.
+Phase 3 delivered the authoritative relational database foundation for Scamfy using **Prisma ORM** (`@prisma/client`, `prisma` v6.19.3) against PostgreSQL (`localhost:5432`), operating in alignment with **ADR 0001** (`docs/adr/0001-prisma-domain-persistence-and-fastapi-ai-boundary.md`). It established all 8 core domain models + `CaseSupportGrant`, explicit Clerk authentication identity boundaries (`users.id` vs `users.clerk_user_id`), structural privacy chains for victim cases and evidence files (`users` -> `victim_cases` -> `case_evidence`), clear privacy separation between private/anonymous scam checks and public community reports, an append-only audit logging architecture (`audit_events` `SEC-06`) enforced by both Prisma client runtime extensions and PostgreSQL triggers (`trg_audit_events_prevent_mutation`), composite indicator deduplication (`REP-03`), and a comprehensive Vitest PostgreSQL integration test suite.
 
-No UI components, scoring heuristics, Nemotron AI inference clients, R2 storage upload clients, or 1930 official gateway integrations were implemented, keeping Phase 3 strictly scoped to data models, migrations, and database session testing.
+FastAPI is strictly maintained as a stateless AI/NLP service boundary for Nemotron 70B and regex heuristics, with zero direct domain database persistence or mutation authority.
 
 ---
 
 ## Key Deliverables Completed
 
-### 1. Asynchronous Database Engine & Base Infrastructure
-- **Engine & Session Factory**: Created `backend/app/core/database.py` with `create_async_engine` (`postgresql+asyncpg://`), `async_sessionmaker[AsyncSession]`, and the `get_db()` FastAPI session dependency.
-- **Declarative Base & Mixins**: Created `backend/app/models/base.py` defining `Base(DeclarativeBase)`, `UUIDMixin` (UUIDv4 primary keys), and `TimestampMixin` (`created_at`, `updated_at` with timezone awareness).
+### 1. Prisma ORM Infrastructure & Architecture Decision
+- **ADR 0001**: Authored and committed `docs/adr/0001-prisma-domain-persistence-and-fastapi-ai-boundary.md` establishing Prisma in Next.js Server/BFF as the sole database ORM and migration authority.
+- **Singleton Client & Append-Only Extension**: Authored `scamfy/lib/prisma.ts` with global hot-reload development guards and an append-only runtime extension blocking `update` and `delete` operations on `auditEvent`.
+- **Environment Configuration**: Configured `DATABASE_URL` in `scamfy/.env` and `scamfy/.env.example`.
 
-### 2. SQLAlchemy 2.0 Declarative Domain Models
-- **`User` (`backend/app/models/user.py`)**: Internal `id` (UUID PK), external `clerk_user_id` (unique indexed string), `email`, `role` (`student_user`, `college_admin`, `moderator`), and `college_domain`.
-- **`ScamCheck` (`backend/app/models/scam_check.py`)**: Private/anonymous scam analysis records (`SEC-01`), `user_id` (nullable FK to `users.id`), `input_hash`, `overall_risk`, `primary_category`, `secondary_categories` (JSONB), `signals` (JSONB), `extracted_entities` (JSONB), `model_metadata` (JSONB `AI-04`), and `action_recommendations` (JSONB).
-- **`ScamPattern` (`backend/app/models/scam_pattern.py`)**: Normalized indicator database (`indicator_type`, `indicator_value` indexed, `category`, `risk_level`, `verification_status` indexed, `report_count`, `first_reported_at`, `last_reported_at`, `metadata_payload` JSONB).
-- **`CommunityReport` (`backend/app/models/community_report.py`)**: Authenticated community submission (`reporter_user_id` FK to `users.id`, non-nullable `REP-01`), `pattern_id` (nullable FK to `scam_patterns.id`), indicator attributes, narrative `description`, `status` (`PENDING`, `APPROVED`, `REJECTED`, `MERGED`), and `moderator_notes`.
-- **`VictimCase` (`backend/app/models/victim_case.py`)**: Private victim case record (`user_id` FK to `users.id`, non-nullable owner), `title`, `category`, `financial_loss_amount` (`Numeric(12, 2)`), `currency`, `status`, and `official_complaint_ack_no`.
-- **`CaseTimelineEvent` (`backend/app/models/victim_case.py`)**: Chronological event (`case_id` FK with cascade delete, `event_timestamp`, `event_type`, `description`, `amount`, `counterparty_identifier`).
-- **`CaseEvidence` (`backend/app/models/victim_case.py`)**: Private evidence file metadata (`case_id` FK with cascade delete, `file_key` unique indexed, `file_name`, `file_size_bytes`, `content_type`, `sha256_checksum`, `magic_signature_verified`).
-- **`CaseSupportGrant` (`backend/app/models/victim_case.py` — `SEC-07`)**: Explicit, time-bounded user authorization for moderator access (`case_id` FK with cascade delete, `granted_by_user_id` FK to `users.id`, `grantee_user_id` FK to `users.id`, `expires_at`, `revoked_at`, `rationale`).
-- **`AuditEvent` (`backend/app/models/audit_event.py` — `SEC-06`)**: Append-only security audit log (`actor_id`, `actor_role`, `action`, `target_resource_type`, `target_resource_id`, `details` JSONB without raw PII/secrets, `ip_address_hash`, `created_at`).
-- **Export Package**: `backend/app/models/__init__.py` exporting all 9 models and base classes.
+### 2. Prisma Relational Domain Models (`prisma/schema.prisma`)
+- **`User` (`users`)**: Internal `id` (UUID PK `@default(uuid())`), external `clerkUserId` (unique indexed string), `email`, `role` (`UserRole` enum), and `collegeDomain`.
+- **`ScamCheck` (`scam_checks`)**: Private/anonymous scam analysis records (`SEC-01`), `userId` (nullable FK to `users.id`), `inputHash`, `overallRisk` (`RiskLevel` enum), `primaryCategory`, `secondaryCategories` (JSONB), `signals` (JSONB), `extractedEntities` (JSONB), `modelMetadata` (JSONB `AI-04`), and `actionRecommendations` (JSONB).
+- **`ScamPattern` (`scam_patterns`)**: Normalized indicator database (`indicatorType`, `indicatorValue`, `category`, `riskLevel`, `verificationStatus` enum, `reportCount`, `firstReportedAt`, `lastReportedAt`, `metadataPayload` JSONB) with composite unique constraint `@@unique([indicatorType, indicatorValue])` (`REP-03`).
+- **`CommunityReport` (`community_reports`)**: Authenticated community submission (`reporterUserId` non-nullable FK to `users.id` `REP-01`), `patternId` (nullable FK to `scam_patterns.id`), indicator attributes, narrative `description`, `status` (`ReportStatus` enum), and `moderatorNotes`.
+- **`VictimCase` (`victim_cases`)**: Private victim case record (`userId` non-nullable FK to `users.id`), `title`, `category`, `financialLossAmount` (`Decimal(12, 2)`), `currency`, `status` (`CaseStatus` enum), and `officialComplaintAckNo`.
+- **`CaseTimelineEvent` (`case_timeline_events`)**: Chronological event (`caseId` FK with cascade delete, `eventTimestamp`, `eventType`, `description`, `amount`, `counterpartyIdentifier`).
+- **`CaseEvidence` (`case_evidence`)**: Private evidence file metadata (`caseId` FK with cascade delete, `fileKey` unique indexed, `fileName`, `fileSizeBytes` BigInt, `contentType`, `sha256Checksum`, `magicSignatureVerified`).
+- **`CaseSupportGrant` (`case_support_grants` — `SEC-07`)**: Explicit, time-bounded user authorization for moderator access (`caseId` FK with cascade delete, `grantedByUserId` FK to `users.id`, `granteeUserId` FK to `users.id`, `expiresAt`, `revokedAt`, `rationale`).
+- **`AuditEvent` (`audit_events` — `SEC-06`)**: Append-only security audit log (`actorId`, `actorRole`, `action`, `targetResourceType`, `targetResourceId`, `details` JSONB without raw PII/secrets, `ipAddressHash`, `createdAt`).
 
-### 3. Alembic Async Migration Pipeline
-- Configured `backend/alembic.ini`, `backend/alembic/env.py`, and `backend/alembic/script.py.mako`.
-- Authored baseline migration `0001_initial_schema.py` creating all 8 tables, indexes, unique constraints, and foreign key cascades with bidirectional `upgrade()` and `downgrade()`.
+### 3. Baseline Migration & PostgreSQL Append-Only Trigger
+- Generated migration `prisma/migrations/20260925000000_initial_schema/migration.sql` with full DDL, indexes, foreign keys, and PostgreSQL trigger function `prevent_audit_events_mutation()` bound as `trg_audit_events_prevent_mutation` on `audit_events`.
+- Applied migration to live PostgreSQL database via `prisma migrate deploy`.
 
-### 4. PostgreSQL Test Fixtures & Comprehensive Test Suite
-- Configured `backend/tests/conftest.py` with function-scoped async engine (`NullPool`) against local PostgreSQL test database (`scamfy_test`).
-- Authored `backend/tests/test_models.py` with 7 comprehensive test cases (9 total backend tests) validating model CRUD, unique constraints, JSONB payloads, cascade deletes, traversal ownership chains, append-only audit trail & ORM guardrails, PostgreSQL trigger database-boundary mutation blocking (direct SQL UPDATE and DELETE rejection), and live Alembic upgrade/downgrade cycles.
+### 4. Integration Test Suite & CI Validation
+- Authored `scamfy/lib/prisma.test.ts` containing 5 comprehensive integration tests verifying:
+  1. `User` creation, role defaults, and unique `clerkUserId` rejection (`Prisma.PrismaClientKnownRequestError` `P2002`).
+  2. `ScamCheck` creation for anonymous and authenticated users with structured JSON signals.
+  3. `ScamPattern` composite uniqueness on `(indicator_type, indicator_value)` (`REP-03`).
+  4. `User` -> `VictimCase` -> `CaseEvidence`, `CaseTimelineEvent`, & `CaseSupportGrant` ownership chain and cascade deletions (`SEC-07`).
+  5. `AuditEvent` append-only enforcement at both Prisma Client extension and PostgreSQL trigger boundaries (`SEC-06`).
 
 ---
 
@@ -48,9 +52,9 @@ No UI components, scoring heuristics, Nemotron AI inference clients, R2 storage 
 All 5 canonical gates pass with zero errors:
 1. `npm run typecheck` — 0 errors
 2. `npm run lint` — 0 warnings, 0 errors
-3. `npm run test:run` — 3/3 tests passed
+3. `npm run test:run` — 8/8 tests passed (including PostgreSQL Prisma integration tests)
 4. `ruff check backend/` & `ruff format --check backend/` — 20 files clean
-5. `pytest backend/tests` — 9/9 tests passed against PostgreSQL
+5. `pytest backend/tests` — 9/9 tests passed in backend boundary
 
 See [VERIFICATION.md](./VERIFICATION.md) for full gate execution output.
 
@@ -58,5 +62,6 @@ See [VERIFICATION.md](./VERIFICATION.md) for full gate execution output.
 
 ## Next Steps
 
-With the core relational data models, migrations, and database infrastructure verified against PostgreSQL, Milestone 0 proceeds to:
+With the Prisma ORM domain schema, database migrations, triggers, and integration test suite fully verified against PostgreSQL, Milestone 0 proceeds to:
 - **Phase 4: Design System & Interaction Primitives** (`/gsd-plan-phase 4`).
+
