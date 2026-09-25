@@ -18,8 +18,9 @@ config = context.config
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
-# Set the database URL dynamically from backend settings if not already provided
-if not config.get_main_option("sqlalchemy.url"):
+# Set the database URL dynamically from backend settings if not already explicitly provided via CLI/config
+custom_url = config.get_main_option("sqlalchemy.url")
+if not custom_url or not custom_url.strip():
     config.set_main_option("sqlalchemy.url", settings.DATABASE_URL)
 
 # add your model's MetaData object here

@@ -4,12 +4,18 @@ from backend.app.models.community_report import CommunityReport
 from backend.app.models.scam_check import ScamCheck
 from backend.app.models.scam_pattern import ScamPattern
 from backend.app.models.user import User
-from backend.app.models.victim_case import CaseEvidence, CaseTimelineEvent, VictimCase
+from backend.app.models.victim_case import (
+    CaseEvidence,
+    CaseSupportGrant,
+    CaseTimelineEvent,
+    VictimCase,
+)
 
 __all__ = [
     "AuditEvent",
     "Base",
     "CaseEvidence",
+    "CaseSupportGrant",
     "CaseTimelineEvent",
     "CommunityReport",
     "ScamCheck",

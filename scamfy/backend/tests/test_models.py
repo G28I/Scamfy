@@ -8,7 +8,12 @@ from backend.app.models.community_report import CommunityReport
 from backend.app.models.scam_check import ScamCheck
 from backend.app.models.scam_pattern import ScamPattern
 from backend.app.models.user import User
-from backend.app.models.victim_case import CaseEvidence, CaseTimelineEvent, VictimCase
+from backend.app.models.victim_case import (
+    CaseEvidence,
+    CaseSupportGrant,
+    CaseTimelineEvent,
+    VictimCase,
+)
 from sqlalchemy import select, text
 from sqlalchemy.exc import DBAPIError, IntegrityError
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession
@@ -163,12 +168,28 @@ async def test_scam_pattern_and_community_report_lifecycle(db_session: AsyncSess
     assert len(fetched_pattern.community_reports) == 1
     assert fetched_pattern.community_reports[0].indicator_value == "suspicious.mule@ybl"
 
+    # REP-03: Test composite uniqueness constraint on (indicator_type, indicator_value)
+    duplicate_pattern = ScamPattern(
+        indicator_type="UPI_ID",
+        indicator_value="suspicious.mule@ybl",
+        category="Duplicate Indicator Test",
+        risk_level="HIGH",
+        verification_status="UNVERIFIED",
+        report_count=1,
+    )
+    db_session.add(duplicate_pattern)
+    with pytest.raises(IntegrityError):
+        await db_session.flush()
+
+    await db_session.rollback()
+
 
 @pytest.mark.asyncio
 async def test_victim_case_evidence_privacy_chain_and_cascades(db_session: AsyncSession) -> None:
-    """Test User -> VictimCase -> CaseEvidence & CaseTimelineEvent structural ownership chain and cascading deletes."""
+    """Test User -> VictimCase -> CaseEvidence, Timeline, & CaseSupportGrant structural ownership chain and cascading deletes."""
     victim = User(clerk_user_id="user_victim_999", role="student_user")
-    db_session.add(victim)
+    moderator = User(clerk_user_id="user_moderator_777", role="moderator")
+    db_session.add_all([victim, moderator])
     await db_session.flush()
 
     # Create victim incident case
@@ -180,7 +201,6 @@ async def test_victim_case_evidence_privacy_chain_and_cascades(db_session: Async
         currency="INR",
         status="OPEN",
         official_complaint_ack_no="ACK-1930-2026-987654",
-        support_grant_expires_at=datetime.now(UTC),
     )
     db_session.add(case)
     await db_session.flush()
@@ -207,9 +227,20 @@ async def test_victim_case_evidence_privacy_chain_and_cascades(db_session: Async
         magic_signature_verified=True,
     )
     db_session.add(evidence)
+
+    # SEC-07: Explicit, user-granted, time-bounded moderator authorization grant
+    grant = CaseSupportGrant(
+        case_id=case.id,
+        granted_by_user_id=victim.id,
+        grantee_user_id=moderator.id,
+        expires_at=datetime.now(UTC),
+        revoked_at=None,
+        rationale="Assistance with 1930 official report submission",
+    )
+    db_session.add(grant)
     await db_session.flush()
 
-    # Verify traversal ownership chain (User -> Case -> Evidence)
+    # Verify traversal ownership chain (User -> Case -> Evidence & Support Grant)
     case_query = select(VictimCase).where(VictimCase.id == case.id)
     case_result = await db_session.execute(case_query)
     fetched_case = case_result.scalar_one()
@@ -217,12 +248,22 @@ async def test_victim_case_evidence_privacy_chain_and_cascades(db_session: Async
     assert fetched_case.user_id == victim.id
     assert len(fetched_case.timeline_events) == 1
     assert len(fetched_case.evidence_files) == 1
+    assert len(fetched_case.support_grants) == 1
     assert fetched_case.evidence_files[0].magic_signature_verified is True
     assert fetched_case.evidence_files[0].sha256_checksum.startswith("ba7816")
+    assert fetched_case.support_grants[0].grantee_user_id == moderator.id
+    assert fetched_case.support_grants[0].granted_by_user_id == victim.id
+    assert fetched_case.support_grants[0].revoked_at is None
 
-    # Verify Cascade Delete: deleting the case cascades to timeline events and evidence
+    # Test explicit revocation
+    fetched_case.support_grants[0].revoked_at = datetime.now(UTC)
+    await db_session.flush()
+    assert fetched_case.support_grants[0].revoked_at is not None
+
+    # Verify Cascade Delete: deleting the case cascades to timeline events, evidence, and support grants
     evidence_id = evidence.id
     event_id = event.id
+    grant_id = grant.id
     await db_session.delete(fetched_case)
     await db_session.flush()
 
@@ -233,6 +274,10 @@ async def test_victim_case_evidence_privacy_chain_and_cascades(db_session: Async
     event_query = select(CaseTimelineEvent).where(CaseTimelineEvent.id == event_id)
     event_res = await db_session.execute(event_query)
     assert event_res.scalar_one_or_none() is None
+
+    grant_query = select(CaseSupportGrant).where(CaseSupportGrant.id == grant_id)
+    grant_res = await db_session.execute(grant_query)
+    assert grant_res.scalar_one_or_none() is None
 
 
 @pytest.mark.asyncio

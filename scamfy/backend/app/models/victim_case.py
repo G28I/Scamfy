@@ -65,12 +65,6 @@ class VictimCase(Base, UUIDMixin, TimestampMixin):
         index=True,
     )
 
-    # Explicit temporary support grant expiry timestamp for moderator assistance (SEC-07)
-    support_grant_expires_at: Mapped[datetime | None] = mapped_column(
-        DateTime(timezone=True),
-        nullable=True,
-    )
-
     # Relationships
     user: Mapped["User"] = relationship(
         "User",
@@ -87,6 +81,13 @@ class VictimCase(Base, UUIDMixin, TimestampMixin):
 
     evidence_files: Mapped[list["CaseEvidence"]] = relationship(
         "CaseEvidence",
+        back_populates="case",
+        cascade="all, delete-orphan",
+        lazy="selectin",
+    )
+
+    support_grants: Mapped[list["CaseSupportGrant"]] = relationship(
+        "CaseSupportGrant",
         back_populates="case",
         cascade="all, delete-orphan",
         lazy="selectin",
@@ -196,4 +197,68 @@ class CaseEvidence(Base, UUIDMixin, TimestampMixin):
     case: Mapped["VictimCase"] = relationship(
         "VictimCase",
         back_populates="evidence_files",
+    )
+
+
+class CaseSupportGrant(Base, UUIDMixin, TimestampMixin):
+    """Explicit, user-granted, time-bounded authorization for a specific moderator to access a victim case (SEC-07)."""
+
+    __tablename__ = "case_support_grants"
+
+    # Victim case being accessed
+    case_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("victim_cases.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+
+    # Granting victim user (owner)
+    granted_by_user_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("users.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+
+    # Authorized moderator user (grantee)
+    grantee_user_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("users.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+
+    # Time-bounded expiration
+    expires_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+        index=True,
+    )
+
+    # Explicit revocation timestamp (NULL if active, set when revoked)
+    revoked_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True),
+        nullable=True,
+        index=True,
+    )
+
+    # Optional scope or rationale for grant
+    rationale: Mapped[str | None] = mapped_column(
+        String(255),
+        nullable=True,
+    )
+
+    # Relationships
+    case: Mapped["VictimCase"] = relationship(
+        "VictimCase",
+        back_populates="support_grants",
+    )
+    granting_user: Mapped["User"] = relationship(
+        "User",
+        foreign_keys=[granted_by_user_id],
+    )
+    grantee_user: Mapped["User"] = relationship(
+        "User",
+        foreign_keys=[grantee_user_id],
     )

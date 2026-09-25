@@ -2,7 +2,7 @@
 
 - **Phase**: 03 - Core Data Model & Migrations
 - **Milestone**: 0 (Foundation)
-- **Status**: Planned ⚪
+- **Status**: Complete ✅
 - **Requirements Covered**: `SEC-06`, `SEC-07`, `CASE-01..04`, `REP-01..03`, `AI-04`
 
 ---
@@ -29,22 +29,23 @@ Design and implement the complete PostgreSQL database schema, SQLAlchemy 2.0 dec
    - **Scam Checks vs Community Reports (Strict Privacy Boundary)**:
      - **`scam_checks`**: Private/anonymous analysis sessions (`SEC-01`). Stores `user_id` (nullable FK to `users.id` for anonymous checks), `input_hash`, `overall_risk`, `primary_category`, `secondary_categories` (JSONB array), `signals` (JSONB red-flag list), `extracted_entities` (JSONB dict), and `model_metadata` (JSONB telemetry `AI-04`). Completely isolated from public views.
      - **`community_reports`**: Intentional public/moderated submissions (`REP-01..03`). Requires authenticated reporter (`reporter_user_id` FK to `users.id`, non-nullable). Links to `scam_patterns` when reviewed/aggregated.
-     - **`scam_patterns`**: Normalized, deduplicated indicator directory (`indicator_type`, `indicator_value` indexed, `category`, `risk_level`, `verification_status`, `report_count`, `metadata_payload` JSONB).
-   - **Victim Case Center & Evidence Privacy Chain (`User -> VictimCase -> Evidence`)**:
-     - **`victim_cases`**: Bound to owner (`user_id` FK to `users.id`, non-nullable), `title`, `category`, `financial_loss_amount` (`Numeric(12, 2)`), `currency`, `status`, `official_complaint_ack_no`, and `support_grant_expires_at` (`DateTime(timezone=True)`).
+     - **`scam_patterns`**: Normalized, deduplicated indicator directory (`indicator_type`, `indicator_value` with composite unique constraint `uq_scam_patterns_indicator_type_value`, `category`, `risk_level`, `verification_status`, `report_count`, `metadata_payload` JSONB) per `REP-03`.
+   - **Victim Case Center & Evidence Privacy Chain (`User -> VictimCase -> Evidence / CaseSupportGrant`)**:
+     - **`victim_cases`**: Bound to owner (`user_id` FK to `users.id`, non-nullable), `title`, `category`, `financial_loss_amount` (`Numeric(12, 2)`), `currency`, `status`, `official_complaint_ack_no`.
      - **`case_timeline_events`**: Chronological events (`case_id` FK cascade, `event_timestamp`, `event_type`, `description`, `amount`, `counterparty_identifier`).
      - **`case_evidence`**: Private victim files (`case_id` FK cascade, `file_key` unique, `file_name`, `file_size_bytes`, `content_type`, `sha256_checksum`, `magic_signature_verified`). Enforces structural ownership through `case.user_id` (`SEC-07`, `CASE-01..04`).
+     - **`case_support_grants`**: Explicit, user-granted, time-bounded moderator authorization (`case_id` FK cascade, `granted_by_user_id` FK to `users.id`, `grantee_user_id` FK to `users.id`, `expires_at`, `revoked_at`, `rationale`) per `SEC-07`.
    - **Immutable Audit Trail (`audit_events` — `SEC-06`)**:
-     - Append-only model (no update or delete operations).
-     - Captures `id` (UUID PK), `actor_id` (string/UUID), `actor_role`, `action`, `target_resource_type`, `target_resource_id`, `details` (JSONB sanitized metadata without PII/secrets), `ip_address_hash`, and `created_at`.
+     - Append-only model with PostgreSQL database trigger (`trg_audit_events_prevent_mutation`) and ORM event hooks blocking all UPDATE and DELETE mutations.
+     - Captures `id` (UUID PK), `actor_id` (`String(128)`), `actor_role`, `action`, `target_resource_type`, `target_resource_id`, `details` (JSONB sanitized metadata without PII/secrets), `ip_address_hash`, and `created_at`.
 
 3. **JSONB Strategy**:
    - JSONB is used exclusively for genuinely variable structured data (red-flag signal lists, extracted entity collections, inference metadata, pattern payloads, audit context).
    - All core entity attributes (enums, timestamps, monetary amounts, checksums, status flags, counts) remain strictly typed relational columns.
 
 4. **Alembic Migration Infrastructure**:
-   - Structured `alembic.ini` and `backend/alembic/env.py` supporting async engine migrations.
-   - Baseline migration revision (`0001_initial_schema.py`) generating all 8 tables, foreign keys, unique constraints, and search indexes with bidirectional `upgrade()` and `downgrade()`.
+   - Structured `alembic.ini` and `backend/alembic/env.py` dynamically resolving `settings.DATABASE_URL`.
+   - Baseline migration revision (`0001_initial_schema.py`) generating all tables, foreign keys, unique constraints, search indexes, and append-only database triggers with bidirectional `upgrade()` and `downgrade()`.
 
 5. **Automated Testing & Model Verification**:
    - Pytest fixtures initializing async PostgreSQL test sessions (`TEST_DATABASE_URL` with fallback to isolated test schema/DB).

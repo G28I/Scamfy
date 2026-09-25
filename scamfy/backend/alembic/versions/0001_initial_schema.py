@@ -99,7 +99,7 @@ def upgrade() -> None:
     op.create_index(op.f("ix_scam_checks_input_hash"), "scam_checks", ["input_hash"], unique=False)
     op.create_index(op.f("ix_scam_checks_user_id"), "scam_checks", ["user_id"], unique=False)
 
-    # 3. scam_patterns table
+    # 3. scam_patterns table (REP-03: Deduplicated Indicator Pattern Directory)
     op.create_table(
         "scam_patterns",
         sa.Column("id", postgresql.UUID(as_uuid=True), nullable=False),
@@ -142,6 +142,11 @@ def upgrade() -> None:
             nullable=False,
         ),
         sa.PrimaryKeyConstraint("id"),
+        sa.UniqueConstraint(
+            "indicator_type",
+            "indicator_value",
+            name="uq_scam_patterns_indicator_type_value",
+        ),
     )
     op.create_index(
         op.f("ix_scam_patterns_indicator_type"), "scam_patterns", ["indicator_type"], unique=False
@@ -214,7 +219,6 @@ def upgrade() -> None:
         sa.Column("currency", sa.String(length=3), server_default="INR", nullable=False),
         sa.Column("status", sa.String(length=32), server_default="OPEN", nullable=False),
         sa.Column("official_complaint_ack_no", sa.String(length=64), nullable=True),
-        sa.Column("support_grant_expires_at", sa.DateTime(timezone=True), nullable=True),
         sa.Column(
             "created_at",
             sa.DateTime(timezone=True),
@@ -297,7 +301,65 @@ def upgrade() -> None:
     op.create_index(op.f("ix_case_evidence_case_id"), "case_evidence", ["case_id"], unique=False)
     op.create_index(op.f("ix_case_evidence_file_key"), "case_evidence", ["file_key"], unique=True)
 
-    # 8. audit_events table (SEC-06: Append-Only)
+    # 8. case_support_grants table (SEC-07: Explicit User-Granted Moderator Authorization)
+    op.create_table(
+        "case_support_grants",
+        sa.Column("id", postgresql.UUID(as_uuid=True), nullable=False),
+        sa.Column("case_id", postgresql.UUID(as_uuid=True), nullable=False),
+        sa.Column("granted_by_user_id", postgresql.UUID(as_uuid=True), nullable=False),
+        sa.Column("grantee_user_id", postgresql.UUID(as_uuid=True), nullable=False),
+        sa.Column("expires_at", sa.DateTime(timezone=True), nullable=False),
+        sa.Column("revoked_at", sa.DateTime(timezone=True), nullable=True),
+        sa.Column("rationale", sa.String(length=255), nullable=True),
+        sa.Column(
+            "created_at",
+            sa.DateTime(timezone=True),
+            server_default=sa.text("now()"),
+            nullable=False,
+        ),
+        sa.Column(
+            "updated_at",
+            sa.DateTime(timezone=True),
+            server_default=sa.text("now()"),
+            nullable=False,
+        ),
+        sa.ForeignKeyConstraint(["case_id"], ["victim_cases.id"], ondelete="CASCADE"),
+        sa.ForeignKeyConstraint(["granted_by_user_id"], ["users.id"], ondelete="CASCADE"),
+        sa.ForeignKeyConstraint(["grantee_user_id"], ["users.id"], ondelete="CASCADE"),
+        sa.PrimaryKeyConstraint("id"),
+    )
+    op.create_index(
+        op.f("ix_case_support_grants_case_id"),
+        "case_support_grants",
+        ["case_id"],
+        unique=False,
+    )
+    op.create_index(
+        op.f("ix_case_support_grants_granted_by_user_id"),
+        "case_support_grants",
+        ["granted_by_user_id"],
+        unique=False,
+    )
+    op.create_index(
+        op.f("ix_case_support_grants_grantee_user_id"),
+        "case_support_grants",
+        ["grantee_user_id"],
+        unique=False,
+    )
+    op.create_index(
+        op.f("ix_case_support_grants_expires_at"),
+        "case_support_grants",
+        ["expires_at"],
+        unique=False,
+    )
+    op.create_index(
+        op.f("ix_case_support_grants_revoked_at"),
+        "case_support_grants",
+        ["revoked_at"],
+        unique=False,
+    )
+
+    # 9. audit_events table (SEC-06: Append-Only)
     op.create_table(
         "audit_events",
         sa.Column("id", postgresql.UUID(as_uuid=True), nullable=False),
@@ -355,6 +417,7 @@ def downgrade() -> None:
     op.execute("DROP TRIGGER IF EXISTS trg_audit_events_prevent_mutation ON audit_events;")
     op.execute("DROP FUNCTION IF EXISTS prevent_audit_events_mutation();")
     op.drop_table("audit_events")
+    op.drop_table("case_support_grants")
     op.drop_table("case_evidence")
     op.drop_table("case_timeline_events")
     op.drop_table("victim_cases")

@@ -2,7 +2,7 @@ from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any
 
 from backend.app.models.base import Base, TimestampMixin, UUIDMixin
-from sqlalchemy import DateTime, Integer, String, func
+from sqlalchemy import DateTime, Integer, String, UniqueConstraint, func
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -14,6 +14,13 @@ class ScamPattern(Base, UUIDMixin, TimestampMixin):
     """Normalized scam indicator pattern database entry for community intelligence."""
 
     __tablename__ = "scam_patterns"
+    __table_args__ = (
+        UniqueConstraint(
+            "indicator_type",
+            "indicator_value",
+            name="uq_scam_patterns_indicator_type_value",
+        ),
+    )
 
     # Indicator Type: 'UPI_ID', 'PHONE_NUMBER', 'URL_DOMAIN', 'TELEGRAM_HANDLE', 'BANK_ACCOUNT', 'JOB_SCRIPT', 'OTHER'
     indicator_type: Mapped[str] = mapped_column(
