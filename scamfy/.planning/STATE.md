@@ -2,8 +2,8 @@
 
 ## Current Status
 - **Current Milestone**: Milestone 0 (Foundation)
-- **Active Phase**: Phase 4 (Design System & Interaction Primitives)
-- **Status**: Phase 3 Complete — Ready to Plan Phase 4
+- **Active Phase**: Phase 3 (Core Data Model & Migrations — Revised for Prisma ORM)
+- **Status**: Ready for Execution ⚪
 - **Last Updated**: 2026-09-25
 
 ---
@@ -14,8 +14,8 @@
 | :--- | :--- | :--- | :--- | :--- |
 | **01** | Product Definition, Safety Boundaries & Threat Model | Foundation | 🟢 **Complete** | 2026-09-24 |
 | **02** | Project Structure, GSD Setup & Coding Standards | Foundation | 🟢 **Complete** | 2026-09-24 |
-| **03** | Core Data Model & Migrations | Foundation | 🟢 **Complete** | 2026-09-25 |
-| **04** | Design System & Interaction Primitives | Foundation | ⚪ Ready to Plan | — |
+| **03** | Core Data Model & Migrations (Prisma on PostgreSQL) | Foundation | ⚪ **Ready for Execution** | — |
+| **04** | Design System & Interaction Primitives | Foundation | ⚪ Planned | — |
 | **05** | Scam Check Input & Analysis Slice | Slice 1 | ⚪ Planned | — |
 | **06** | Deterministic Risk Engine + Nemotron NIM | Slice 1 | ⚪ Planned | — |
 | **07** | Scam Pattern Database & Community Reporting | Slice 2 | ⚪ Planned | — |
@@ -28,14 +28,14 @@
 
 ---
 
-## Phase 3 Execution Checklist
-- [x] Task 1: Database Engine, Async Session Management & Base Classes (`backend/app/core/database.py`, `backend/app/models/base.py`)
-- [x] Task 2: SQLAlchemy 2.0 Declarative Domain Models (`user.py`, `scam_check.py`, `scam_pattern.py`, `community_report.py`, `victim_case.py`, `audit_event.py`)
-- [x] Task 3: Alembic Migration Pipeline & Initial Migration (`backend/alembic/`, `0001_initial_schema.py`)
-- [x] Task 4: Pytest Database Fixtures & Model Test Suite (`backend/tests/conftest.py`, `backend/tests/test_models.py`)
-- [x] Phase 3 Verification & Summary (`VERIFICATION.md`, `SUMMARY.md`)
+## Phase 3 Execution Checklist (Prisma on PostgreSQL)
+- [ ] Task 1: Prisma ORM Setup, Dependencies & Singleton Client (`prisma`, `@prisma/client`, `lib/prisma.ts`)
+- [ ] Task 2: Authoritative Prisma Schema for 8 Domain Entities (`prisma/schema.prisma`)
+- [ ] Task 3: Prisma Migrations & PostgreSQL Triggers (`prisma/migrations/`, `trg_audit_events_prevent_mutation`)
+- [ ] Task 4: Real PostgreSQL Integration Test Suite & TypeScript Types (`lib/prisma.test.ts`)
+- [ ] Phase 3 Verification & Summary (`VERIFICATION.md`, `SUMMARY.md`)
 
 ---
 
 ## Immediate Next Actions
-Run `/gsd-plan-phase 4` to plan Phase 4 (Design System & Interaction Primitives).
+Run `/gsd-execute-phase 3` when ready to execute Phase 3 with Prisma ORM.
