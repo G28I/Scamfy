@@ -30,8 +30,8 @@
 
 ## Phase 3 Execution Checklist (Prisma on PostgreSQL)
 - [x] Task 1: Prisma ORM Setup, Dependencies & Singleton Client (`prisma`, `@prisma/client`, `lib/prisma.ts`)
-- [x] Task 2: Authoritative Prisma Schema for 8 Domain Entities (`prisma/schema.prisma`), reconciling existing SQLAlchemy models with Prisma ownership and updating backend guidance for the ownership handoff
-- [x] Task 3: Prisma Migrations & PostgreSQL Triggers (`prisma/migrations/`, `trg_audit_events_prevent_mutation`), establishing Prisma as the sole migration authority for the eight domain tables and reconciling existing Alembic migrations
+- [x] Task 2: Authoritative Prisma Schema for 9 Domain Entities (`prisma/schema.prisma`), reconciling existing SQLAlchemy models with Prisma ownership and updating backend guidance for the ownership handoff
+- [x] Task 3: Prisma Migrations & PostgreSQL Triggers (`prisma/migrations/`, `trg_audit_events_prevent_mutation`), establishing Prisma as the sole migration authority for the 9 domain tables and reconciling existing Alembic migrations
 - [x] Task 4: Real PostgreSQL Integration Test Suite & TypeScript Types (`lib/prisma.test.ts`)
 - [x] Phase 3 Verification & Summary (`VERIFICATION.md`, `SUMMARY.md`)
 

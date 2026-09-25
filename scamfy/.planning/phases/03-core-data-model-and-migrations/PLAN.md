@@ -2,7 +2,7 @@
 
 - **Phase**: 03
 - **Milestone**: 0 (Foundation)
-- **Status**: Ready for Execution ⚪
+- **Status**: Complete ✅
 - **Goal**: Implement the authoritative PostgreSQL database layer using Prisma ORM (`prisma`, `@prisma/client`, `prisma migrate`), Next.js singleton Prisma Client, generated TypeScript types, and comprehensive Vitest integration tests against a dedicated PostgreSQL test database.
 - **Requirements Covered**: `SEC-06`, `SEC-07`, `CASE-01..04`, `REP-01..03`, `AI-04`
 - **Architecture Baseline**: [ADR 0001: Prisma ORM for Domain Persistence and FastAPI as Stateless AI Boundary](../../../docs/adr/0001-prisma-domain-persistence-and-fastapi-ai-boundary.md)
@@ -62,9 +62,10 @@
 | **Gate 1: Frontend Type Safety** | `npm run typecheck` | Zero TypeScript compiler errors (`tsc --noEmit`) with generated Prisma Client types. |
 | **Gate 2: Frontend Linting** | `npm run lint` | Zero ESLint warnings or errors (`eslint .`). |
 | **Gate 3: Frontend Unit & Integration Tests** | `npm run test:run` | All Vitest tests (including `lib/prisma.test.ts` against PostgreSQL) pass. |
-| **Gate 4: Backend Lint & Format** | `ruff check backend/`<br>`ruff format --check backend/` | Stateless FastAPI backend passes all Ruff lint and formatting checks. |
-| **Gate 5: Backend Pytest Suite** | `pytest backend/tests` | FastAPI stateless health and error envelope tests pass. |
-| **Canonical Local Suite** | `scripts/verify.ps1` (Win)<br>`scripts/verify.sh` (POSIX) | Full 5-gate pipeline passes in a single command. |
+| **Gate 4: Frontend Production Build** | `npm run build` | Next.js production build (`next build`) compiles cleanly with 0 errors. |
+| **Gate 5: Backend Lint & Format** | `ruff check backend/`<br>`ruff format --check backend/` | Stateless FastAPI backend passes all Ruff lint and formatting checks. |
+| **Gate 6: Backend Pytest Suite** | `pytest backend/tests` | FastAPI stateless health and error envelope tests pass. |
+| **Canonical Local Suite** | `scripts/verify.ps1` (Win)<br>`scripts/verify.sh` (POSIX) | Full 6-gate pipeline passes in a single command. |
 | **Prisma Migration Integrity** | `npx prisma migrate status` | Database schema is in sync with migrations on PostgreSQL test database. |
 | **Architecture Decision Record** | `docs/adr/0001-...` | Documented and approved in repository. |
 | **Planning Trail** | `VERIFICATION.md`<br>`SUMMARY.md` | Audit trail and phase summary recorded in `.planning/`. |

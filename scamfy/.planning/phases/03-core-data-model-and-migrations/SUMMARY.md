@@ -49,12 +49,13 @@ FastAPI is strictly maintained as a stateless AI/NLP service boundary for Nemotr
 
 ## Verification Results
 
-All 5 canonical gates pass with zero errors:
+All 6 canonical gates pass with zero errors:
 1. `npm run typecheck` — 0 errors
 2. `npm run lint` — 0 warnings, 0 errors
 3. `npm run test:run` — 8/8 tests passed (including PostgreSQL Prisma integration tests)
-4. `ruff check backend/` & `ruff format --check backend/` — 8 backend files clean
-5. `pytest backend/tests` — 2/2 tests passed (stateless health check & error sanitization)
+4. `npm run build` — Next.js production build passes cleanly
+5. `ruff check backend/` & `ruff format --check backend/` — 8 backend files clean
+6. `pytest backend/tests` — 2/2 tests passed (stateless health check & error sanitization)
 
 See [VERIFICATION.md](./VERIFICATION.md) for full gate execution output.
 
