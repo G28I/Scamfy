@@ -27,7 +27,7 @@ Implement the complete PostgreSQL database schema, Prisma ORM schema (`schema.pr
    - FastAPI communicates with Next.js via stateless HTTP/JSON contracts.
    - FastAPI does **not** directly connect to, query, or mutate the Scamfy PostgreSQL domain tables (no SQLAlchemy or Alembic for domain persistence).
 
-3. **Core Relational Domain Entities & Invariants**:
+3. **Core Relational Domain Entities & Invariants (9 Core Entities)**:
    - **`User`**: Internal primary key `id` (`UUID`), external `clerkUserId` (`String`, `@unique`, indexed), `email`, `role` (`student_user`, `college_admin`, `moderator`), `collegeDomain`. All internal foreign keys reference internal `User.id`.
    - **`ScamCheck`**: Private/anonymous analysis record (`SEC-01`). Stores `userId` (nullable FK to `User.id`), `inputHash`, `overallRisk`, `primaryCategory`, `secondaryCategories` (Json), `signals` (Json), `extractedEntities` (Json), `modelMetadata` (Json `AI-04`), and `actionRecommendations` (Json). Completely isolated from public feeds.
    - **`ScamPattern`**: Public/moderated indicator directory (`REP-01..03`). Normalized indicator attributes, `category`, `riskLevel`, `verificationStatus`, `reportCount`, `metadataPayload` (Json), and composite unique constraint on `@@unique([indicatorType, indicatorValue])` for deduplication (`REP-03`).

@@ -9,9 +9,9 @@
 
 ## Executive Summary
 
-Phase 3 delivered the authoritative relational database foundation for Scamfy using **Prisma ORM** (`@prisma/client`, `prisma` v6.19.3) against PostgreSQL (`localhost:5432`), operating in alignment with **ADR 0001** (`docs/adr/0001-prisma-domain-persistence-and-fastapi-ai-boundary.md`). It established all 8 core domain models + `CaseSupportGrant`, explicit Clerk authentication identity boundaries (`users.id` vs `users.clerk_user_id`), structural privacy chains for victim cases and evidence files (`users` -> `victim_cases` -> `case_evidence`), clear privacy separation between private/anonymous scam checks and public community reports, an append-only audit logging architecture (`audit_events` `SEC-06`) enforced by both Prisma client runtime extensions and PostgreSQL triggers (`trg_audit_events_prevent_mutation`), composite indicator deduplication (`REP-03`), and a comprehensive Vitest PostgreSQL integration test suite.
+Phase 3 delivered the authoritative relational database foundation for Scamfy using **Prisma ORM** (`@prisma/client`, `prisma` v6.19.3) against PostgreSQL (`localhost:5432`), operating in alignment with **ADR 0001** (`docs/adr/0001-prisma-domain-persistence-and-fastapi-ai-boundary.md`). It established all 9 core domain models (`User`, `ScamCheck`, `ScamPattern`, `CommunityReport`, `VictimCase`, `CaseTimelineEvent`, `CaseEvidence`, `CaseSupportGrant`, and `AuditEvent`), explicit Clerk authentication identity boundaries (`users.id` vs `users.clerk_user_id`), structural privacy chains for victim cases and evidence files (`users` -> `victim_cases` -> `case_evidence` / `case_support_grants`), clear privacy separation between private/anonymous scam checks and public community reports, an append-only audit logging architecture (`audit_events` `SEC-06`) enforced by both Prisma client runtime extensions and PostgreSQL triggers (`trg_audit_events_prevent_mutation`), composite indicator deduplication (`REP-03`), and a comprehensive Vitest PostgreSQL integration test suite.
 
-FastAPI is strictly maintained as a stateless AI/NLP service boundary for Nemotron 70B and regex heuristics, with zero direct domain database persistence or mutation authority.
+FastAPI is strictly maintained as a stateless AI/NLP service boundary for Nemotron 70B and regex heuristics, with zero direct domain database persistence or mutation authority. Old SQLAlchemy models, Alembic migrations, and SQLAlchemy database sessions have been completely removed from the backend.
 
 ---
 
@@ -22,7 +22,7 @@ FastAPI is strictly maintained as a stateless AI/NLP service boundary for Nemotr
 - **Singleton Client & Append-Only Extension**: Authored `scamfy/lib/prisma.ts` with global hot-reload development guards and an append-only runtime extension blocking `update` and `delete` operations on `auditEvent`.
 - **Environment Configuration**: Configured `DATABASE_URL` in `scamfy/.env` and `scamfy/.env.example`.
 
-### 2. Prisma Relational Domain Models (`prisma/schema.prisma`)
+### 2. Prisma Relational Domain Models (`prisma/schema.prisma` — 9 Core Entities)
 - **`User` (`users`)**: Internal `id` (UUID PK `@default(uuid())`), external `clerkUserId` (unique indexed string), `email`, `role` (`UserRole` enum), and `collegeDomain`.
 - **`ScamCheck` (`scam_checks`)**: Private/anonymous scam analysis records (`SEC-01`), `userId` (nullable FK to `users.id`), `inputHash`, `overallRisk` (`RiskLevel` enum), `primaryCategory`, `secondaryCategories` (JSONB), `signals` (JSONB), `extractedEntities` (JSONB), `modelMetadata` (JSONB `AI-04`), and `actionRecommendations` (JSONB).
 - **`ScamPattern` (`scam_patterns`)**: Normalized indicator database (`indicatorType`, `indicatorValue`, `category`, `riskLevel`, `verificationStatus` enum, `reportCount`, `firstReportedAt`, `lastReportedAt`, `metadataPayload` JSONB) with composite unique constraint `@@unique([indicatorType, indicatorValue])` (`REP-03`).
@@ -39,7 +39,7 @@ FastAPI is strictly maintained as a stateless AI/NLP service boundary for Nemotr
 
 ### 4. Integration Test Suite & CI Validation
 - Authored `scamfy/lib/prisma.test.ts` containing 5 comprehensive integration tests verifying:
-  1. `User` creation, role defaults, and unique `clerkUserId` rejection (`Prisma.PrismaClientKnownRequestError` `P2002`).
+  1. `User` creation, role defaults, and unique `clerkUserId` rejection.
   2. `ScamCheck` creation for anonymous and authenticated users with structured JSON signals.
   3. `ScamPattern` composite uniqueness on `(indicator_type, indicator_value)` (`REP-03`).
   4. `User` -> `VictimCase` -> `CaseEvidence`, `CaseTimelineEvent`, & `CaseSupportGrant` ownership chain and cascade deletions (`SEC-07`).
@@ -53,8 +53,8 @@ All 5 canonical gates pass with zero errors:
 1. `npm run typecheck` — 0 errors
 2. `npm run lint` — 0 warnings, 0 errors
 3. `npm run test:run` — 8/8 tests passed (including PostgreSQL Prisma integration tests)
-4. `ruff check backend/` & `ruff format --check backend/` — 20 files clean
-5. `pytest backend/tests` — 9/9 tests passed in backend boundary
+4. `ruff check backend/` & `ruff format --check backend/` — 8 backend files clean
+5. `pytest backend/tests` — 2/2 tests passed (stateless health check & error sanitization)
 
 See [VERIFICATION.md](./VERIFICATION.md) for full gate execution output.
 

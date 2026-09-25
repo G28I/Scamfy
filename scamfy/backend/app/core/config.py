@@ -22,9 +22,6 @@ class Settings(BaseSettings):
     NVIDIA_BASE_URL: str = "https://integrate.api.nvidia.com/v1"
     NEMOTRON_MODEL_SLUG: str = "nvidia/llama-3.1-nemotron-70b-instruct"
 
-    # Database (Connection configured in Phase 3)
-    DATABASE_URL: str = "postgresql+asyncpg://postgres:postgres@localhost:5432/scamfy"
-
     # Object Storage (R2 / S3)
     R2_BUCKET_NAME: str = "scamfy-evidence"
     R2_ACCESS_KEY_ID: str = ""

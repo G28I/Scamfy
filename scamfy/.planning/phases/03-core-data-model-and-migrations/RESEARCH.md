@@ -187,4 +187,4 @@ erDiagram
   - ScamPattern composite unique constraint `(indicatorType, indicatorValue)` deduplication
   - VictimCase, Evidence, Timeline, and SupportGrant ownership & cascading deletes
   - AuditEvent append-only trigger blocking direct `UPDATE` and `DELETE` queries
-  - Generated TypeScript type conformance across all 8 domain entities
+  - Generated TypeScript type conformance across all 9 domain entities

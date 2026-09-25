@@ -21,7 +21,7 @@
     - Prisma Client extension / middleware enforcing append-only guardrails for `AuditEvent` (`SEC-06`).
 - **Verification**: `npx prisma --version` and `npm run typecheck` validate client setup.
 
-### Task 2: Authoritative Prisma Schema (8 Core Domain Entities)
+### Task 2: Authoritative Prisma Schema (9 Core Domain Entities)
 - **Action**:
   - Define declarative models in `prisma/schema.prisma`:
     - `User`: Internal UUID `id` (`@id @default(uuid()) @db.Uuid`), external `clerkUserId` (`@unique`, indexed), `email`, `role` (`student_user`, `college_admin`, `moderator`), `collegeDomain`, `createdAt`, `updatedAt`, relations.
@@ -37,7 +37,7 @@
 
 ### Task 3: Prisma Migrations & PostgreSQL Database Triggers
 - **Action**:
-  - Generate baseline migration `prisma/migrations/0001_initial_schema/migration.sql` creating all tables, indexes, unique constraints, and foreign key cascades.
+  - Generate baseline migration `prisma/migrations/20260925000000_initial_schema/migration.sql` creating all 9 tables, indexes, unique constraints, and foreign key cascades.
   - Add PostgreSQL database trigger `trg_audit_events_prevent_mutation` on `audit_events` to the baseline migration to enforce append-only immutability at the database boundary (`SEC-06`).
   - Run `prisma generate` to produce strictly-typed TypeScript Prisma Client models.
 - **Verification**: Execute `npx prisma migrate deploy` / `dev` against PostgreSQL test database.
@@ -50,7 +50,7 @@
     - Test ScamPattern and CommunityReport linking, and ScamPattern composite unique constraint `(indicatorType, indicatorValue)` deduplication (`REP-03`).
     - Test VictimCase, CaseTimelineEvent, CaseEvidence, and CaseSupportGrant ownership chains (`User -> VictimCase -> Evidence / Grants`), explicit revocation, and cascade deletes (`SEC-07`).
     - Test AuditEvent append-only protection (verifying direct SQL UPDATE/DELETE and Prisma Client mutations are rejected at ORM and DB trigger boundaries) (`SEC-06`).
-    - Verify strict generated TypeScript types across all 8 domain entities (ensuring no `any` and full compile-time validation).
+    - Verify strict generated TypeScript types across all 9 domain entities (ensuring no `any` and full compile-time validation).
 - **Verification**: Execute `npm run test:run` and `npm run typecheck` ensuring all tests pass against live PostgreSQL.
 
 ---
