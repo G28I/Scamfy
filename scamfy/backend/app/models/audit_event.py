@@ -70,3 +70,49 @@ class AuditEvent(Base, UUIDMixin):
         server_default=func.now(),
         index=True,
     )
+
+
+# SEC-06: Database-level append-only enforcement via PostgreSQL triggers
+from sqlalchemy import DDL, event  # noqa: E402
+
+_prevent_mutation_func_ddl = DDL(
+    """
+    CREATE OR REPLACE FUNCTION prevent_audit_events_mutation()
+    RETURNS TRIGGER AS $$
+    BEGIN
+        RAISE EXCEPTION 'audit_events is an append-only table: UPDATE and DELETE operations are prohibited';
+    END;
+    $$ LANGUAGE plpgsql;
+    """
+)
+
+_prevent_mutation_trigger_ddl = DDL(
+    """
+    CREATE TRIGGER trg_audit_events_prevent_mutation
+    BEFORE UPDATE OR DELETE ON audit_events
+    FOR EACH ROW
+    EXECUTE FUNCTION prevent_audit_events_mutation();
+    """
+)
+
+event.listen(
+    AuditEvent.__table__,
+    "after_create",
+    _prevent_mutation_func_ddl.execute_if(dialect="postgresql"),
+)
+event.listen(
+    AuditEvent.__table__,
+    "after_create",
+    _prevent_mutation_trigger_ddl.execute_if(dialect="postgresql"),
+)
+
+
+# SEC-06: ORM-level append-only guardrails preventing in-memory session mutation/deletion
+@event.listens_for(AuditEvent, "before_update")
+def _receive_before_update(mapper: Any, connection: Any, target: AuditEvent) -> None:
+    raise ValueError("AuditEvent is append-only: UPDATE operations are prohibited (SEC-06)")
+
+
+@event.listens_for(AuditEvent, "before_delete")
+def _receive_before_delete(mapper: Any, connection: Any, target: AuditEvent) -> None:
+    raise ValueError("AuditEvent is append-only: DELETE operations are prohibited (SEC-06)")

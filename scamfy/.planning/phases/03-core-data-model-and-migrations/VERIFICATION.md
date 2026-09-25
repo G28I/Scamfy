@@ -40,9 +40,9 @@ All checks passed!
 ✅ Backend Ruff Lint & Format Passed
 
 [5/5] Running Backend Pytest Suite...
-backend/tests/test_health.py ..   [ 25%]
-backend/tests/test_models.py ...... [100%]
-============================== 8 passed in 5.30s ==============================
+backend/tests/test_health.py ..   [ 22%]
+backend/tests/test_models.py ....... [100%]
+============================== 9 passed in 4.00s ==============================
 ✅ Backend Pytest Passed
 
 ========================================
@@ -60,7 +60,7 @@ backend/tests/test_models.py ...... [100%]
 | 2 | **Frontend Linting** | `npm run lint` | `PASS` | ESLint (Flat Config) configured with Next.js core web vitals and TypeScript rules. Zero warnings or errors. |
 | 3 | **Frontend Unit Tests** | `npm run test:run` | `PASS` | Vitest test runner passed all unit tests (`lib/test-sanity.test.ts`). |
 | 4 | **Backend Lint & Format** | `ruff check backend/`<br>`ruff format --check backend/` | `PASS` | Python 3.12+ style rules enforced via Ruff; 20 backend files formatted cleanly with 0 lint errors. |
-| 5 | **Backend Pytest Suite** | `pytest backend/tests` | `PASS` | 8 unit/integration tests passed against PostgreSQL: health check (200), sanitized 500 error envelope (`SEC-03`), User Clerk identity boundary, ScamCheck JSONB signals & entities, ScamPattern & CommunityReport lifecycle, VictimCase & CaseEvidence cascading privacy chain, AuditEvent append-only logging (`SEC-06`), and Alembic upgrade/downgrade migration cycle. |
+| 5 | **Backend Pytest Suite** | `pytest backend/tests` | `PASS` | 9 unit/integration tests passed against PostgreSQL: health check (200), sanitized 500 error envelope (`SEC-03`), User Clerk identity boundary, ScamCheck JSONB signals & entities, ScamPattern & CommunityReport lifecycle, VictimCase & CaseEvidence cascading privacy chain, AuditEvent append-only logging & ORM guardrails (`SEC-06`), AuditEvent PostgreSQL trigger mutation-blocking test (direct SQL UPDATE and DELETE rejection), and Alembic upgrade/downgrade migration cycle. |
 | 6 | **Canonical Verification Scripts** | `scripts/verify.ps1`<br>`scripts/verify.sh` | `PASS` | Canonical entry point verified and ready for CI/CD and developer workflows. |
 | 7 | **Pre-commit Enforcement** | `.githooks/pre-commit` | `PASS` | Pre-commit hook template configured to run verification prior to commit. |
 | 8 | **Secrets Boundary** | `.env.example` audit | `PASS` | Frontend and backend `.env.example` templates validated. No actual secret files tracked in git (`SEC-02`). |
@@ -73,5 +73,5 @@ backend/tests/test_models.py ...... [100%]
 - **Clerk Identity Boundary**: Verified `User.id` (UUID PK) vs `User.clerk_user_id` (unique indexed string), ensuring internal foreign keys reference the internal UUID while enabling O(1) external token lookups.
 - **Structural Evidence Privacy Chain**: Verified that `CaseEvidence` and `CaseTimelineEvent` cascade delete when `VictimCase` is deleted, and traversal ownership (`evidence.case.user_id`) is strictly preserved (`SEC-07`, `CASE-01..04`).
 - **ScamCheck vs CommunityReport Privacy Boundary**: Confirmed `scam_checks` (private/anonymous analysis sessions) remain strictly isolated from `community_reports` (public/moderated submissions) (`SEC-01`, `REP-01..03`).
-- **Append-Only Audit Trail**: Confirmed `audit_events` stores privacy-safe structured metadata without exposing update or delete interfaces (`SEC-06`).
-- **Alembic Migration Integrity**: Verified `0001_initial_schema.py` applies all 8 tables and indexes from scratch (`alembic upgrade head`) and rolls back cleanly (`alembic downgrade base`).
+- **Append-Only Audit Trail**: Confirmed `audit_events` stores privacy-safe structured metadata, with both ORM event hooks and database-level PostgreSQL triggers (`trg_audit_events_prevent_mutation`) strictly blocking all UPDATE and DELETE mutations (`SEC-06`).
+- **Alembic Migration Integrity**: Verified `0001_initial_schema.py` applies all 8 tables, indexes, and triggers from scratch (`alembic upgrade head`) and rolls back cleanly (`alembic downgrade base`).

@@ -38,7 +38,7 @@ No UI components, scoring heuristics, Nemotron AI inference clients, R2 storage 
 
 ### 4. PostgreSQL Test Fixtures & Comprehensive Test Suite
 - Configured `backend/tests/conftest.py` with function-scoped async engine (`NullPool`) against local PostgreSQL test database (`scamfy_test`).
-- Authored `backend/tests/test_models.py` with 6 comprehensive test cases validating model CRUD, unique constraints, JSONB payloads, cascade deletes, traversal ownership chains, append-only audit trail, and live Alembic upgrade/downgrade cycles.
+- Authored `backend/tests/test_models.py` with 7 comprehensive test cases (9 total backend tests) validating model CRUD, unique constraints, JSONB payloads, cascade deletes, traversal ownership chains, append-only audit trail & ORM guardrails, PostgreSQL trigger database-boundary mutation blocking (direct SQL UPDATE and DELETE rejection), and live Alembic upgrade/downgrade cycles.
 
 ---
 
@@ -49,7 +49,7 @@ All 5 canonical gates pass with zero errors:
 2. `npm run lint` — 0 warnings, 0 errors
 3. `npm run test:run` — 3/3 tests passed
 4. `ruff check backend/` & `ruff format --check backend/` — 20 files clean
-5. `pytest backend/tests` — 8/8 tests passed against PostgreSQL
+5. `pytest backend/tests` — 9/9 tests passed against PostgreSQL
 
 See [VERIFICATION.md](./VERIFICATION.md) for full gate execution output.
 

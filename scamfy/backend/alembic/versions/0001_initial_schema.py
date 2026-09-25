@@ -330,8 +330,30 @@ def upgrade() -> None:
         unique=False,
     )
 
+    # SEC-06: Append-only enforcement via PostgreSQL trigger preventing UPDATE or DELETE
+    op.execute(
+        """
+        CREATE OR REPLACE FUNCTION prevent_audit_events_mutation()
+        RETURNS TRIGGER AS $$
+        BEGIN
+            RAISE EXCEPTION 'audit_events is an append-only table: UPDATE and DELETE operations are prohibited';
+        END;
+        $$ LANGUAGE plpgsql;
+        """
+    )
+    op.execute(
+        """
+        CREATE TRIGGER trg_audit_events_prevent_mutation
+        BEFORE UPDATE OR DELETE ON audit_events
+        FOR EACH ROW
+        EXECUTE FUNCTION prevent_audit_events_mutation();
+        """
+    )
+
 
 def downgrade() -> None:
+    op.execute("DROP TRIGGER IF EXISTS trg_audit_events_prevent_mutation ON audit_events;")
+    op.execute("DROP FUNCTION IF EXISTS prevent_audit_events_mutation();")
     op.drop_table("audit_events")
     op.drop_table("case_evidence")
     op.drop_table("case_timeline_events")

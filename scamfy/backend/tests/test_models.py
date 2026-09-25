@@ -9,8 +9,8 @@ from backend.app.models.scam_check import ScamCheck
 from backend.app.models.scam_pattern import ScamPattern
 from backend.app.models.user import User
 from backend.app.models.victim_case import CaseEvidence, CaseTimelineEvent, VictimCase
-from sqlalchemy import select
-from sqlalchemy.exc import IntegrityError
+from sqlalchemy import select, text
+from sqlalchemy.exc import DBAPIError, IntegrityError
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession
 
 
@@ -267,6 +267,85 @@ async def test_audit_event_append_only_logging(db_session: AsyncSession) -> None
 
     assert fetched_audit.action == "SUPPORT_ACCESS_CASE"
     assert fetched_audit.details["granted_by_user"] is True
+
+    # 1. Test ORM-level UPDATE prevention
+    fetched_audit.action = "TAMPERED_ACTION"
+    with pytest.raises(
+        ValueError, match="AuditEvent is append-only: UPDATE operations are prohibited"
+    ):
+        await db_session.flush()
+
+    await db_session.rollback()
+
+    # Re-insert audit entry for further tests
+    audit_entry2 = AuditEvent(
+        actor_id="user_mod_beta",
+        actor_role="moderator",
+        action="REVOKE_SUPPORT_GRANT",
+        target_resource_type="victim_case",
+        target_resource_id="case_uuid_placeholder_888",
+        details={"reason": "Session expired"},
+    )
+    db_session.add(audit_entry2)
+    await db_session.flush()
+
+    # 2. Test ORM-level DELETE prevention
+    with pytest.raises(
+        ValueError, match="AuditEvent is append-only: DELETE operations are prohibited"
+    ):
+        await db_session.delete(audit_entry2)
+        await db_session.flush()
+
+    await db_session.rollback()
+
+
+@pytest.mark.asyncio
+async def test_audit_event_database_boundary_trigger_blocks_mutations(
+    db_session: AsyncSession,
+) -> None:
+    """Test that PostgreSQL database-level trigger strictly rejects direct SQL UPDATE and DELETE operations (SEC-06)."""
+    audit_entry = AuditEvent(
+        actor_id="user_admin_omega",
+        actor_role="college_admin",
+        action="VERIFY_PATTERN",
+        target_resource_type="scam_pattern",
+        target_resource_id="pattern_uuid_placeholder_123",
+        details={"verified": True},
+    )
+    db_session.add(audit_entry)
+    await db_session.flush()
+    entry_id = str(audit_entry.id)
+
+    # 1. Direct SQL UPDATE must be rejected by the database trigger
+    update_sql = text(
+        f"UPDATE audit_events SET action = 'MUTATED_ACTION' WHERE id = '{entry_id}'::uuid"
+    )
+    with pytest.raises(DBAPIError, match="audit_events is an append-only table"):
+        await db_session.execute(update_sql)
+        await db_session.flush()
+
+    await db_session.rollback()
+
+    # 2. Direct SQL DELETE must be rejected by the database trigger
+    # Re-insert entry after rollback
+    audit_entry_reloaded = AuditEvent(
+        id=uuid.UUID(entry_id),
+        actor_id="user_admin_omega",
+        actor_role="college_admin",
+        action="VERIFY_PATTERN",
+        target_resource_type="scam_pattern",
+        target_resource_id="pattern_uuid_placeholder_123",
+        details={"verified": True},
+    )
+    db_session.add(audit_entry_reloaded)
+    await db_session.flush()
+
+    delete_sql = text(f"DELETE FROM audit_events WHERE id = '{entry_id}'::uuid")
+    with pytest.raises(DBAPIError, match="audit_events is an append-only table"):
+        await db_session.execute(delete_sql)
+        await db_session.flush()
+
+    await db_session.rollback()
 
 
 @pytest.mark.asyncio
