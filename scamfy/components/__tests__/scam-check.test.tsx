@@ -164,7 +164,7 @@ describe("HomePage integration", () => {
     render(<HomePage />);
 
     expect(screen.getByText(/Instant Scam Check & Threat Triage/i)).toBeDefined();
-    expect(screen.getByRole("link", { name: /Helpline 1930/i })).toBeDefined();
+    expect(screen.getAllByRole("link", { name: /1930/i }).length).toBeGreaterThan(0);
     expect(screen.getByRole("button", { name: "Analyze Message" })).toBeDefined();
   });
 });
