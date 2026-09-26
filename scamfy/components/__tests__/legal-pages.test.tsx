@@ -56,7 +56,7 @@ describe("Privacy & Terms Legal Information Pages", () => {
     it("SiteHeader renders main navigation and 1930 emergency trigger", () => {
       render(<SiteHeader />);
       expect(screen.getByRole("link", { name: /Scam Check/i }).getAttribute("href")).toBe("/");
-      expect(screen.getByRole("link", { name: /Intel Directory/i }).getAttribute("href")).toBe("/intel");
+      expect(screen.getAllByRole("link", { name: /Threat Intel/i })[0]!.getAttribute("href")).toBe("/intel");
       expect(screen.getByRole("link", { name: /Helpline 1930 Emergency Contact/i }).getAttribute("href")).toBe("tel:1930");
     });
   });

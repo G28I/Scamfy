@@ -2,7 +2,6 @@
 
 import * as React from "react";
 import {
-  CheckCircle2,
   AlertTriangle,
   RotateCcw,
   Copy,
@@ -13,7 +12,6 @@ import {
   HelpCircle,
   Zap,
 } from "lucide-react";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { RiskBadge } from "@/components/domain/risk-badge";
 import { ConfidenceMeter } from "@/components/domain/confidence-meter";
@@ -86,11 +84,11 @@ export function ScamCheckResult({
 
   return (
     <div className={cn("w-full space-y-6 animate-in fade-in-50 duration-300", className)} {...props}>
-      {/* 1. Emergency Helpline Banner (UX-02) */}
+      {/* 1. Emergency 1930 Headline Alert (UX-02) */}
       {isEmergency && (
         <UrgencyBanner
           title="Critical Scam Threat Detected"
-          description="This message contains high-urgency financial extortion or payment traps. Do NOT enter your UPI PIN, click links, or transfer money. If you have already lost funds, call the National Cyber Crime Helpline 1930 immediately."
+          description="High-urgency financial extortion or UPI payment collect trap detected. Do NOT share your UPI PIN, OTP, or approve payment requests. If you have already lost money, call the National Cyber Crime Helpline 1930 immediately."
           show1930CallToAction
           helplineNumber="1930"
           actionLabel="Official Cybercrime Portal"
@@ -101,30 +99,31 @@ export function ScamCheckResult({
       {isHighRisk && !isEmergency && (
         <UrgencyBanner
           title="High-Risk Fraud Pattern Identified"
-          description="High likelihood of scam recruitment, fake tasks, or phishing. Do NOT deposit any advance fees, share OTPs, or click unverified links."
+          description="High likelihood of deceptive recruitment, part-time task fraud, or credential harvesting. Do not pay advance fees or deposit money."
           show1930CallToAction={false}
           officialPortalUrl="https://cybercrime.gov.in"
         />
       )}
 
-      {/* 2. Main Analysis Overview Card */}
-      <Card className="border-border shadow-md overflow-hidden">
-        <CardHeader className="border-b border-border bg-muted/20 pb-4">
+      {/* 2. Structured Security Report Container */}
+      <div className="rounded-2xl border border-border bg-card shadow-sm overflow-hidden">
+        {/* Report Top Header */}
+        <div className="border-b border-border bg-muted/20 px-5 py-4">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div className="space-y-1">
-              <div className="flex items-center gap-2">
+            <div className="space-y-1.5">
+              <div className="flex flex-wrap items-center gap-2">
                 <RiskBadge level={result.overall_risk} size="lg" showPulse={isEmergency} />
-                <span className="text-xs font-mono text-muted-foreground">
-                  ID: {result.id.slice(0, 8)}…
+                <span className="rounded-md border border-border bg-background px-2 py-0.5 text-[11px] font-mono font-medium text-muted-foreground">
+                  ID: {result.id.slice(0, 8)}
                 </span>
-                <span className="inline-flex items-center gap-1 rounded bg-muted/80 px-2 py-0.5 text-[10px] font-semibold text-muted-foreground">
+                <span className="inline-flex items-center gap-1 rounded-md border border-border bg-background px-2 py-0.5 text-[11px] font-medium text-muted-foreground">
                   <Brain className="h-3 w-3 text-primary" />
                   <span>{isAiAssisted ? "Nemotron-70B Assisting" : "Rule Engine v2"}</span>
                 </span>
               </div>
-              <CardTitle className="text-lg font-bold text-foreground pt-1">
+              <h3 className="text-xl font-extrabold text-foreground tracking-tight">
                 {formatCategoryTitle(result.primary_category)}
-              </CardTitle>
+              </h3>
             </div>
 
             <div className="flex items-center gap-3 self-start sm:self-center">
@@ -133,21 +132,21 @@ export function ScamCheckResult({
                 signalCount={result.signals.length}
                 explanation={
                   isAiAssisted
-                    ? "Confidence rating based on deterministic red-flag pattern matches and linguistic evaluation."
-                    : "Confidence rating based on deterministic red-flag pattern matches."
+                    ? "Confidence determined by deterministic red-flag pattern matches and AI linguistic evaluation."
+                    : "Confidence determined by deterministic red-flag pattern matches."
                 }
               />
             </div>
           </div>
-        </CardHeader>
+        </div>
 
-        <CardContent className="space-y-6 pt-6">
-          {/* 3. Executive AI Synthesis Summary */}
+        <div className="p-5 sm:p-7 space-y-6">
+          {/* 3. Executive Analysis Summary */}
           {result.synthesis_summary && (
-            <div className="rounded-xl border border-border bg-card p-4 space-y-1.5 shadow-sm">
-              <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                <Brain className="h-3.5 w-3.5 text-primary" />
-                <span>Executive Analysis Summary</span>
+            <div className="rounded-xl border border-border/80 bg-background p-4 sm:p-5 space-y-2 shadow-xs">
+              <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                <Brain className="h-4 w-4 text-primary" />
+                <span>Executive Analysis &amp; Assessment</span>
               </div>
               <p className="text-sm font-medium text-foreground leading-relaxed">
                 {result.synthesis_summary}
@@ -155,95 +154,93 @@ export function ScamCheckResult({
             </div>
           )}
 
-          {/* 4. Psychological Pressure Tactics */}
+          {/* 4. Action Protocol (Step 1, Step 2, Step 3) */}
+          <div
+            className={cn(
+              "rounded-xl border p-5 space-y-3.5",
+              isEmergency
+                ? "border-red-300 bg-red-50/50 dark:border-red-900/60 dark:bg-red-950/20"
+                : isHighRisk
+                  ? "border-amber-300 bg-amber-50/50 dark:border-amber-900/60 dark:bg-amber-950/20"
+                  : isSafe
+                    ? "border-emerald-300 bg-emerald-50/50 dark:border-emerald-900/60 dark:bg-emerald-950/20"
+                    : "border-blue-300 bg-blue-50/50 dark:border-blue-900/60 dark:bg-blue-950/20"
+            )}
+          >
+            <div className="flex items-center justify-between">
+              <h4 className="text-sm font-bold tracking-tight text-foreground flex items-center gap-2">
+                <ShieldCheck
+                  className={cn(
+                    "h-4 w-4 shrink-0",
+                    isEmergency
+                      ? "text-red-600"
+                      : isHighRisk
+                        ? "text-amber-600"
+                        : "text-emerald-600"
+                  )}
+                />
+                <span>Immediate Defensive Action Protocol (UX-01)</span>
+              </h4>
+              <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                Priority Steps
+              </span>
+            </div>
+
+            <div className="space-y-2.5 text-xs sm:text-sm text-foreground">
+              {result.action_recommendations.map((rec, idx) => (
+                <div
+                  key={idx}
+                  className="flex items-start gap-3 rounded-lg border border-border/60 bg-background/90 p-3 shadow-xs"
+                >
+                  <span
+                    className={cn(
+                      "flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-xs font-bold",
+                      isEmergency
+                        ? "bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-300"
+                        : isHighRisk
+                          ? "bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300"
+                          : "bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300"
+                    )}
+                  >
+                    {idx + 1}
+                  </span>
+                  <span className="leading-relaxed font-medium pt-0.5">{rec}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* 5. Detected Psychological Pressure Tactics */}
           {result.psychological_tactics && result.psychological_tactics.length > 0 && (
-            <div className="space-y-2">
-              <div className="flex items-center gap-1.5 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                <Zap className="h-3.5 w-3.5 text-amber-500" />
+            <div className="space-y-2.5">
+              <div className="flex items-center gap-2 text-xs font-bold text-muted-foreground uppercase tracking-wider">
+                <Zap className="h-4 w-4 text-amber-500" />
                 <span>Detected Psychological Pressure Tactics</span>
               </div>
-              <div className="flex flex-wrap gap-1.5">
+              <div className="flex flex-wrap gap-2">
                 {result.psychological_tactics.map((tactic, idx) => (
                   <span
                     key={idx}
-                    className="inline-flex items-center rounded-md border border-amber-300 bg-amber-50/80 px-2.5 py-1 text-xs font-medium text-amber-900 dark:border-amber-900/60 dark:bg-amber-950/40 dark:text-amber-200"
+                    className="inline-flex items-center gap-1.5 rounded-lg border border-amber-300 bg-amber-50/80 px-3 py-1.5 text-xs font-semibold text-amber-950 dark:border-amber-900/60 dark:bg-amber-950/40 dark:text-amber-200"
                   >
-                    {tactic}
+                    <span className="h-1.5 w-1.5 rounded-full bg-amber-500" />
+                    <span>{tactic}</span>
                   </span>
                 ))}
               </div>
             </div>
           )}
 
-          {/* 5. Recommended Action Guidance (UX-01) */}
-          <div
-            className={cn(
-              "rounded-xl border p-4 sm:p-5 space-y-3",
-              isEmergency
-                ? "border-red-300 bg-red-50/60 dark:border-red-900/60 dark:bg-red-950/30"
-                : isHighRisk
-                  ? "border-amber-300 bg-amber-50/60 dark:border-amber-900/60 dark:bg-amber-950/30"
-                  : isSafe
-                    ? "border-emerald-300 bg-emerald-50/60 dark:border-emerald-900/60 dark:bg-emerald-950/30"
-                    : "border-blue-300 bg-blue-50/60 dark:border-blue-900/60 dark:bg-blue-950/30"
-            )}
-          >
-            <h4 className="text-sm font-bold tracking-tight text-foreground flex items-center gap-2">
-              <ShieldCheck
-                className={cn(
-                  "h-4 w-4 shrink-0",
-                  isEmergency
-                    ? "text-red-600"
-                    : isHighRisk
-                      ? "text-amber-600"
-                      : "text-emerald-600"
-                )}
-              />
-              <span>Recommended Next Actions (UX-01)</span>
-            </h4>
-
-            <ul className="space-y-2 text-xs sm:text-sm leading-relaxed text-foreground">
-              {result.action_recommendations.map((rec, idx) => (
-                <li key={idx} className="flex items-start gap-2">
-                  <CheckCircle2
-                    className={cn(
-                      "h-4 w-4 shrink-0 mt-0.5",
-                      isEmergency
-                        ? "text-red-600"
-                        : isHighRisk
-                          ? "text-amber-600"
-                          : "text-emerald-600"
-                    )}
-                  />
-                  <span>{rec}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* 6. Missing Evidence & Uncertainty Notice (DET-05) */}
-          {result.missing_evidence && result.missing_evidence.length > 0 && (
-            <div className="rounded-lg border border-border bg-muted/40 p-3.5 space-y-1.5">
-              <div className="flex items-center gap-2 text-xs font-semibold text-muted-foreground">
-                <HelpCircle className="h-3.5 w-3.5 text-blue-500" />
-                <span>Missing Corroborating Context (DET-05)</span>
-              </div>
-              <ul className="list-disc list-inside space-y-1 text-xs text-muted-foreground leading-relaxed">
-                {result.missing_evidence.map((item, idx) => (
-                  <li key={idx}>{item}</li>
-                ))}
-              </ul>
-            </div>
-          )}
-
-          {/* 7. Extracted Identifiers & Evidence (DET-03) */}
+          {/* 6. Extracted Identifiers & Evidence (DET-03) */}
           <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <h4 className="text-sm font-semibold text-foreground flex items-center gap-2">
+            <div className="flex items-center justify-between border-b border-border/50 pb-2">
+              <h4 className="text-sm font-bold text-foreground flex items-center gap-2">
                 <FileSearch className="h-4 w-4 text-primary" />
-                <span>Extracted Identifiers ({totalEntitiesCount})</span>
+                <span>Extracted Technical Indicators ({totalEntitiesCount})</span>
               </h4>
-              <span className="text-xs text-muted-foreground">Click to copy value</span>
+              <span className="text-[11px] text-muted-foreground font-mono">
+                Click indicator to copy
+              </span>
             </div>
 
             {totalEntitiesCount > 0 ? (
@@ -271,28 +268,28 @@ export function ScamCheckResult({
                 ))}
               </div>
             ) : (
-              <p className="text-xs text-muted-foreground italic bg-muted/30 rounded-lg p-3">
-                No direct payment VPAs, contact numbers, or phishing URLs were extracted from this message text.
+              <p className="text-xs text-muted-foreground italic bg-muted/30 rounded-lg p-3.5 border border-border/40">
+                No direct payment VPAs, contact phone numbers, or external URLs were identified in this message text.
               </p>
             )}
           </div>
 
-          {/* 8. Detected Signals Breakdown (DET-04) */}
+          {/* 7. Detected Threat Signals Breakdown (DET-04) */}
           {result.signals.length > 0 && (
-            <div className="space-y-3 pt-2">
-              <h4 className="text-sm font-semibold text-foreground flex items-center gap-2">
+            <div className="space-y-3 pt-1">
+              <h4 className="text-sm font-bold text-foreground flex items-center gap-2 border-b border-border/50 pb-2">
                 <AlertTriangle className="h-4 w-4 text-amber-500" />
-                <span>Detected Threat Signals ({result.signals.length})</span>
+                <span>Triggered Threat Signals ({result.signals.length})</span>
               </h4>
 
-              <div className="space-y-2.5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {result.signals.map((signal) => (
                   <div
                     key={signal.id}
-                    className="rounded-lg border border-border bg-card p-3.5 space-y-1.5 transition-colors"
+                    className="rounded-xl border border-border bg-card p-3.5 space-y-2 transition-colors hover:border-primary/40 shadow-xs"
                   >
                     <div className="flex items-center justify-between gap-2">
-                      <span className="font-semibold text-xs sm:text-sm text-foreground">
+                      <span className="font-bold text-xs sm:text-sm text-foreground truncate">
                         {signal.name}
                       </span>
                       <RiskBadge level={signal.severity} size="sm" showIcon={false} />
@@ -301,7 +298,7 @@ export function ScamCheckResult({
                       {signal.description}
                     </p>
                     {signal.evidence && (
-                      <div className="rounded bg-muted/60 px-2.5 py-1 text-[11px] font-mono text-muted-foreground">
+                      <div className="rounded-md bg-muted/60 px-2.5 py-1 text-[11px] font-mono text-muted-foreground break-all">
                         <span className="font-semibold text-foreground">Matched text: </span>
                         <span>&ldquo;{signal.evidence}&rdquo;</span>
                       </div>
@@ -312,13 +309,28 @@ export function ScamCheckResult({
             </div>
           )}
 
-          {/* 9. Legal & Model Transparency Disclaimer (AI-04, AI-05) */}
-          <div className="rounded-lg bg-muted/20 border border-border/60 p-3 text-[11px] text-muted-foreground leading-relaxed">
-            <span className="font-medium text-foreground">Analysis Provenance: </span>
-            <span>Engine model: {modelSlug}. Automated security risk assessment; does not constitute a legal, criminal, or regulatory determination (AI-05).</span>
+          {/* 8. Missing Evidence & Uncertainty Notice (DET-05) */}
+          {result.missing_evidence && result.missing_evidence.length > 0 && (
+            <div className="rounded-xl border border-border bg-muted/30 p-4 space-y-2">
+              <div className="flex items-center gap-2 text-xs font-bold text-muted-foreground uppercase tracking-wider">
+                <HelpCircle className="h-4 w-4 text-blue-500" />
+                <span>Missing Corroborating Context (DET-05)</span>
+              </div>
+              <ul className="list-disc list-inside space-y-1 text-xs text-muted-foreground leading-relaxed">
+                {result.missing_evidence.map((item, idx) => (
+                  <li key={idx}>{item}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {/* 9. Analysis Transparency Notice */}
+          <div className="rounded-lg bg-muted/20 border border-border/60 p-3.5 text-[11px] text-muted-foreground leading-relaxed">
+            <span className="font-semibold text-foreground">Analysis Provenance: </span>
+            <span>Engine model: {modelSlug}. Automated educational risk analysis; does not constitute a judicial, criminal, or regulatory determination (AI-05, OOS-03).</span>
           </div>
 
-          {/* 10. Footer Controls */}
+          {/* 10. Action Footer */}
           <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-4 border-t border-border">
             <Button
               variant="outline"
@@ -331,8 +343,9 @@ export function ScamCheckResult({
                   <Copy className="h-3.5 w-3.5" />
                 )
               }
+              className="w-full sm:w-auto font-medium"
             >
-              {copiedSummary ? "Report Copied to Clipboard" : "Copy Triage Summary"}
+              {copiedSummary ? "Triage Summary Copied!" : "Copy Triage Summary"}
             </Button>
 
             {onReset && (
@@ -341,13 +354,14 @@ export function ScamCheckResult({
                 size="sm"
                 onClick={onReset}
                 leftIcon={<RotateCcw className="h-3.5 w-3.5" />}
+                className="w-full sm:w-auto font-bold"
               >
                 Analyze Another Message
               </Button>
             )}
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
   );
 }

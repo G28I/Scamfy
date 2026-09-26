@@ -56,8 +56,8 @@ describe("ScamCheckForm component", () => {
 
     expect(screen.getByLabelText(/Suspicious message text for scam analysis/i)).toBeDefined();
     expect(screen.getByRole("button", { name: "Analyze Message" })).toBeDefined();
-    expect(screen.getByText("⚡ Electricity Cutoff")).toBeDefined();
-    expect(screen.getByText("💳 UPI PIN Cashback")).toBeDefined();
+    expect(screen.getByText(/⚡ Electricity Cutoff/i)).toBeDefined();
+    expect(screen.getByText(/💳 Fake Cashback/i)).toBeDefined();
   });
 
   it("populates textarea when a preset chip is clicked", () => {
@@ -66,7 +66,7 @@ describe("ScamCheckForm component", () => {
     const textarea = screen.getByLabelText(/Suspicious message text/i) as HTMLTextAreaElement;
     expect(textarea.value).toBe("");
 
-    const electricityBtn = screen.getByText("⚡ Electricity Cutoff");
+    const electricityBtn = screen.getByText(/⚡ Electricity Cutoff/i);
     fireEvent.click(electricityBtn);
 
     expect(textarea.value).toBe(SAMPLE_PRESETS[0]!.text);
@@ -116,18 +116,18 @@ describe("ScamCheckResult component", () => {
   it("renders executive AI summary, psychological tactics, and missing evidence notice", () => {
     render(<ScamCheckResult result={mockAnalysisResult} onReset={vi.fn()} />);
 
-    expect(screen.getByText("Executive Analysis Summary")).toBeDefined();
+    expect(screen.getByText(/Executive Analysis & Assessment/i)).toBeDefined();
     expect(screen.getByText(/Critical threat detected: Message matches urgent disconnection trap/i)).toBeDefined();
     expect(screen.getByText("Artificial Urgency")).toBeDefined();
     expect(screen.getByText("Fear of Utility Loss")).toBeDefined();
-    expect(screen.getByText("Missing Corroborating Context (DET-05)")).toBeDefined();
+    expect(screen.getByText(/Missing Corroborating Context/i)).toBeDefined();
     expect(screen.getByText("Nemotron-70B Assisting")).toBeDefined();
   });
 
   it("renders extracted identifiers as copyable indicator tags including amounts", () => {
     render(<ScamCheckResult result={mockAnalysisResult} onReset={vi.fn()} />);
 
-    expect(screen.getByText("Extracted Identifiers (7)")).toBeDefined();
+    expect(screen.getByText(/Extracted Technical Indicators \(7\)/i)).toBeDefined();
     expect(screen.getByText("billdesk@okhdfcbank")).toBeDefined();
     expect(screen.getByText("9876543210")).toBeDefined();
     expect(screen.getByText("https://bit.ly/pay-now")).toBeDefined();
@@ -163,7 +163,7 @@ describe("HomePage integration", () => {
   it("renders page header, navigation, and scam check form", () => {
     render(<HomePage />);
 
-    expect(screen.getByText(/Instant Scam Check & Threat Triage/i)).toBeDefined();
+    expect(screen.getByText(/Verify suspicious messages, links/i)).toBeDefined();
     expect(screen.getAllByRole("link", { name: /1930/i }).length).toBeGreaterThan(0);
     expect(screen.getByRole("button", { name: "Analyze Message" })).toBeDefined();
   });
