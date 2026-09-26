@@ -55,7 +55,30 @@ describe("Scam Check BFF Route (/api/check)", () => {
     expect(data.message).toContain("temporarily unavailable");
   });
 
+  it("handles invalid response schema from upstream service by returning 503", async () => {
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        // missing required fields such as overall_risk, extracted_entities, etc.
+        invalid: true,
+      }),
+    });
+
+    const req = new NextRequest("http://localhost:3000/api/check", {
+      method: "POST",
+      body: JSON.stringify({ text: "Suspicious message text checking schema validation" }),
+      headers: { "Content-Type": "application/json", "x-forwarded-for": "10.0.0.98" },
+    });
+
+    const res = await POST(req);
+    expect(res.status).toBe(503);
+
+    const data = await res.json();
+    expect(data.error).toBe("AnalysisServiceUnavailable");
+  });
+
   it("analyzes valid suspicious message and returns 200 with structured analysis payload", async () => {
+    const { prisma } = await import("@/lib/prisma");
     const mockFastApiResponse = {
       overall_risk: "CRITICAL",
       confidence: "high",
@@ -88,6 +111,22 @@ describe("Scam Check BFF Route (/api/check)", () => {
       json: async () => mockFastApiResponse,
     });
 
+    const mockSavedRecord = {
+      id: "mock-check-id-1234",
+      userId: null,
+      inputHash: "hash123",
+      overallRisk: "CRITICAL",
+      primaryCategory: "UTILITY_ELECTRICITY_FRAUD",
+      secondaryCategories: [],
+      signals: mockFastApiResponse.signals,
+      extractedEntities: mockFastApiResponse.extracted_entities,
+      modelMetadata: mockFastApiResponse.model_metadata,
+      actionRecommendations: mockFastApiResponse.action_recommendations,
+      createdAt: new Date("2026-09-26T10:00:00.000Z"),
+    };
+
+    vi.spyOn(prisma.scamCheck, "create").mockResolvedValueOnce(mockSavedRecord as never);
+
     const sampleMessage =
       "Dear customer, your electricity bill is unpaid. Power will be disconnected tonight. Call officer at 9876543210.";
     const req = new NextRequest("http://localhost:3000/api/check", {
@@ -100,13 +139,13 @@ describe("Scam Check BFF Route (/api/check)", () => {
     expect(res.status).toBe(200);
 
     const data = await res.json();
-    expect(data.id).toBeDefined();
+    expect(data.id).toBe("mock-check-id-1234");
     expect(data.overall_risk).toBe("CRITICAL");
     expect(data.primary_category).toBe("UTILITY_ELECTRICITY_FRAUD");
     expect(data.signals.length).toBeGreaterThanOrEqual(1);
     expect(data.extracted_entities.phone_numbers).toContain("9876543210");
     expect(data.action_recommendations.length).toBeGreaterThanOrEqual(1);
-    expect(data.created_at).toBeDefined();
+    expect(data.created_at).toBe("2026-09-26T10:00:00.000Z");
   });
 
   it("enforces rate limiting by returning 429 when threshold is exceeded", async () => {

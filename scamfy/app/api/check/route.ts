@@ -60,6 +60,34 @@ function checkRateLimit(ip: string): boolean {
   return false;
 }
 
+function isValidAnalysisPayload(data: unknown): data is Omit<AnalysisResultDto, "id" | "created_at"> {
+  if (!data || typeof data !== "object") return false;
+  const d = data as Record<string, unknown>;
+
+  const validRisks = new Set(["SAFE", "CAUTION", "SUSPICIOUS", "HIGH_RISK", "CRITICAL"]);
+  const validConfidences = new Set(["low", "medium", "high"]);
+
+  if (typeof d.overall_risk !== "string" || !validRisks.has(d.overall_risk)) return false;
+  if (typeof d.confidence !== "string" || !validConfidences.has(d.confidence)) return false;
+  if (typeof d.primary_category !== "string") return false;
+  if (!Array.isArray(d.secondary_categories)) return false;
+  if (!Array.isArray(d.signals)) return false;
+  if (!Array.isArray(d.action_recommendations)) return false;
+  if (!d.model_metadata || typeof d.model_metadata !== "object") return false;
+
+  const entities = d.extracted_entities as Record<string, unknown> | undefined;
+  if (!entities || typeof entities !== "object") return false;
+  if (!Array.isArray(entities.upi_ids)) return false;
+  if (!Array.isArray(entities.phone_numbers)) return false;
+  if (!Array.isArray(entities.urls)) return false;
+  if (!Array.isArray(entities.emails)) return false;
+  if (!Array.isArray(entities.bank_accounts)) return false;
+  if (!Array.isArray(entities.amounts)) return false;
+  if (!Array.isArray(entities.handles)) return false;
+
+  return true;
+}
+
 export async function POST(req: NextRequest) {
   try {
     // 1. Enforce Rate Limiting (SEC-05)
@@ -126,9 +154,14 @@ export async function POST(req: NextRequest) {
         throw new Error(`Upstream analysis service error: ${response.status}`);
       }
 
-      analysisPayload = await response.json();
+      const rawJson = await response.json();
+      if (!isValidAnalysisPayload(rawJson)) {
+        throw new Error("Invalid response schema received from upstream analysis service");
+      }
+
+      analysisPayload = rawJson;
     } catch (fetchErr) {
-      console.error("FastAPI analysis service unreachable or returned error:", fetchErr);
+      console.error("FastAPI analysis service unreachable or returned invalid response:", fetchErr);
       return NextResponse.json(
         {
           error: "AnalysisServiceUnavailable",
