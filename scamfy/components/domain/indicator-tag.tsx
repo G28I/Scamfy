@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Copy, Check, Hash, Phone, Globe, AtSign, Landmark, FileCode, type LucideIcon } from "lucide-react";
+import { Copy, Check, Hash, Phone, Globe, AtSign, Landmark, FileCode, Banknote, type LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export type IndicatorType =
@@ -8,7 +8,8 @@ export type IndicatorType =
   | "DOMAIN"
   | "HANDLE"
   | "BANK_ACC"
-  | "SCRIPT";
+  | "SCRIPT"
+  | "AMOUNT";
 
 const typeIcons: Record<IndicatorType, LucideIcon> = {
   UPI_ID: Hash,
@@ -17,6 +18,7 @@ const typeIcons: Record<IndicatorType, LucideIcon> = {
   HANDLE: AtSign,
   BANK_ACC: Landmark,
   SCRIPT: FileCode,
+  AMOUNT: Banknote,
 };
 
 const typeLabels: Record<IndicatorType, string> = {
@@ -26,6 +28,7 @@ const typeLabels: Record<IndicatorType, string> = {
   HANDLE: "Social Handle",
   BANK_ACC: "Bank Account",
   SCRIPT: "Script / Template",
+  AMOUNT: "Amount",
 };
 
 export interface IndicatorTagProps extends React.HTMLAttributes<HTMLDivElement> {

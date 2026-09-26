@@ -38,8 +38,48 @@ export interface AnalysisResultDto {
   created_at: string;
 }
 
+// In-memory rate limiter per IP for SEC-05 (30 requests per minute)
+const ipRateLimitMap = new Map<string, { count: number; resetTime: number }>();
+const RATE_LIMIT_WINDOW_MS = 60 * 1000;
+const MAX_REQUESTS_PER_MINUTE = 30;
+
+function checkRateLimit(ip: string): boolean {
+  const now = Date.now();
+  const record = ipRateLimitMap.get(ip);
+
+  if (!record || now > record.resetTime) {
+    ipRateLimitMap.set(ip, { count: 1, resetTime: now + RATE_LIMIT_WINDOW_MS });
+    return false;
+  }
+
+  if (record.count >= MAX_REQUESTS_PER_MINUTE) {
+    return true;
+  }
+
+  record.count += 1;
+  return false;
+}
+
 export async function POST(req: NextRequest) {
   try {
+    // 1. Enforce Rate Limiting (SEC-05)
+    const clientIp =
+      req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
+      req.headers.get("x-real-ip") ||
+      "127.0.0.1";
+
+    if (checkRateLimit(clientIp)) {
+      return NextResponse.json(
+        {
+          error: "RateLimitExceeded",
+          message: "Too many analysis requests. Please wait a minute before submitting again.",
+          status: 429,
+        },
+        { status: 429, headers: { "Retry-After": "60" } }
+      );
+    }
+
+    // 2. Validate Input Payload (DET-01)
     const body = await req.json();
     const { text } = body as Partial<CheckApiRequest>;
 
@@ -68,6 +108,7 @@ export async function POST(req: NextRequest) {
     const trimmedText = text.trim();
     const inputHash = crypto.createHash("sha256").update(trimmedText).digest("hex");
 
+    // 3. Call Upstream FastAPI Analysis Engine
     const backendBaseUrl = process.env.FASTAPI_BACKEND_URL || "http://127.0.0.1:8000";
     let analysisPayload: Omit<AnalysisResultDto, "id" | "created_at">;
 
@@ -78,26 +119,31 @@ export async function POST(req: NextRequest) {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ text: trimmedText }),
-        signal: AbortSignal.timeout(5000), // 5s timeout
+        signal: AbortSignal.timeout(8000), // 8s timeout
       });
 
       if (!response.ok) {
-        throw new Error(`FastAPI responded with status ${response.status}`);
+        throw new Error(`Upstream analysis service error: ${response.status}`);
       }
 
       analysisPayload = await response.json();
-    } catch (err) {
-      // Fallback internal analysis in case backend is offline during isolated test runs
-      console.warn("Backend FastAPI unreachable, using internal fallback analyzer:", err);
-      analysisPayload = fallbackAnalyze(trimmedText);
+    } catch (fetchErr) {
+      console.error("FastAPI analysis service unreachable or returned error:", fetchErr);
+      return NextResponse.json(
+        {
+          error: "AnalysisServiceUnavailable",
+          message:
+            "The scam analysis engine is temporarily unavailable. Please try again shortly.",
+          status: 503,
+        },
+        { status: 503 }
+      );
     }
 
-    // Persist check record into PostgreSQL via Prisma (SEC-01 anonymous check, SEC-04)
-    let recordId: string = crypto.randomUUID();
-    let createdAtIso: string = new Date().toISOString();
-
+    // 4. Persist Check Record to PostgreSQL via Prisma (SEC-01, SEC-04)
+    let savedRecord;
     try {
-      const record = await prisma.scamCheck.create({
+      savedRecord = await prisma.scamCheck.create({
         data: {
           userId: null,
           inputHash,
@@ -110,15 +156,21 @@ export async function POST(req: NextRequest) {
           actionRecommendations: analysisPayload.action_recommendations,
         },
       });
-      recordId = record.id;
-      createdAtIso = record.createdAt.toISOString();
     } catch (dbErr) {
-      // If DB is offline in lightweight client mock tests, log and proceed with ephemeral UUID
-      console.warn("Prisma persistence failed (continuing with ephemeral ID):", dbErr);
+      console.error("Prisma persistence failed for scam check:", dbErr);
+      return NextResponse.json(
+        {
+          error: "PersistenceError",
+          message: "Unable to record the analysis results. Please try again.",
+          status: 500,
+        },
+        { status: 500 }
+      );
     }
 
+    // 5. Return Full Structured Triage Result
     const result: AnalysisResultDto = {
-      id: recordId,
+      id: savedRecord.id,
       overall_risk: analysisPayload.overall_risk,
       confidence: analysisPayload.confidence,
       primary_category: analysisPayload.primary_category,
@@ -127,7 +179,7 @@ export async function POST(req: NextRequest) {
       extracted_entities: analysisPayload.extracted_entities,
       action_recommendations: analysisPayload.action_recommendations,
       model_metadata: analysisPayload.model_metadata,
-      created_at: createdAtIso,
+      created_at: savedRecord.createdAt.toISOString(),
     };
 
     return NextResponse.json(result, { status: 200 });
@@ -142,92 +194,4 @@ export async function POST(req: NextRequest) {
       { status: 500 }
     );
   }
-}
-
-// Resilient fallback analyzer for when backend is temporarily offline
-function fallbackAnalyze(text: string): Omit<AnalysisResultDto, "id" | "created_at"> {
-  const isElectricity = /electricity.*?(?:disconnected|power cut|officer)/i.test(text);
-  const isUpi = /(?:enter|put).*?(?:upi|pin).*?(?:receive|get)/i.test(text);
-  const isTask = /(?:part time|work from home).*?(?:earn|youtube|telegram)/i.test(text);
-  const isDigitalArrest = /(?:digital arrest|police|customs|cbi)/i.test(text);
-
-  const signals: AnalysisSignalDto[] = [];
-  let risk: "SAFE" | "CAUTION" | "SUSPICIOUS" | "HIGH_RISK" | "CRITICAL" = "SAFE";
-  let category = "INFORMATIONAL_OR_UNKNOWN";
-  const recs: string[] = [];
-
-  if (isUpi) {
-    risk = "CRITICAL";
-    category = "UPI_REVERSE_PAYMENT_FRAUD";
-    signals.push({
-      id: "RULE-UPI-PIN-REVERSE",
-      name: "UPI PIN Receive Trick",
-      description: "Entering a UPI PIN only transfers money OUT of your account.",
-      severity: "CRITICAL",
-      evidence: "UPI PIN prompt detected",
-    });
-    recs.push("UPI PIN is required ONLY to SEND money, NEVER to receive money.");
-    recs.push("Decline this payment request immediately inside your UPI application.");
-  } else if (isElectricity) {
-    risk = "CRITICAL";
-    category = "UTILITY_ELECTRICITY_FRAUD";
-    signals.push({
-      id: "RULE-ELECTRICITY-DISCONNECTION",
-      name: "Urgent Electricity Disconnection Threat",
-      description: "Official electricity providers never issue disconnection notices via personal SMS.",
-      severity: "CRITICAL",
-      evidence: "Electricity disconnection threat",
-    });
-    recs.push("Do not call the mobile number listed in the SMS or install any APK file.");
-    recs.push("Verify your bill status directly on your official state DISCOM portal.");
-  } else if (isDigitalArrest) {
-    risk = "CRITICAL";
-    category = "IMPERSONATION_POLICE_EXTORTION";
-    signals.push({
-      id: "RULE-DIGITAL-ARREST-EXTORTION",
-      name: "Digital Arrest / Impersonation",
-      description: "Police and law enforcement never conduct video-call arrests.",
-      severity: "CRITICAL",
-      evidence: "Digital arrest / law enforcement impersonation",
-    });
-    recs.push("Dial 1930 (National Cyber Crime Helpline) or report at cybercrime.gov.in.");
-  } else if (isTask) {
-    risk = "HIGH_RISK";
-    category = "TASK_COMMISSION_FRAUD";
-    signals.push({
-      id: "RULE-PART-TIME-TASK-COMMISSION",
-      name: "Part-Time Task Scam",
-      description: "Offers daily wages on Telegram for trivial tasks before demanding prepaid deposit fees.",
-      severity: "HIGH_RISK",
-      evidence: "Part-time task earning lure",
-    });
-    recs.push("Never deposit money for prepaid tasks or to unlock commissions.");
-  } else {
-    recs.push("No obvious high-risk scam patterns detected.");
-    recs.push("Always verify payment requests through independent official channels.");
-  }
-
-  // Extract phone numbers and URLs
-  const phoneMatches = text.match(/(?:(?:\+91|91|0)[\s\-]?)?([6-9]\d{9})\b/g) || [];
-  const urlMatches = text.match(/https?:\/\/[^\s<>"]+/g) || [];
-  const upiMatches = text.match(/[a-zA-Z0-9.\-_]{2,64}@[a-zA-Z]{2,64}/g) || [];
-
-  return {
-    overall_risk: risk,
-    confidence: risk === "SAFE" ? "low" : "high",
-    primary_category: category,
-    secondary_categories: [],
-    signals,
-    extracted_entities: {
-      upi_ids: Array.from(new Set(upiMatches)),
-      phone_numbers: Array.from(new Set(phoneMatches)),
-      urls: Array.from(new Set(urlMatches)),
-      emails: [],
-      bank_accounts: [],
-      amounts: [],
-      handles: [],
-    },
-    action_recommendations: recs,
-    model_metadata: { engine: "bff-fallback" },
-  };
 }

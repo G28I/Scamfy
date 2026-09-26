@@ -106,3 +106,32 @@ async def test_analyze_api_endpoint_validation_error():
         response = await client.post("/api/v1/analyze", json=payload)
 
     assert response.status_code == 422
+
+
+def test_extract_bank_account_numbers():
+    text1 = "Please pay to account 5028123456789012 at once"
+    entities1 = extract_all_entities(text1)
+    assert "A/C: 5028123456789012" in entities1.bank_accounts
+
+    text2 = "Transfer fee to A/C No: 123456789012 IFSC SBIN0001234"
+    entities2 = extract_all_entities(text2)
+    assert "A/C: 123456789012" in entities2.bank_accounts
+    assert "IFSC: SBIN0001234" in entities2.bank_accounts
+
+
+@pytest.mark.asyncio
+async def test_analyze_rate_limiting():
+    from backend.app.core.rate_limit import _request_history
+
+    _request_history.clear()
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as client:
+        for _ in range(60):
+            res = await client.post("/api/v1/analyze", json={"text": "Test message check"})
+            assert res.status_code == 200
+
+        # 61st request should be rate limited
+        blocked_res = await client.post("/api/v1/analyze", json={"text": "Test message check"})
+        assert blocked_res.status_code == 429
+        assert "Rate limit exceeded" in blocked_res.json()["detail"]
+    _request_history.clear()

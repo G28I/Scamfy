@@ -4,7 +4,8 @@ from backend.app.api.v1.schemas.analyze import (
 )
 from backend.app.core.evaluator import evaluate_message
 from backend.app.core.extractors import extract_all_entities
-from fastapi import APIRouter, status
+from backend.app.core.rate_limit import check_rate_limit
+from fastapi import APIRouter, Depends, status
 
 router = APIRouter(tags=["Analysis"])
 
@@ -13,6 +14,7 @@ router = APIRouter(tags=["Analysis"])
     "/analyze",
     response_model=AnalyzeResponse,
     status_code=status.HTTP_200_OK,
+    dependencies=[Depends(check_rate_limit)],
     summary="Analyze suspicious message text for scam patterns and extract entities",
     description="Accepts text input, extracts financial/contact entities, and performs deterministic heuristic scam triage.",
 )

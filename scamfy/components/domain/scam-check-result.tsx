@@ -42,6 +42,7 @@ export function ScamCheckResult({
     result.extracted_entities.urls.length +
     result.extracted_entities.emails.length +
     result.extracted_entities.bank_accounts.length +
+    result.extracted_entities.amounts.length +
     result.extracted_entities.handles.length;
 
   const handleCopySummary = async () => {
@@ -195,6 +196,9 @@ export function ScamCheckResult({
                 ))}
                 {result.extracted_entities.bank_accounts.map((acc, i) => (
                   <IndicatorTag key={`acc-${i}`} type="BANK_ACC" value={acc} />
+                ))}
+                {result.extracted_entities.amounts.map((amount, i) => (
+                  <IndicatorTag key={`amount-${i}`} type="AMOUNT" value={amount} />
                 ))}
                 {result.extracted_entities.handles.map((h, i) => (
                   <IndicatorTag key={`handle-${i}`} type="HANDLE" value={h} />

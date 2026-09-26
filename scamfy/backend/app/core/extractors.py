@@ -54,6 +54,11 @@ IFSC_REGEX = re.compile(
     r"\b[A-Z]{4}0[A-Z0-9]{6}\b",
 )
 
+ACCOUNT_NUM_REGEX = re.compile(
+    r"(?:(?:a\/c|acct?|account)\s*(?:no\.?|number|num)?:?\s*|pay\s*to\s*account\s*)([0-9]{9,18})\b",
+    re.IGNORECASE,
+)
+
 TELEGRAM_REGEX = re.compile(
     r"(?:t\.me/|@)([a-zA-Z0-9_]{4,32})",
     re.IGNORECASE,
@@ -127,14 +132,22 @@ def extract_amounts(text: str) -> list[str]:
 
 
 def extract_bank_accounts(text: str) -> list[str]:
-    ifscs = IFSC_REGEX.findall(text)
     seen = set()
     result = []
+    ifscs = IFSC_REGEX.findall(text)
     for code in ifscs:
         clean = f"IFSC: {code.strip()}"
         if clean not in seen:
             seen.add(clean)
             result.append(clean)
+
+    accs = ACCOUNT_NUM_REGEX.findall(text)
+    for acc in accs:
+        clean = f"A/C: {acc.strip()}"
+        if clean not in seen:
+            seen.add(clean)
+            result.append(clean)
+
     return result
 
 

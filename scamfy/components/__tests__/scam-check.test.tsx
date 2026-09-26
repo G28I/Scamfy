@@ -106,13 +106,16 @@ describe("ScamCheckResult component", () => {
     expect(screen.getByRole("link", { name: /Call National Cyber Crime Helpline 1930/i })).toBeDefined();
   });
 
-  it("renders extracted identifiers as copyable indicator tags", () => {
+  it("renders extracted identifiers as copyable indicator tags including amounts", () => {
     render(<ScamCheckResult result={mockAnalysisResult} onReset={vi.fn()} />);
 
+    expect(screen.getByText("Extracted Identifiers (7)")).toBeDefined();
     expect(screen.getByText("billdesk@okhdfcbank")).toBeDefined();
     expect(screen.getByText("9876543210")).toBeDefined();
     expect(screen.getByText("https://bit.ly/pay-now")).toBeDefined();
     expect(screen.getByText("IFSC: HDFC0001234")).toBeDefined();
+    expect(screen.getByText("Rs. 1,450")).toBeDefined();
+    expect(screen.getByText("Amount")).toBeDefined();
   });
 
   it("renders threat signals and recommended next actions", () => {
