@@ -77,6 +77,42 @@ describe("Scam Check BFF Route (/api/check)", () => {
     expect(data.error).toBe("AnalysisServiceUnavailable");
   });
 
+  it("handles malformed hybrid fields in upstream response by returning 503", async () => {
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        overall_risk: "SAFE",
+        confidence: "low",
+        primary_category: "INFORMATIONAL",
+        secondary_categories: [],
+        signals: [],
+        extracted_entities: {
+          upi_ids: [],
+          phone_numbers: [],
+          urls: [],
+          emails: [],
+          bank_accounts: [],
+          amounts: [],
+          handles: [],
+        },
+        action_recommendations: [],
+        model_metadata: {},
+        psychological_tactics: [12345], // Malformed: should be string[]
+      }),
+    });
+
+    const req = new NextRequest("http://localhost:3000/api/check", {
+      method: "POST",
+      body: JSON.stringify({ text: "Checking malformed hybrid field validation" }),
+      headers: { "Content-Type": "application/json", "x-forwarded-for": "10.0.0.97" },
+    });
+
+    const res = await POST(req);
+    expect(res.status).toBe(503);
+    const data = await res.json();
+    expect(data.error).toBe("AnalysisServiceUnavailable");
+  });
+
   it("analyzes valid suspicious message and returns 200 with structured analysis payload", async () => {
     const { prisma } = await import("@/lib/prisma");
     const mockFastApiResponse = {
@@ -102,8 +138,11 @@ describe("Scam Check BFF Route (/api/check)", () => {
         amounts: [],
         handles: [],
       },
+      psychological_tactics: ["Artificial Urgency", "Panic Induction"],
+      missing_evidence: ["Official stamped utility bill notice"],
+      synthesis_summary: "Classic electricity bill disconnection scam using artificial panic.",
       action_recommendations: ["Do not call the mobile number."],
-      model_metadata: { engine: "deterministic-v1" },
+      model_metadata: { engine: "hybrid-deterministic-nemotron-v1" },
     };
 
     global.fetch = vi.fn().mockResolvedValue({
@@ -144,6 +183,11 @@ describe("Scam Check BFF Route (/api/check)", () => {
     expect(data.primary_category).toBe("UTILITY_ELECTRICITY_FRAUD");
     expect(data.signals.length).toBeGreaterThanOrEqual(1);
     expect(data.extracted_entities.phone_numbers).toContain("9876543210");
+    expect(data.psychological_tactics).toContain("Artificial Urgency");
+    expect(data.missing_evidence).toContain("Official stamped utility bill notice");
+    expect(data.synthesis_summary).toBe(
+      "Classic electricity bill disconnection scam using artificial panic."
+    );
     expect(data.action_recommendations.length).toBeGreaterThanOrEqual(1);
     expect(data.created_at).toBe("2026-09-26T10:00:00.000Z");
   });

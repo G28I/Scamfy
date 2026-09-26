@@ -171,3 +171,76 @@ async def test_analyze_rate_limiting_with_internal_secret_forwarding():
         assert res_b.status_code == 200
         assert "10.0.0.2" in _request_history
     _request_history.clear()
+
+
+def test_arbitrator_confidence_calculation():
+    from backend.app.api.v1.schemas.analyze import (
+        AnalysisSignal,
+        AnalyzeResponse,
+        ExtractedEntities,
+        NemotronAnalysisOutput,
+    )
+    from backend.app.core.arbitrator import arbitrate_hybrid_analysis
+
+    # 1. Deterministic is SAFE (det_rank=0), Nemotron returns HIGH_RISK with LOW confidence
+    det_safe = AnalyzeResponse(
+        overall_risk=RiskLevel.SAFE,
+        confidence=ConfidenceTier.LOW,
+        primary_category="INFORMATIONAL_OR_UNKNOWN",
+        secondary_categories=[],
+        signals=[],
+        extracted_entities=ExtractedEntities(),
+        psychological_tactics=[],
+        missing_evidence=[],
+        synthesis_summary="No threat detected.",
+        action_recommendations=[],
+        model_metadata={},
+    )
+    nemotron_low_conf = NemotronAnalysisOutput(
+        overall_risk=RiskLevel.HIGH_RISK,
+        confidence=ConfidenceTier.LOW,
+        primary_category="TASK_COMMISSION_FRAUD",
+        secondary_categories=[],
+        signals=[
+            AnalysisSignal(
+                id="AI-1",
+                name="AI Signal",
+                description="desc",
+                severity=RiskLevel.HIGH_RISK,
+                evidence="text",
+            )
+        ],
+        psychological_tactics=[],
+        missing_evidence=[],
+        synthesis_summary="Potential scam.",
+        action_recommendations=[],
+    )
+    res = arbitrate_hybrid_analysis(det_safe, nemotron_low_conf, {}, ExtractedEntities())
+    assert res.overall_risk == RiskLevel.HIGH_RISK
+    assert res.confidence == ConfidenceTier.LOW
+
+    # 2. Deterministic is HIGH_RISK (det_rank=3) with signals -> confidence is HIGH
+    det_high = AnalyzeResponse(
+        overall_risk=RiskLevel.HIGH_RISK,
+        confidence=ConfidenceTier.HIGH,
+        primary_category="TASK_COMMISSION_FRAUD",
+        secondary_categories=[],
+        signals=[
+            AnalysisSignal(
+                id="RULE-TASK",
+                name="Task Rule",
+                description="desc",
+                severity=RiskLevel.HIGH_RISK,
+                evidence="text",
+            )
+        ],
+        extracted_entities=ExtractedEntities(),
+        psychological_tactics=[],
+        missing_evidence=[],
+        synthesis_summary="Task scam.",
+        action_recommendations=[],
+        model_metadata={},
+    )
+    res2 = arbitrate_hybrid_analysis(det_high, nemotron_low_conf, {}, ExtractedEntities())
+    assert res2.overall_risk == RiskLevel.HIGH_RISK
+    assert res2.confidence == ConfidenceTier.HIGH
