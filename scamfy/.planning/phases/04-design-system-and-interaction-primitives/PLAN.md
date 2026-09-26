@@ -35,7 +35,7 @@
 ### Task 2: Core Accessible UI Primitives (`components/ui/`) (Stage B)
 - **Skill Usage**: `frontend-design` (Charley-baba) + `shadcn`
 - **Action**:
-  - Implement 12 core accessible primitives in `components/ui/`:
+  - Implement 13 core accessible primitives in `components/ui/`:
     1. `button.tsx`: Multi-variant (`default`, `destructive`, `outline`, `secondary`, `ghost`, `link`, `emergency`), loading spinner, keyboard focus rings (`UX-03`, `UX-04`).
     2. `input.tsx`: Text input with `error`, `helperText`, `aria-invalid`, `aria-describedby`.
     3. `textarea.tsx`: Multi-line text input with character counter support and accessible error binding.
@@ -46,8 +46,9 @@
     8. `tabs.tsx`: Accessible tab panels using `@radix-ui/react-tabs` with keyboard arrow navigation.
     9. `accordion.tsx`: Collapsible accordion using `@radix-ui/react-accordion`.
     10. `tooltip.tsx`: Keyboard and hover accessible tooltips using `@radix-ui/react-tooltip`.
-    11. `skeleton.tsx` & `loading-spinner.tsx`: Shimmer loading states respecting reduced-motion (`UX-05`).
-    12. `empty-state.tsx`: Standardized empty view with icon, title, description, and action button (`UX-05`).
+    11. `skeleton.tsx`: Shimmer loading placeholders respecting reduced-motion (`UX-05`).
+    12. `loading-spinner.tsx`: Accessible status spinner with decorative role support (`UX-05`).
+    13. `empty-state.tsx`: Standardized empty view with icon, title, description, and action button (`UX-05`).
 - **Verification**: `npm run typecheck` and `npm run lint` pass cleanly with zero errors.
 
 ### Task 3: Scamfy Domain Interaction Primitives (`components/domain/`) (Stage B)

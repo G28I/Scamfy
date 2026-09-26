@@ -92,7 +92,7 @@ Risk states must **never be communicated using color alone**. Every risk tier pa
 | Category | In Scope for Phase 4 | Strictly Out of Scope (Phase 5+) |
 | :--- | :--- | :--- |
 | **UI Tokens & Themes** | Tailwind v4 `@theme`, CSS variables, dark/light mode, contrast tokens. | Hardcoded or ad-hoc style overrides. |
-| **Component Primitives** | 12 core UI primitives (`Button`, `Input`, `Dialog`, etc.) + 7 domain primitives (`RiskBadge`, `ConfidenceMeter`, etc.). | Slice-specific business logic or form orchestration. |
+| **Component Primitives** | 13 core UI primitives (`Button`, `Input`, `Textarea`, `Card`, `Badge`, `Dialog`, `Alert`, `Tabs`, `Accordion`, `Tooltip`, `Skeleton`, `LoadingSpinner`, `EmptyState`) + 7 domain primitives (`RiskBadge`, `UrgencyBanner`, `IndicatorTag`, `ConfidenceMeter`, `TimelineItem`, `EvidenceDropzone`, `StateFeedback`). | Slice-specific business logic or form orchestration. |
 | **Interactions** | Focus management, keyboard navigation (`UX-03`), modal Escape/trap, tooltips, clipboard copy, state feedback (`UX-05`). | Real asynchronous backend API calls or routing redirects. |
 | **Showcase** | Development/recruiter showcase page (`/design-system`) demonstrating all tokens and components. | End-user product flows or public navigation menus. |
 | **Backend / DB / AI** | None (100% frontend presentation). | Zero Prisma CRUD, zero PostgreSQL queries, zero Nemotron NIM inference, zero R2 storage. |
