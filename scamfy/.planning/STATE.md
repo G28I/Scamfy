@@ -2,9 +2,9 @@
 
 ## Current Status
 - **Current Milestone**: Milestone 1 (Slice 1 - Core Scam Check)
-- **Active Phase**: Phase 5 (Scam Check Input & Analysis Slice)
+- **Active Phase**: Phase 6 (Deterministic Risk Engine + Nemotron NIM)
 - **Status**: Ready for Planning ⚪
-- **Last Updated**: 2026-09-25
+- **Last Updated**: 2026-09-26
 
 ---
 
@@ -16,7 +16,7 @@
 | **02** | Project Structure, GSD Setup & Coding Standards | Foundation | 🟢 **Complete** | 2026-09-24 |
 | **03** | Core Data Model & Migrations (Prisma on PostgreSQL) | Foundation | 🟢 **Complete** | 2026-09-25 |
 | **04** | Design System & Interaction Primitives | Foundation | 🟢 **Complete** | 2026-09-25 |
-| **05** | Scam Check Input & Analysis Slice | Slice 1 | ⚪ Planned | — |
+| **05** | Scam Check Input & Analysis Slice | Slice 1 | 🟢 **Complete** | 2026-09-26 |
 | **06** | Deterministic Risk Engine + Nemotron NIM | Slice 1 | ⚪ Planned | — |
 | **07** | Scam Pattern Database & Community Reporting | Slice 2 | ⚪ Planned | — |
 | **08** | Money-Mule Protection & Transfer Warnings | Slice 2 | ⚪ Planned | — |
@@ -28,18 +28,19 @@
 
 ---
 
-## Phase 4 Execution Checklist (Design System & Interaction Primitives)
-- [x] Task 1: Design Tokens, CSS Variables & Tailwind v4 Theme Foundation (`globals.css`, `lib/utils.ts`, UI dependencies)
-- [x] Task 2: Core Accessible UI Primitives (`components/ui/`: `Button`, `Input`, `Textarea`, `Card`, `Badge`, `Dialog`, `Alert`, `Tabs`, `Accordion`, `Tooltip`, `Skeleton`, `LoadingSpinner`, `EmptyState`)
-- [x] Task 3: Scamfy Domain Interaction Primitives (`components/domain/`: `RiskBadge`, `UrgencyBanner` 1930, `IndicatorTag`, `ConfidenceMeter`, `TimelineItem`, `EvidenceDropzone`, `StateFeedback`)
-- [x] Task 4: Interactive Showcase Page (`/design-system`) & Automated Component/Accessibility Tests (`components/__tests__/`)
-- [x] Task 5: Web Design Guidelines Audit & Remediation (Stage C & D Audit Pass)
-- [x] Phase 4 Verification & Summary (`VERIFICATION.md`, `SUMMARY.md`)
+## Phase 5 Execution Checklist (Scam Check Input & Analysis Slice)
+- [x] Task 1: FastAPI Entity Extractor & Heuristic Analysis Endpoint (`backend/app/api/v1/analyze.py`, extractors, Pydantic contracts)
+- [x] Task 2: Next.js BFF Route & Prisma Persistence (`app/api/check/route.ts`, input hashing, `ScamCheck` model)
+- [x] Task 3: Scam Check Domain UI Components (`components/domain/scam-check-form.tsx`, `scam-check-result.tsx`)
+- [x] Task 4: Home Page Integration (`app/page.tsx`) & Responsive Navigation
+- [x] Task 5: Component & Behavioral Testing Suite (`components/__tests__/scam-check.test.tsx`, `backend/tests/test_analyze.py`)
+- [x] Phase 5 Verification & Summary (`VERIFICATION.md`, `SUMMARY.md`)
 
 ---
 
 ## Immediate Next Actions
-Run `/gsd-plan-phase 5` to plan Phase 5: Scam Check Input & Analysis Slice (Slice 1).
+Run `/gsd-plan-phase 6` to plan Phase 6: Deterministic Risk Engine + Nemotron NIM (Slice 1).
+
 
 
 
