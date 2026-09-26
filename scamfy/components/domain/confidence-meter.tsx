@@ -39,13 +39,14 @@ const tierConfig: Record<
 
 export function ConfidenceMeter({
   level,
-  score: _score,
+  score,
   label = "Analysis Confidence",
   signalCount,
   explanation,
   className,
   ...props
 }: ConfidenceMeterProps) {
+  void score;
   const config = tierConfig[level] || tierConfig.medium;
   const tooltipText =
     explanation ||

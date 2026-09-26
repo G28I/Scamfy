@@ -22,11 +22,12 @@ export function TimelineItem({
   currency = "₹",
   counterparty,
   isDebit = true,
-  isFirst: _isFirst = false,
+  isFirst = false,
   isLast = false,
   className,
   ...props
 }: TimelineItemProps) {
+  void isFirst;
   const formattedDate =
     typeof timestamp === "string"
       ? timestamp

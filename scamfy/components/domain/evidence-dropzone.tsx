@@ -36,6 +36,19 @@ export function EvidenceDropzone({
     return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
   };
 
+  const formatAcceptedTypes = (types: string[]): string => {
+    return types
+      .map((t) => {
+        const clean = t.replace(/^(image|application|text|video|audio)\//, "");
+        if (clean.toLowerCase() === "jpeg") return "JPG";
+        if (clean.toLowerCase() === "png") return "PNG";
+        if (clean.toLowerCase() === "webp") return "WebP";
+        if (clean.toLowerCase() === "pdf") return "PDF";
+        return clean.toUpperCase();
+      })
+      .join(", ");
+  };
+
   const validateAndAddFiles = (newFiles: FileList | File[]) => {
     setValidationError(null);
     const valid: File[] = [];
@@ -45,7 +58,8 @@ export function EvidenceDropzone({
       if (!file) continue;
 
       if (acceptedFileTypes.length > 0 && !acceptedFileTypes.includes(file.type)) {
-        setValidationError(`Unsupported file type: ${file.name}. Only PNG, JPG, WebP, and PDF are permitted.`);
+        const permitted = formatAcceptedTypes(acceptedFileTypes);
+        setValidationError(`Unsupported file type: ${file.name}. Only ${permitted} are permitted.`);
         return;
       }
 
@@ -152,7 +166,7 @@ export function EvidenceDropzone({
           Drag & drop evidence files or <span className="text-primary underline">browse</span>
         </h4>
         <p className="text-xs text-muted-foreground max-w-sm leading-relaxed">
-          Attach transaction receipts, chat screenshots, or bank statements (PNG, JPG, PDF up to{" "}
+          Attach transaction receipts, chat screenshots, or bank statements ({formatAcceptedTypes(acceptedFileTypes)} up to{" "}
           {formatFileSize(maxSizeBytes)} each).
         </p>
 

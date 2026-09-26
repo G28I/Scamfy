@@ -46,10 +46,10 @@
     --risk-high-text: #9f1239;
     --risk-high-glow: rgba(225, 29, 72, 0.15);
 
-    --risk-critical-bg: #fef2f2;
+    --risk-critical-bg: #450a0a;
     --risk-critical-border: #dc2626;
-    --risk-critical-text: #991b1b;
-    --risk-critical-glow: rgba(220, 38, 38, 0.25);
+    --risk-critical-text: #fef2f2;
+    --risk-critical-glow: rgba(220, 38, 38, 0.3);
   }
 
   .dark {

@@ -56,7 +56,7 @@ Risk states must **never be communicated using color alone**. Every risk tier pa
 | **`CAUTION`** | Amber (`#92400E` on `#FFFBEB` light; `#FBBF24` on `#291804` dark) | Info Circle (`Info`) / Outline pill | >= 4.5:1 | Informational awareness, missing context. |
 | **`SUSPICIOUS`** | Orange (`#9A3412` on `#FFF7ED` light; `#FB923C` on `#2D1306` dark) | Alert Triangle (`AlertTriangle`) / Tag badge | >= 4.5:1 | Heightened scrutiny, unverified claims. |
 | **`HIGH_RISK`** | Rose (`#9F1239` on `#FFF1F2` light; `#FB7185` on `#2E0813` dark) | Alert Octagon (`AlertOctagon`) / Bordered badge | >= 4.5:1 | Urgent threat warning, high likelihood of scam. |
-| **`CRITICAL`** | Crimson (`#FEF2F2` on `#450A0A` light/dark with `#EF4444` border) | Siren / Flame (`AlertCircle`) / High-contrast container | >= 7.0:1 | Active loss emergency / 1930 Helpline urgency. |
+| **`CRITICAL`** | Crimson (`#FEF2F2` on `#450A0A` light/dark with `#DC2626` light / `#EF4444` dark border) | Siren / Flame (`AlertCircle`) / High-contrast container | >= 7.0:1 | Active loss emergency / 1930 Helpline urgency. |
 
 ### Visual Identity Principles:
 - **Calm & Professional**: Avoid alarmist blinking animations, flashing red screens, or fear-inducing copy.

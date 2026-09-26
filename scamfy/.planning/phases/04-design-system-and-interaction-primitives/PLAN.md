@@ -68,7 +68,7 @@
 - **Action**:
   - Build interactive showcase page at `app/design-system/page.tsx`:
     - Demonstrates all tokens, typography, spacing, and buttons.
-    - Demonstrates all 12 core UI primitives and 7 domain components.
+    - Demonstrates all 13 core UI primitives and 7 domain components.
     - Demonstrates all 5 risk tiers with distinct icons, shapes, and colors.
     - Demonstrates dark/light mode toggle and responsive viewport layouts.
   - Author automated component & behavior tests in `components/__tests__/`:

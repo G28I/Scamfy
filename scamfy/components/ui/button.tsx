@@ -60,32 +60,96 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     },
     ref
   ) => {
+    const isDisabled = Boolean(disabled || isLoading);
+
     if (asChild) {
+      if (React.isValidElement(children)) {
+        const child = children as React.ReactElement<{
+          children?: React.ReactNode;
+          className?: string;
+          onClick?: React.MouseEventHandler;
+          onKeyDown?: React.KeyboardEventHandler;
+          tabIndex?: number;
+          "aria-disabled"?: boolean | "true" | "false";
+        }>;
+        const childProps = child.props || {};
+
+        const handleDisabledClick = (e: React.MouseEvent) => {
+          e.preventDefault();
+          e.stopPropagation();
+        };
+
+        const handleDisabledKeyDown = (e: React.KeyboardEvent) => {
+          if (e.key === "Enter" || e.key === " " || e.key === "Spacebar") {
+            e.preventDefault();
+            e.stopPropagation();
+          }
+        };
+
+        const content = isLoading ? (
+          <>
+            <Loader2 className="mr-2 h-4 w-4 animate-spin motion-reduce:animate-none" />
+            <span>{childProps.children}</span>
+          </>
+        ) : (
+          <>
+            {leftIcon && <span className="mr-2 inline-flex items-center">{leftIcon}</span>}
+            {childProps.children}
+            {rightIcon && <span className="ml-2 inline-flex items-center">{rightIcon}</span>}
+          </>
+        );
+
+        if (isDisabled) {
+          return (
+            <Slot
+              className={cn(
+                buttonVariants({ variant, size, className }),
+                "pointer-events-none opacity-50 cursor-not-allowed"
+              )}
+              ref={ref}
+              aria-busy={isLoading || undefined}
+              aria-disabled="true"
+              tabIndex={-1}
+              {...props}
+              onClick={handleDisabledClick}
+              onKeyDown={handleDisabledKeyDown}
+            >
+              {React.cloneElement(child, {
+                "aria-disabled": "true",
+                tabIndex: -1,
+                onClick: handleDisabledClick,
+                onKeyDown: handleDisabledKeyDown,
+                children: content,
+              })}
+            </Slot>
+          );
+        }
+
+        return (
+          <Slot
+            className={cn(buttonVariants({ variant, size, className }))}
+            ref={ref}
+            aria-busy={isLoading || undefined}
+            {...props}
+          >
+            {React.cloneElement(child, undefined, content)}
+          </Slot>
+        );
+      }
+
       return (
         <Slot
-          className={cn(buttonVariants({ variant, size, className }))}
+          className={cn(
+            buttonVariants({ variant, size, className }),
+            isDisabled && "pointer-events-none opacity-50 cursor-not-allowed"
+          )}
           ref={ref}
           aria-busy={isLoading || undefined}
+          aria-disabled={isDisabled ? "true" : undefined}
+          tabIndex={isDisabled ? -1 : undefined}
           {...props}
         >
-          {React.isValidElement(children)
-            ? React.cloneElement(
-                children as React.ReactElement<{ children?: React.ReactNode }>,
-                undefined,
-                isLoading ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin motion-reduce:animate-none" />
-                    <span>{(children.props as { children?: React.ReactNode })?.children}</span>
-                  </>
-                ) : (
-                  <>
-                    {leftIcon && <span className="mr-2 inline-flex items-center">{leftIcon}</span>}
-                    {(children.props as { children?: React.ReactNode })?.children}
-                    {rightIcon && <span className="ml-2 inline-flex items-center">{rightIcon}</span>}
-                  </>
-                )
-              )
-            : children}
+          {children}
         </Slot>
       );
     }
@@ -94,8 +158,9 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       <button
         className={cn(buttonVariants({ variant, size, className }))}
         ref={ref}
-        disabled={disabled || isLoading}
+        disabled={isDisabled}
         aria-busy={isLoading || undefined}
+        aria-disabled={isDisabled ? "true" : undefined}
         {...props}
       >
         {isLoading ? (
