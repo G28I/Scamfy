@@ -109,3 +109,23 @@ def test_clean_benign_message():
     assert len(res.signals) == 0
     assert len(res.missing_evidence) == 0
     assert "No known active scam indicators" in res.synthesis_summary
+
+
+def test_detect_missing_evidence_shorteners():
+    # Message with only shortener URL and critical threat
+    text = "CBI Digital Arrest: parcel seized. Connect immediately: https://bit.ly/cbi-case"
+    entities = extract_all_entities(text)
+    res = evaluate_message(text, entities)
+    assert res.overall_risk == RiskLevel.CRITICAL
+    # Both notices must be present: no direct verifiable domain AND domain is obscured by shortener
+    assert any("No verifiable corporate domain" in m for m in res.missing_evidence)
+    assert any(
+        "Destination domain is obscured by a URL shortener" in m for m in res.missing_evidence
+    )
+
+    # Message with legitimate corporate domain and critical threat
+    text_corp = "CBI Digital Arrest: parcel seized. Connect at https://cbi.gov.in/verify"
+    entities_corp = extract_all_entities(text_corp)
+    res_corp = evaluate_message(text_corp, entities_corp)
+    assert not any("No verifiable corporate domain" in m for m in res_corp.missing_evidence)
+    assert not any("Destination domain is obscured" in m for m in res_corp.missing_evidence)

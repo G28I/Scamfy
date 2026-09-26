@@ -90,7 +90,7 @@ async def analyze_with_nemotron(
 
     should_close_client = False
     if client is None:
-        client = httpx.AsyncClient(timeout=10.0)
+        client = httpx.AsyncClient(timeout=4.5)
         should_close_client = True
 
     try:

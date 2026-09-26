@@ -17,7 +17,6 @@
   - `temperature`: `0.1` (low temperature for deterministic, factual categorization)
   - `top_p`: `0.9`
   - `max_tokens`: `1024`
-  - `response_format`: `{"type": "json_object"}` (structured JSON generation)
 
 ### 1.2 System Prompt & Safety Contract
 The system prompt enforces:

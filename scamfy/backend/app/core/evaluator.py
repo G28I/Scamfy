@@ -1,5 +1,6 @@
 import re
 from typing import Any
+from urllib.parse import urlparse
 
 from backend.app.api.v1.schemas.analyze import (
     AnalysisSignal,
@@ -196,6 +197,38 @@ RULES = [
 ]
 
 
+KNOWN_SHORTENER_HOSTS = {
+    "bit.ly",
+    "tinyurl.com",
+    "is.gd",
+    "t.co",
+    "cutt.ly",
+    "rb.gy",
+    "shorturl.at",
+}
+
+
+def _get_url_hostname(url_str: str) -> str:
+    """Extract and normalize hostname from URL string."""
+    candidate = url_str if "://" in url_str else f"http://{url_str}"
+    try:
+        parsed = urlparse(candidate)
+        host = (parsed.netloc or parsed.path).split("/")[0].lower()
+        if ":" in host:
+            host = host.split(":")[0]
+        return host
+    except Exception:
+        return ""
+
+
+def _is_shortener_url(url_str: str) -> bool:
+    """Check if URL belongs to a recognized URL shortener domain by hostname."""
+    host = _get_url_hostname(url_str)
+    if not host:
+        return False
+    return any(host == s or host.endswith("." + s) for s in KNOWN_SHORTENER_HOSTS)
+
+
 def detect_missing_evidence(
     text: str, entities: ExtractedEntities, matched_rules: list[dict[str, Any]]
 ) -> list[str]:
@@ -207,13 +240,14 @@ def detect_missing_evidence(
     )
 
     if has_critical_or_high:
-        if not entities.urls and not entities.emails:
+        non_shortener_urls = [u for u in entities.urls if not _is_shortener_url(u)]
+        has_shortener_urls = any(_is_shortener_url(u) for u in entities.urls)
+
+        if not non_shortener_urls and not entities.emails:
             missing.append(
                 "No verifiable corporate domain, official email header, or sender identity."
             )
-        if entities.urls and any(
-            "bit.ly" in u or "tinyurl" in u or "is.gd" in u for u in entities.urls
-        ):
+        if has_shortener_urls:
             missing.append(
                 "Destination domain is obscured by a URL shortener; true destination unverified."
             )

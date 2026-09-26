@@ -102,8 +102,12 @@ def arbitrate_hybrid_analysis(
     )
 
     # Confidence calculation
-    if final_rank >= 3 and len(combined_signals) >= 1:
+    if det_rank >= 3 and len(combined_signals) >= 1:
         confidence = ConfidenceTier.HIGH
+    elif final_rank >= 3 and nemotron_output.confidence == ConfidenceTier.LOW:
+        confidence = ConfidenceTier.LOW
+    elif final_rank >= 3 and len(combined_signals) >= 1:
+        confidence = nemotron_output.confidence or ConfidenceTier.HIGH
     elif final_rank >= 1:
         confidence = ConfidenceTier.MEDIUM
     else:

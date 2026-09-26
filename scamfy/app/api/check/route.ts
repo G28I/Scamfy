@@ -96,6 +96,26 @@ function isValidAnalysisPayload(data: unknown): data is Omit<AnalysisResultDto, 
   if (!Array.isArray(entities.amounts)) return false;
   if (!Array.isArray(entities.handles)) return false;
 
+  if (
+    d.psychological_tactics !== undefined &&
+    (!Array.isArray(d.psychological_tactics) ||
+      !d.psychological_tactics.every((t) => typeof t === "string"))
+  ) {
+    return false;
+  }
+
+  if (
+    d.missing_evidence !== undefined &&
+    (!Array.isArray(d.missing_evidence) ||
+      !d.missing_evidence.every((e) => typeof e === "string"))
+  ) {
+    return false;
+  }
+
+  if (d.synthesis_summary !== undefined && typeof d.synthesis_summary !== "string") {
+    return false;
+  }
+
   return true;
 }
 

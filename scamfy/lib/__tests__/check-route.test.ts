@@ -77,6 +77,42 @@ describe("Scam Check BFF Route (/api/check)", () => {
     expect(data.error).toBe("AnalysisServiceUnavailable");
   });
 
+  it("handles malformed hybrid fields in upstream response by returning 503", async () => {
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        overall_risk: "SAFE",
+        confidence: "low",
+        primary_category: "INFORMATIONAL",
+        secondary_categories: [],
+        signals: [],
+        extracted_entities: {
+          upi_ids: [],
+          phone_numbers: [],
+          urls: [],
+          emails: [],
+          bank_accounts: [],
+          amounts: [],
+          handles: [],
+        },
+        action_recommendations: [],
+        model_metadata: {},
+        psychological_tactics: [12345], // Malformed: should be string[]
+      }),
+    });
+
+    const req = new NextRequest("http://localhost:3000/api/check", {
+      method: "POST",
+      body: JSON.stringify({ text: "Checking malformed hybrid field validation" }),
+      headers: { "Content-Type": "application/json", "x-forwarded-for": "10.0.0.97" },
+    });
+
+    const res = await POST(req);
+    expect(res.status).toBe(503);
+    const data = await res.json();
+    expect(data.error).toBe("AnalysisServiceUnavailable");
+  });
+
   it("analyzes valid suspicious message and returns 200 with structured analysis payload", async () => {
     const { prisma } = await import("@/lib/prisma");
     const mockFastApiResponse = {

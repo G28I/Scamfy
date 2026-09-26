@@ -131,7 +131,11 @@ export function ScamCheckResult({
               <ConfidenceMeter
                 level={result.confidence}
                 signalCount={result.signals.length}
-                explanation="Confidence rating based on deterministic red-flag pattern matches and linguistic evaluation."
+                explanation={
+                  isAiAssisted
+                    ? "Confidence rating based on deterministic red-flag pattern matches and linguistic evaluation."
+                    : "Confidence rating based on deterministic red-flag pattern matches."
+                }
               />
             </div>
           </div>
