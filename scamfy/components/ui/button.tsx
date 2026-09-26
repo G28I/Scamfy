@@ -60,14 +60,42 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     },
     ref
   ) => {
-    const Comp = asChild ? Slot : "button";
+    if (asChild) {
+      return (
+        <Slot
+          className={cn(buttonVariants({ variant, size, className }))}
+          ref={ref}
+          aria-busy={isLoading || undefined}
+          {...props}
+        >
+          {React.isValidElement(children)
+            ? React.cloneElement(
+                children as React.ReactElement<{ children?: React.ReactNode }>,
+                undefined,
+                isLoading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin motion-reduce:animate-none" />
+                    <span>{(children.props as { children?: React.ReactNode })?.children}</span>
+                  </>
+                ) : (
+                  <>
+                    {leftIcon && <span className="mr-2 inline-flex items-center">{leftIcon}</span>}
+                    {(children.props as { children?: React.ReactNode })?.children}
+                    {rightIcon && <span className="ml-2 inline-flex items-center">{rightIcon}</span>}
+                  </>
+                )
+              )
+            : children}
+        </Slot>
+      );
+    }
 
     return (
-      <Comp
+      <button
         className={cn(buttonVariants({ variant, size, className }))}
         ref={ref}
         disabled={disabled || isLoading}
-        aria-busy={isLoading}
+        aria-busy={isLoading || undefined}
         {...props}
       >
         {isLoading ? (
@@ -82,7 +110,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
             {rightIcon && <span className="ml-2 inline-flex items-center">{rightIcon}</span>}
           </>
         )}
-      </Comp>
+      </button>
     );
   }
 );

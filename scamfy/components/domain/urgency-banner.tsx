@@ -24,6 +24,15 @@ export function UrgencyBanner({
   className,
   ...props
 }: UrgencyBannerProps) {
+  const portalHostname = React.useMemo(() => {
+    if (!officialPortalUrl) return "";
+    try {
+      return new URL(officialPortalUrl).hostname;
+    } catch {
+      return officialPortalUrl;
+    }
+  }, [officialPortalUrl]);
+
   return (
     <div
       role="alert"
@@ -79,7 +88,7 @@ export function UrgencyBanner({
               rel="noopener noreferrer"
               className="inline-flex items-center gap-1 text-xs font-medium text-red-700 dark:text-red-300 hover:underline px-2 py-1"
             >
-              <span>cybercrime.gov.in</span>
+              <span>{portalHostname}</span>
               <ExternalLink className="h-3 w-3" />
             </a>
           )}

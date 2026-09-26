@@ -50,7 +50,7 @@ Tailwind CSS v4 CSS-first `@theme` variables:
   --popover: #ffffff;
   --popover-foreground: #0f172a;
   --border: #e2e8f0;
-  --input: #e2e8f0;
+  --input: #94a3b8;
   --ring: #2563eb;
 
   /* Primary / Accents */
@@ -99,7 +99,7 @@ Tailwind CSS v4 CSS-first `@theme` variables:
   --popover: #0f172a;
   --popover-foreground: #f8fafc;
   --border: #1e293b;
-  --input: #1e293b;
+  --input: #475569;
   --ring: #3b82f6;
 
   /* Primary / Accents */

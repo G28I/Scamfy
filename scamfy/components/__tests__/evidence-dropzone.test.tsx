@@ -5,10 +5,13 @@ import { render, screen, fireEvent } from "@testing-library/react";
 import { EvidenceDropzone } from "@/components/domain/evidence-dropzone";
 
 describe("EvidenceDropzone component", () => {
-  it("renders dropzone container with accessible role", () => {
+  it("renders dropzone trigger with accessible button role", () => {
     render(<EvidenceDropzone />);
-    const region = screen.getByRole("region", { name: "Evidence File Dropzone" });
-    expect(region).toBeDefined();
+    const trigger = screen.getByRole("button", {
+      name: /Upload evidence files/i,
+    });
+    expect(trigger).toBeDefined();
+    expect(trigger.getAttribute("tabIndex")).toBe("0");
   });
 
   it("renders error message when error prop is supplied", () => {
@@ -22,7 +25,9 @@ describe("EvidenceDropzone component", () => {
     render(<EvidenceDropzone onFilesSelected={handleFilesSelected} />);
 
     const file = new File(["dummy content"], "receipt.png", { type: "image/png" });
-    const dropzone = screen.getByRole("region", { name: "Evidence File Dropzone" });
+    const dropzone = screen.getByRole("button", {
+      name: /Upload evidence files/i,
+    });
 
     fireEvent.drop(dropzone, {
       dataTransfer: {

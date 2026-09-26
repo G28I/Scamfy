@@ -92,6 +92,16 @@ export function EvidenceDropzone({
     if (e.target.files && e.target.files.length > 0) {
       validateAndAddFiles(e.target.files);
     }
+    if (e.target) {
+      e.target.value = "";
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if ((e.key === "Enter" || e.key === " ") && !disabled && !isUploading) {
+      e.preventDefault();
+      fileInputRef.current?.click();
+    }
   };
 
   const handleRemoveFile = (index: number) => {
@@ -109,16 +119,19 @@ export function EvidenceDropzone({
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
         onClick={() => !disabled && !isUploading && fileInputRef.current?.click()}
+        onKeyDown={handleKeyDown}
+        tabIndex={disabled || isUploading ? -1 : 0}
+        role="button"
+        aria-disabled={disabled || isUploading}
+        aria-label="Upload evidence files: drag and drop or press to browse"
         className={cn(
-          "flex flex-col items-center justify-center rounded-xl border-2 border-dashed p-6 text-center transition-all cursor-pointer select-none",
+          "flex flex-col items-center justify-center rounded-xl border-2 border-dashed p-6 text-center transition-all cursor-pointer select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
           isDragOver
             ? "border-primary bg-primary/5 scale-[1.01]"
             : "border-border bg-card hover:border-border/80 hover:bg-muted/30",
           disabled && "pointer-events-none opacity-50 bg-muted/20 cursor-not-allowed",
           activeError && "border-destructive bg-destructive/5"
         )}
-        role="region"
-        aria-label="Evidence File Dropzone"
       >
         <input
           ref={fileInputRef}

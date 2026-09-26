@@ -16,7 +16,7 @@ Phase 4 built out Scamfy's complete frontend design system, semantic design toke
    - Tailwind CSS v4 `@theme` mappings for dark mode, light mode, surfaces, borders, and focus rings.
    - 5 distinct, color-blind safe Risk Tiers: `SAFE` (Emerald), `CAUTION` (Amber), `SUSPICIOUS` (Orange), `HIGH_RISK` (Rose), and `CRITICAL` (Crimson / 1930 Helpline).
    - Reduced-motion global media query.
-2. **12 Core UI Primitives (`components/ui/`)**:
+2. **13 Core UI Primitives (`components/ui/`)**:
    - `Button`, `Input`, `Textarea`, `Card`, `Badge`, `Dialog`, `Alert`, `Tabs`, `Accordion`, `Tooltip`, `Skeleton`, `LoadingSpinner`, and `EmptyState`.
 3. **7 Scamfy Domain Interaction Primitives (`components/domain/`)**:
    - `RiskBadge`: Renders all 5 risk tiers with distinct text labels, icons, and shapes without relying on color alone.
@@ -28,8 +28,8 @@ Phase 4 built out Scamfy's complete frontend design system, semantic design toke
    - `StateFeedback`: Standardized loading, empty, error (with retry action), and partial states (`UX-05`).
 4. **Interactive Showcase Page (`app/design-system/page.tsx`)**:
    - Comprehensive developer and recruiter showcase demonstrating all tokens, risk tiers, UI primitives, domain components, dark/light modes, and responsive layouts.
-5. **Automated Component & Accessibility Test Suite (`components/__tests__/`)**:
-   - 29 tests across 10 test files verifying ARIA roles, keyboard interactions, clipboard feedback, and state transitions with Vitest and React Testing Library.
+5. **Automated Component, Accessibility & Integration Test Suite (`components/__tests__/`, `lib/`)**:
+   - 29 tests across 10 test files (8 component test files in `components/__tests__/` and 2 library test files in `lib/`) verifying ARIA roles, keyboard interactions, clipboard feedback, state transitions, schema sanity, and live PostgreSQL Prisma integration.
 
 ---
 

@@ -38,6 +38,8 @@ export function TimelineItem({
           minute: "2-digit",
         });
 
+  const hasAmount = amount !== undefined && amount !== null && amount !== "";
+
   return (
     <div
       className={cn("relative flex items-start gap-4 pb-6", className)}
@@ -55,7 +57,7 @@ export function TimelineItem({
 
       {/* Event Node Icon */}
       <div className="relative z-10 flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-border bg-card shadow-sm">
-        {amount ? (
+        {hasAmount ? (
           isDebit ? (
             <ArrowUpRight className="h-4 w-4 text-destructive" aria-hidden="true" />
           ) : (
@@ -90,7 +92,7 @@ export function TimelineItem({
 
         <p className="text-sm text-foreground leading-relaxed">{description}</p>
 
-        {amount && (
+        {hasAmount && (
           <div className="mt-3 flex items-center justify-between pt-2 border-t border-border/40 text-xs">
             <span className="text-muted-foreground">Financial Impact:</span>
             <span

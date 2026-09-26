@@ -61,7 +61,7 @@ export function StateFeedback({
         aria-label={loadingText}
         {...props}
       >
-        <LoadingSpinner size="lg" className="mb-4 text-primary" />
+        <LoadingSpinner size="lg" className="mb-4 text-primary" role="presentation" aria-hidden="true" />
         <p className="text-sm font-medium text-foreground">{loadingText}</p>
         <p className="mt-1 text-xs text-muted-foreground">Evaluating pattern taxonomy and safety signatures</p>
       </div>

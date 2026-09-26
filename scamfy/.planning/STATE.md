@@ -30,7 +30,7 @@
 
 ## Phase 4 Execution Checklist (Design System & Interaction Primitives)
 - [x] Task 1: Design Tokens, CSS Variables & Tailwind v4 Theme Foundation (`globals.css`, `lib/utils.ts`, UI dependencies)
-- [x] Task 2: Core Accessible UI Primitives (`components/ui/`: `Button`, `Input`, `Card`, `Badge`, `Dialog`, `Alert`, `Tabs`, `Accordion`, `Tooltip`, `Skeleton`, `EmptyState`)
+- [x] Task 2: Core Accessible UI Primitives (`components/ui/`: `Button`, `Input`, `Textarea`, `Card`, `Badge`, `Dialog`, `Alert`, `Tabs`, `Accordion`, `Tooltip`, `Skeleton`, `LoadingSpinner`, `EmptyState`)
 - [x] Task 3: Scamfy Domain Interaction Primitives (`components/domain/`: `RiskBadge`, `UrgencyBanner` 1930, `IndicatorTag`, `ConfidenceMeter`, `TimelineItem`, `EvidenceDropzone`, `StateFeedback`)
 - [x] Task 4: Interactive Showcase Page (`/design-system`) & Automated Component/Accessibility Tests (`components/__tests__/`)
 - [x] Task 5: Web Design Guidelines Audit & Remediation (Stage C & D Audit Pass)

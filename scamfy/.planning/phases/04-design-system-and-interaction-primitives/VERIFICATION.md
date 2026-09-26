@@ -13,7 +13,7 @@
 | :--- | :--- | :--- | :--- | :--- |
 | **Gate 1** | Frontend TypeScript Types | `npm run typecheck` | ✅ **Passed** | 0 TypeScript errors with strict type checking across all 19 components and test suites. |
 | **Gate 2** | Frontend ESLint | `npm run lint` | ✅ **Passed** | Clean pass with zero errors across all React 19 / Next.js 16 components and pages. |
-| **Gate 3** | Frontend Vitest Tests | `npm run test:run` | ✅ **Passed** | 29/29 tests passing across 10 test files (100% component and Prisma integration pass rate). |
+| **Gate 3** | Frontend Vitest Tests | `npm run test:run` | ✅ **Passed** | 29/29 tests passing across 10 test files (8 component test files in `components/__tests__/` and 2 library test files in `lib/`). |
 | **Gate 4** | Frontend Production Build | `npm run build` | ✅ **Passed** | Turbopack production build compiled cleanly; static route `/design-system` generated. |
 | **Gate 5** | Backend Ruff Lint & Format | `ruff check` & `ruff format` | ✅ **Passed** | Stateless FastAPI backend remains compliant with Ruff formatting. |
 | **Gate 6** | Backend Pytest Suite | `pytest backend/tests` | ✅ **Passed** | All backend health and error envelope tests passing. |
@@ -26,16 +26,17 @@
 ### UX-03 (Keyboard Operability & Focus Management)
 - **Status**: Verified ✅
 - **Evidence**:
-  - `Button`, `Input`, `Textarea`, `DialogClose`, `IndicatorTag` copy button, `EvidenceDropzone`, and `TabsTrigger` enforce visible focus rings (`focus-visible:ring-2 focus-visible:ring-ring`).
+  - `Button`, `Input`, `Textarea`, `DialogClose`, `IndicatorTag` copy button, `EvidenceDropzone` keyboard trigger, and `TabsTrigger` enforce visible focus rings (`focus-visible:ring-2 focus-visible:ring-ring`).
   - `Dialog` traps focus within the modal overlay and supports dismissal via `Escape`.
-  - `Tabs` supports arrow-key navigation between tab triggers (verified in `components/__tests__/tabs.test.tsx`).
-  - Interactive targets satisfy minimum touch/click sizes (>= 44x44px).
+  - `Tabs` supports click selection and tab switching (verified in `components/__tests__/tabs.test.tsx`).
+  - Standard interactive targets (`Button` default/lg, `Input`, `DialogClose`, emergency CTA) meet >= 44x44px target bounds, while compact variants (`Button` sm: 36px, `TabsTrigger`: 36px, `IndicatorTag` copy button: 28px) provide compact inline targets.
 
 ### UX-04 (WCAG 2.1 AA Standards & Color-Blind Safety)
 - **Status**: Verified ✅
 - **Evidence**:
   - All 5 Risk Tiers (`SAFE`, `CAUTION`, `SUSPICIOUS`, `HIGH_RISK`, `CRITICAL`) convey severity through text labels, distinct iconography (`ShieldCheck`, `Info`, `AlertTriangle`, `AlertOctagon`, `AlertCircle`), and shape containers. Risk is **never conveyed by color alone**.
   - Light mode body text achieves >= 4.5:1 contrast against surface containers; dark mode uses luminous accents against deep charcoal/slate surfaces.
+  - Resting input borders meet the >= 3:1 contrast requirement in both light mode (`#94a3b8`) and dark mode (`#475569`).
   - Reduced-motion media query `@media (prefers-reduced-motion: reduce)` disables pulsing animations and reduces transitions to instant state changes.
 
 ### UX-05 (Standardized State Feedback & Recovery)
@@ -51,6 +52,6 @@
 An audit was conducted against Vercel Web Interface Guidelines:
 1. **Accessibility**: Form controls associate labels (`<label htmlFor={id}>` in `Input`), decorative icons are marked `aria-hidden="true"`, copy actions announce feedback via `aria-live="polite"`, and dialogs use proper ARIA roles.
 2. **Focus States**: All interactive elements replace default outlines with high-contrast `:focus-visible` rings.
-3. **Compositor Transitions**: All hover and interaction transitions explicitly declare animated properties (`transition-[border-color,box-shadow,transform] duration-200`) rather than expensive `transition-all`.
-4. **Touch Targets**: Buttons, inputs, dialog close buttons, and emergency helpline links provide >= 44x44px target bounds.
+3. **Compositor Transitions**: Compositor-friendly explicit transitions (`transition-[border-color,box-shadow,transform] duration-200`) are implemented on `Card`, while `transition-all` is utilized on `TabsTrigger`, `Accordion`, `EvidenceDropzone`, and `TimelineItem` for layout/disclosure animations.
+4. **Touch Targets**: Default controls meet >= 44x44px target bounds, while compact inline controls use 28–36px.
 5. **Reduced Motion**: All animations and pulse effects respect system accessibility preferences.

@@ -29,14 +29,22 @@ export const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
     const errorId = `${textareaId}-error`;
     const helperId = `${textareaId}-helper`;
 
-    const [charLength, setCharLength] = React.useState<number>(() => {
-      if (typeof value === "string") return value.length;
+    const [uncontrolledLength, setUncontrolledLength] = React.useState<number>(() => {
       if (typeof defaultValue === "string") return defaultValue.length;
       return 0;
     });
 
+    const isControlled = typeof value !== "undefined";
+    const currentLength = isControlled
+      ? typeof value === "string"
+        ? value.length
+        : String(value ?? "").length
+      : uncontrolledLength;
+
     const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-      setCharLength(e.target.value.length);
+      if (!isControlled) {
+        setUncontrolledLength(e.target.value.length);
+      }
       onChange?.(e);
     };
 
@@ -72,7 +80,7 @@ export const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
           )}
           {showCharCount && maxLength && (
             <span className="text-muted-foreground" aria-live="polite">
-              {charLength} / {maxLength}
+              {currentLength} / {maxLength}
             </span>
           )}
         </div>

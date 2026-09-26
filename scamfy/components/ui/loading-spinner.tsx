@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 export interface LoadingSpinnerProps extends React.HTMLAttributes<HTMLDivElement> {
   size?: "sm" | "default" | "lg" | "xl";
   label?: string;
+  role?: string;
 }
 
 const sizeMap = {
@@ -17,23 +18,27 @@ const sizeMap = {
 export function LoadingSpinner({
   size = "default",
   label = "Loading...",
+  role = "status",
   className,
   ...props
 }: LoadingSpinnerProps) {
+  const isDecorative = role === "presentation" || props["aria-hidden"] === true;
+
   return (
     <div
-      role="status"
-      aria-label={label}
+      role={role || undefined}
+      aria-label={!isDecorative && label ? label : undefined}
       className={cn("flex flex-col items-center justify-center gap-2", className)}
       {...props}
     >
       <Loader2
+        aria-hidden="true"
         className={cn(
           "animate-spin text-primary motion-reduce:animate-none",
           sizeMap[size]
         )}
       />
-      {label && <span className="sr-only">{label}</span>}
+      {!isDecorative && label && <span className="sr-only">{label}</span>}
     </div>
   );
 }
