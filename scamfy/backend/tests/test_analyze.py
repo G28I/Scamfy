@@ -135,3 +135,39 @@ async def test_analyze_rate_limiting():
         assert blocked_res.status_code == 429
         assert "Rate limit exceeded" in blocked_res.json()["detail"]
     _request_history.clear()
+
+
+@pytest.mark.asyncio
+async def test_analyze_rate_limiting_with_internal_secret_forwarding():
+    from backend.app.core.config import settings
+    from backend.app.core.rate_limit import _request_history
+
+    _request_history.clear()
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as client:
+        # Request with forwarded IP A
+        headers_a = {
+            "X-Internal-Secret": settings.INTERNAL_API_SECRET,
+            "X-Client-IP": "10.0.0.1",
+        }
+        res_a = await client.post(
+            "/api/v1/analyze",
+            json={"text": "Test from user A"},
+            headers=headers_a,
+        )
+        assert res_a.status_code == 200
+        assert "10.0.0.1" in _request_history
+
+        # Request with forwarded IP B (distinct bucket)
+        headers_b = {
+            "X-Internal-Secret": settings.INTERNAL_API_SECRET,
+            "X-Client-IP": "10.0.0.2",
+        }
+        res_b = await client.post(
+            "/api/v1/analyze",
+            json={"text": "Test from user B"},
+            headers=headers_b,
+        )
+        assert res_b.status_code == 200
+        assert "10.0.0.2" in _request_history
+    _request_history.clear()

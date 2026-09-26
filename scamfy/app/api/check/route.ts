@@ -45,6 +45,14 @@ const MAX_REQUESTS_PER_MINUTE = 30;
 
 function checkRateLimit(ip: string): boolean {
   const now = Date.now();
+
+  // Prune expired entries to prevent memory accumulation
+  for (const [key, val] of ipRateLimitMap.entries()) {
+    if (now > val.resetTime) {
+      ipRateLimitMap.delete(key);
+    }
+  }
+
   const record = ipRateLimitMap.get(ip);
 
   if (!record || now > record.resetTime) {
@@ -138,6 +146,7 @@ export async function POST(req: NextRequest) {
 
     // 3. Call Upstream FastAPI Analysis Engine
     const backendBaseUrl = process.env.FASTAPI_BACKEND_URL || "http://127.0.0.1:8000";
+    const internalSecret = process.env.INTERNAL_API_SECRET || "scamfy-internal-secret-dev";
     let analysisPayload: Omit<AnalysisResultDto, "id" | "created_at">;
 
     try {
@@ -145,6 +154,8 @@ export async function POST(req: NextRequest) {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          "X-Internal-Secret": internalSecret,
+          "X-Client-IP": clientIp,
         },
         body: JSON.stringify({ text: trimmedText }),
         signal: AbortSignal.timeout(8000), // 8s timeout

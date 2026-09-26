@@ -16,6 +16,7 @@ class Settings(BaseSettings):
 
     # Security & Rate Limiting
     RATE_LIMIT_PER_MINUTE: int = 60
+    INTERNAL_API_SECRET: str = "scamfy-internal-secret-dev"
 
     # Model Configuration (Private Server-Side)
     NVIDIA_API_KEY: str = ""
