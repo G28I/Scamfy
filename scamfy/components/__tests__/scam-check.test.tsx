@@ -31,11 +31,18 @@ const mockAnalysisResult: AnalysisResultDto = {
     amounts: ["Rs. 1,450"],
     handles: ["@power_help"],
   },
+  psychological_tactics: ["Artificial Urgency", "Fear of Utility Loss"],
+  missing_evidence: ["No consumer ID / bill account number matching official state DISCOM records."],
+  synthesis_summary: "Critical threat detected: Message matches urgent disconnection trap to extort funds.",
   action_recommendations: [
     "Do not call the phone number mentioned in the SMS.",
     "Verify bill status only on the official state DISCOM portal.",
   ],
-  model_metadata: { engine: "deterministic-v1" },
+  model_metadata: {
+    engine: "hybrid-nemotron-v1",
+    ai_assisted: true,
+    model_slug: "nvidia/llama-3.1-nemotron-70b-instruct",
+  },
   created_at: new Date().toISOString(),
 };
 
@@ -104,6 +111,17 @@ describe("ScamCheckResult component", () => {
 
     expect(screen.getByText("Critical Scam Threat Detected")).toBeDefined();
     expect(screen.getByRole("link", { name: /Call National Cyber Crime Helpline 1930/i })).toBeDefined();
+  });
+
+  it("renders executive AI summary, psychological tactics, and missing evidence notice", () => {
+    render(<ScamCheckResult result={mockAnalysisResult} onReset={vi.fn()} />);
+
+    expect(screen.getByText("Executive Analysis Summary")).toBeDefined();
+    expect(screen.getByText(/Critical threat detected: Message matches urgent disconnection trap/i)).toBeDefined();
+    expect(screen.getByText("Artificial Urgency")).toBeDefined();
+    expect(screen.getByText("Fear of Utility Loss")).toBeDefined();
+    expect(screen.getByText("Missing Corroborating Context (DET-05)")).toBeDefined();
+    expect(screen.getByText("Nemotron-70B Assisting")).toBeDefined();
   });
 
   it("renders extracted identifiers as copyable indicator tags including amounts", () => {

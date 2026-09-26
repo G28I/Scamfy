@@ -9,6 +9,9 @@ import {
   Check,
   ShieldCheck,
   FileSearch,
+  Brain,
+  HelpCircle,
+  Zap,
 } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -54,13 +57,17 @@ export function ScamCheckResult({
       `Category: ${result.primary_category}`,
       `Date: ${new Date(result.created_at).toLocaleString()}`,
       ``,
+      ...(result.synthesis_summary ? [`Executive Summary:`, result.synthesis_summary, ``] : []),
       `Recommended Actions:`,
       ...result.action_recommendations.map((r, i) => ` ${i + 1}. ${r}`),
       ``,
       `Detected Signals (${result.signals.length}):`,
       ...result.signals.map((s) => ` - [${s.severity}] ${s.name}: "${s.evidence}"`),
       ``,
-      `Verified by Scamfy Triage Engine (https://scamfy.org)`,
+      ...(result.psychological_tactics && result.psychological_tactics.length > 0
+        ? [`Psychological Pressure Tactics:`, ...result.psychological_tactics.map((t) => ` * ${t}`), ``]
+        : []),
+      `Verified by Scamfy Hybrid Triage Engine (https://scamfy.org)`,
     ];
 
     try {
@@ -73,6 +80,9 @@ export function ScamCheckResult({
       setCopiedSummary(false);
     }
   };
+
+  const isAiAssisted = Boolean(result.model_metadata?.ai_assisted);
+  const modelSlug = (result.model_metadata?.model_slug as string) || "Rule Engine v2";
 
   return (
     <div className={cn("w-full space-y-6 animate-in fade-in-50 duration-300", className)} {...props}>
@@ -107,6 +117,10 @@ export function ScamCheckResult({
                 <span className="text-xs font-mono text-muted-foreground">
                   ID: {result.id.slice(0, 8)}…
                 </span>
+                <span className="inline-flex items-center gap-1 rounded bg-muted/80 px-2 py-0.5 text-[10px] font-semibold text-muted-foreground">
+                  <Brain className="h-3 w-3 text-primary" />
+                  <span>{isAiAssisted ? "Nemotron-70B Assisting" : "Rule Engine v2"}</span>
+                </span>
               </div>
               <CardTitle className="text-lg font-bold text-foreground pt-1">
                 {formatCategoryTitle(result.primary_category)}
@@ -117,14 +131,47 @@ export function ScamCheckResult({
               <ConfidenceMeter
                 level={result.confidence}
                 signalCount={result.signals.length}
-                explanation="Confidence rating based on deterministic red-flag pattern matches."
+                explanation="Confidence rating based on deterministic red-flag pattern matches and linguistic evaluation."
               />
             </div>
           </div>
         </CardHeader>
 
         <CardContent className="space-y-6 pt-6">
-          {/* 3. Recommended Action Guidance (UX-01) */}
+          {/* 3. Executive AI Synthesis Summary */}
+          {result.synthesis_summary && (
+            <div className="rounded-xl border border-border bg-card p-4 space-y-1.5 shadow-sm">
+              <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                <Brain className="h-3.5 w-3.5 text-primary" />
+                <span>Executive Analysis Summary</span>
+              </div>
+              <p className="text-sm font-medium text-foreground leading-relaxed">
+                {result.synthesis_summary}
+              </p>
+            </div>
+          )}
+
+          {/* 4. Psychological Pressure Tactics */}
+          {result.psychological_tactics && result.psychological_tactics.length > 0 && (
+            <div className="space-y-2">
+              <div className="flex items-center gap-1.5 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                <Zap className="h-3.5 w-3.5 text-amber-500" />
+                <span>Detected Psychological Pressure Tactics</span>
+              </div>
+              <div className="flex flex-wrap gap-1.5">
+                {result.psychological_tactics.map((tactic, idx) => (
+                  <span
+                    key={idx}
+                    className="inline-flex items-center rounded-md border border-amber-300 bg-amber-50/80 px-2.5 py-1 text-xs font-medium text-amber-900 dark:border-amber-900/60 dark:bg-amber-950/40 dark:text-amber-200"
+                  >
+                    {tactic}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* 5. Recommended Action Guidance (UX-01) */}
           <div
             className={cn(
               "rounded-xl border p-4 sm:p-5 space-y-3",
@@ -170,7 +217,22 @@ export function ScamCheckResult({
             </ul>
           </div>
 
-          {/* 4. Extracted Identifiers & Evidence (DET-03) */}
+          {/* 6. Missing Evidence & Uncertainty Notice (DET-05) */}
+          {result.missing_evidence && result.missing_evidence.length > 0 && (
+            <div className="rounded-lg border border-border bg-muted/40 p-3.5 space-y-1.5">
+              <div className="flex items-center gap-2 text-xs font-semibold text-muted-foreground">
+                <HelpCircle className="h-3.5 w-3.5 text-blue-500" />
+                <span>Missing Corroborating Context (DET-05)</span>
+              </div>
+              <ul className="list-disc list-inside space-y-1 text-xs text-muted-foreground leading-relaxed">
+                {result.missing_evidence.map((item, idx) => (
+                  <li key={idx}>{item}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {/* 7. Extracted Identifiers & Evidence (DET-03) */}
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <h4 className="text-sm font-semibold text-foreground flex items-center gap-2">
@@ -211,7 +273,7 @@ export function ScamCheckResult({
             )}
           </div>
 
-          {/* 5. Detected Signals Breakdown (DET-04) */}
+          {/* 8. Detected Signals Breakdown (DET-04) */}
           {result.signals.length > 0 && (
             <div className="space-y-3 pt-2">
               <h4 className="text-sm font-semibold text-foreground flex items-center gap-2">
@@ -246,7 +308,13 @@ export function ScamCheckResult({
             </div>
           )}
 
-          {/* 6. Footer Controls */}
+          {/* 9. Legal & Model Transparency Disclaimer (AI-04, AI-05) */}
+          <div className="rounded-lg bg-muted/20 border border-border/60 p-3 text-[11px] text-muted-foreground leading-relaxed">
+            <span className="font-medium text-foreground">Analysis Provenance: </span>
+            <span>Engine model: {modelSlug}. Automated security risk assessment; does not constitute a legal, criminal, or regulatory determination (AI-05).</span>
+          </div>
+
+          {/* 10. Footer Controls */}
           <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-4 border-t border-border">
             <Button
               variant="outline"

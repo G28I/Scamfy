@@ -36,6 +36,18 @@ class AnalysisSignal(BaseModel):
     evidence: str
 
 
+class NemotronAnalysisOutput(BaseModel):
+    overall_risk: RiskLevel
+    confidence: ConfidenceTier
+    primary_category: str
+    secondary_categories: list[str] = Field(default_factory=list)
+    signals: list[AnalysisSignal] = Field(default_factory=list)
+    psychological_tactics: list[str] = Field(default_factory=list)
+    missing_evidence: list[str] = Field(default_factory=list)
+    synthesis_summary: str = Field(default="")
+    action_recommendations: list[str] = Field(default_factory=list)
+
+
 class AnalyzeRequest(BaseModel):
     text: str = Field(
         ..., min_length=3, max_length=10000, description="Raw message text to analyze"
@@ -49,5 +61,8 @@ class AnalyzeResponse(BaseModel):
     secondary_categories: list[str] = Field(default_factory=list)
     signals: list[AnalysisSignal] = Field(default_factory=list)
     extracted_entities: ExtractedEntities
+    psychological_tactics: list[str] = Field(default_factory=list)
+    missing_evidence: list[str] = Field(default_factory=list)
+    synthesis_summary: str = Field(default="")
     action_recommendations: list[str] = Field(default_factory=list)
     model_metadata: dict[str, Any] = Field(default_factory=dict)

@@ -33,6 +33,9 @@ export interface AnalysisResultDto {
   secondary_categories: string[];
   signals: AnalysisSignalDto[];
   extracted_entities: ExtractedEntitiesDto;
+  psychological_tactics: string[];
+  missing_evidence: string[];
+  synthesis_summary: string;
   action_recommendations: string[];
   model_metadata: Record<string, unknown>;
   created_at: string;
@@ -221,6 +224,9 @@ export async function POST(req: NextRequest) {
       secondary_categories: analysisPayload.secondary_categories,
       signals: analysisPayload.signals,
       extracted_entities: analysisPayload.extracted_entities,
+      psychological_tactics: analysisPayload.psychological_tactics || [],
+      missing_evidence: analysisPayload.missing_evidence || [],
+      synthesis_summary: analysisPayload.synthesis_summary || "",
       action_recommendations: analysisPayload.action_recommendations,
       model_metadata: analysisPayload.model_metadata,
       created_at: savedRecord.createdAt.toISOString(),
@@ -239,3 +245,4 @@ export async function POST(req: NextRequest) {
     );
   }
 }
+
