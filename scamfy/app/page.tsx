@@ -3,7 +3,6 @@
 import * as React from "react";
 import Link from "next/link";
 import {
-  ShieldAlert,
   ShieldCheck,
   Zap,
   Briefcase,
@@ -11,8 +10,11 @@ import {
   Building2,
   ExternalLink,
   PhoneCall,
-  Lock,
+  ArrowRight,
+  FileSearch,
 } from "lucide-react";
+import { SiteHeader } from "@/components/shared/site-header";
+import { SiteFooter } from "@/components/shared/site-footer";
 import { ScamCheckForm } from "@/components/domain/scam-check-form";
 import { ScamCheckResult } from "@/components/domain/scam-check-result";
 import { StateFeedback } from "@/components/domain/state-feedback";
@@ -61,180 +63,284 @@ export default function HomePage() {
 
   return (
     <div className="flex min-h-screen flex-col bg-background text-foreground selection:bg-primary/20">
-      {/* Top Navigation */}
-      <header className="sticky top-0 z-40 w-full border-b border-border bg-background/90 backdrop-blur-md">
-        <div className="container mx-auto flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
-          <Link href="/" className="flex items-center gap-2.5 font-bold text-lg text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-md">
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-primary-foreground shadow-sm">
-              <ShieldAlert className="h-5 w-5 text-red-500" />
-            </div>
-            <span className="tracking-tight">
-              Scam<span className="text-primary font-black">fy</span>
-            </span>
-          </Link>
+      <SiteHeader />
 
-          <nav className="hidden md:flex items-center gap-6 text-sm font-medium text-muted-foreground">
-            <Link href="/" className="text-foreground transition-colors hover:text-primary font-semibold">
-              Scam Check
-            </Link>
-            <Link href="/intel" className="transition-colors hover:text-foreground">
-              Intel Directory
-            </Link>
-            <Link href="/cases" className="transition-colors hover:text-foreground">
-              Victim Cases
-            </Link>
-            <Link href="/design-system" className="transition-colors hover:text-foreground text-xs uppercase tracking-wider font-mono">
-              Design System
-            </Link>
-          </nav>
-
-          <div className="flex items-center gap-3">
-            <a
-              href="tel:1930"
-              className="inline-flex items-center gap-1.5 rounded-lg border border-red-300 bg-red-50 px-3 py-1.5 text-xs font-bold text-red-900 transition-colors hover:bg-red-100 dark:border-red-900/60 dark:bg-red-950/50 dark:text-red-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
-              aria-label="Helpline 1930 Emergency Contact"
-            >
-              <PhoneCall className="h-3.5 w-3.5 text-red-600 dark:text-red-400" />
-              <span>1930 Helpline</span>
-            </a>
-          </div>
-        </div>
-      </header>
-
-      {/* Main Container */}
-      <main className="flex-1 py-8 sm:py-12">
-        <div className="container mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 space-y-10">
-          {/* Hero Section */}
-          <div className="text-center space-y-3 pt-2 sm:pt-6">
-            <div className="inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-primary/5 px-3.5 py-1 text-xs font-semibold text-primary">
-              <ShieldCheck className="h-3.5 w-3.5" />
-              <span>India&apos;s Student &amp; Community Fraud Triage</span>
-            </div>
-
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-foreground leading-[1.15]">
-              Instant Scam Check &amp; Threat Triage
-            </h1>
-
-            <p className="mx-auto max-w-2xl text-sm sm:text-base text-muted-foreground leading-relaxed">
-              Paste suspicious WhatsApp messages, UPI payment prompts, SMS disconnection notices, or task job offers.
-              Scamfy extracts payment VPAs, detects scam patterns, and gives you verified safety actions.
-            </p>
-          </div>
-
-          {/* Form / Results Container */}
-          <div className="rounded-2xl border border-border bg-card p-4 sm:p-8 shadow-sm">
-            {errorMessage && (
-              <div className="mb-6">
-                <StateFeedback
-                  state="error"
-                  errorMessage={errorMessage}
-                  onRetry={() => handleAnalyze(lastSubmittedText)}
-                />
+      <main className="flex-1">
+        {/* 1. Hero & Triage Section */}
+        <section className="border-b border-border/60 bg-gradient-to-b from-muted/30 to-background py-10 sm:py-16">
+          <div className="container mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 space-y-8">
+            {/* Hero Text */}
+            <div className="text-center space-y-3.5">
+              <div className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-3.5 py-1 text-xs font-semibold text-foreground shadow-xs">
+                <ShieldCheck className="h-3.5 w-3.5 text-primary" />
+                <span>Open Cyber Fraud Triage &bull; India</span>
               </div>
-            )}
 
-            {analysisResult ? (
-              <ScamCheckResult result={analysisResult} onReset={handleReset} />
-            ) : (
-              <ScamCheckForm onAnalyze={handleAnalyze} isLoading={isLoading} />
-            )}
-          </div>
+              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-foreground leading-[1.15] max-w-3xl mx-auto">
+                Verify suspicious messages, links &amp; payment requests in seconds.
+              </h1>
 
-          {/* Educational Threat Cards */}
-          <div className="space-y-4 pt-6">
-            <div className="text-center space-y-1">
-              <h2 className="text-xl font-bold tracking-tight text-foreground">
-                Common Cyber Fraud Scams in India
-              </h2>
-              <p className="text-xs sm:text-sm text-muted-foreground">
-                Understand the mechanics behind prevalent scams targeting students and citizens.
+              <p className="mx-auto max-w-2xl text-sm sm:text-base text-muted-foreground leading-relaxed">
+                Paste suspicious WhatsApp messages, UPI payment demands, electricity disconnection notices, or Telegram job offers. Scamfy extracts payment VPAs, evaluates social engineering traps, and provides verified safety steps.
               </p>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
-              <div className="rounded-xl border border-border bg-card p-4 space-y-2 hover:border-primary/40 transition-colors">
-                <div className="flex items-center gap-2.5">
-                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-100 text-amber-900 dark:bg-amber-950/80 dark:text-amber-200">
-                    <Zap className="h-4 w-4" />
-                  </div>
-                  <h3 className="font-bold text-sm text-foreground">Electricity Bill Cutoff</h3>
+            {/* Command-Center Scam Check Card */}
+            <div className="rounded-2xl border border-border bg-card p-5 sm:p-8 shadow-sm">
+              {errorMessage && (
+                <div className="mb-6">
+                  <StateFeedback
+                    state="error"
+                    errorMessage={errorMessage}
+                    onRetry={() => handleAnalyze(lastSubmittedText)}
+                  />
                 </div>
+              )}
+
+              {analysisResult ? (
+                <ScamCheckResult result={analysisResult} onReset={handleReset} />
+              ) : (
+                <ScamCheckForm onAnalyze={handleAnalyze} isLoading={isLoading} />
+              )}
+            </div>
+          </div>
+        </section>
+
+        {/* 2. What Scamfy Inspects (4 Key Pillars) */}
+        <section className="py-14 sm:py-18 border-b border-border/60 bg-muted/10">
+          <div className="container mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 space-y-10">
+            <div className="text-center space-y-2">
+              <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-foreground">
+                What Scamfy Inspects
+              </h2>
+              <p className="text-xs sm:text-sm text-muted-foreground max-w-xl mx-auto">
+                Comprehensive hybrid inspection combining deterministic indicator extraction with contextual AI threat models.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="rounded-xl border border-border bg-card p-5 space-y-2.5 shadow-xs">
+                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-100 text-emerald-900 dark:bg-emerald-950 dark:text-emerald-300">
+                  <CreditCard className="h-5 w-5" />
+                </div>
+                <h3 className="font-bold text-sm text-foreground">Payment &amp; UPI Signals</h3>
                 <p className="text-xs text-muted-foreground leading-relaxed">
-                  Fake SMS claiming your power will be cut tonight at 9:30 PM. Asking you to call a personal mobile number or install a remote-control APK.
+                  Extracts UPI VPAs, bank account numbers, and detects deceptive QR &ldquo;receive PIN&rdquo; payment collect traps.
                 </p>
               </div>
 
-              <div className="rounded-xl border border-border bg-card p-4 space-y-2 hover:border-primary/40 transition-colors">
-                <div className="flex items-center gap-2.5">
-                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-100 text-emerald-900 dark:bg-emerald-950/80 dark:text-emerald-200">
-                    <CreditCard className="h-4 w-4" />
-                  </div>
-                  <h3 className="font-bold text-sm text-foreground">UPI PIN Reverse Collect</h3>
+              <div className="rounded-xl border border-border bg-card p-5 space-y-2.5 shadow-xs">
+                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-amber-100 text-amber-900 dark:bg-amber-950 dark:text-amber-300">
+                  <Zap className="h-5 w-5" />
                 </div>
+                <h3 className="font-bold text-sm text-foreground">Pressure &amp; Extortion</h3>
                 <p className="text-xs text-muted-foreground leading-relaxed">
-                  Fraudsters claiming you won cashback or refund, requesting you to enter your UPI PIN. Remember: PIN is required ONLY to SEND money.
+                  Identifies artificial deadlines, power disconnection threats, and digital arrest police impersonation.
                 </p>
               </div>
 
-              <div className="rounded-xl border border-border bg-card p-4 space-y-2 hover:border-primary/40 transition-colors">
-                <div className="flex items-center gap-2.5">
-                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-100 text-blue-900 dark:bg-blue-950/80 dark:text-blue-200">
-                    <Briefcase className="h-4 w-4" />
-                  </div>
-                  <h3 className="font-bold text-sm text-foreground">Part-Time Task Scam</h3>
+              <div className="rounded-xl border border-border bg-card p-5 space-y-2.5 shadow-xs">
+                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-100 text-blue-900 dark:bg-blue-950 dark:text-blue-300">
+                  <FileSearch className="h-5 w-5" />
                 </div>
+                <h3 className="font-bold text-sm text-foreground">Phishing URLs &amp; APKs</h3>
                 <p className="text-xs text-muted-foreground leading-relaxed">
-                  Offers ₹3,000 daily for liking YouTube videos or Google reviews on Telegram. Early small payouts lead to demands for large prepaid deposits.
+                  Evaluates obfuscated domain links, fake bank KYC forms, and predatory instant-loan APK install links.
                 </p>
               </div>
 
-              <div className="rounded-xl border border-border bg-card p-4 space-y-2 hover:border-primary/40 transition-colors">
-                <div className="flex items-center gap-2.5">
-                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-red-100 text-red-900 dark:bg-red-950/80 dark:text-red-200">
-                    <Building2 className="h-4 w-4" />
-                  </div>
-                  <h3 className="font-bold text-sm text-foreground">Digital Arrest Extortion</h3>
+              <div className="rounded-xl border border-border bg-card p-5 space-y-2.5 shadow-xs">
+                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-purple-100 text-purple-900 dark:bg-purple-950 dark:text-purple-300">
+                  <Briefcase className="h-5 w-5" />
                 </div>
+                <h3 className="font-bold text-sm text-foreground">Task &amp; Job Fraud</h3>
                 <p className="text-xs text-muted-foreground leading-relaxed">
-                  Impersonators claiming police or CBI warrants for illegal parcels. Threatening video interrogation and demanding fund transfer for verification.
+                  Catches Telegram prepaid investment schemes, fake YouTube video rating jobs, and recruitment advances.
                 </p>
               </div>
             </div>
           </div>
-        </div>
+        </section>
+
+        {/* 3. How Defensive Triage Works (3 Steps) */}
+        <section className="py-14 sm:py-18 border-b border-border/60">
+          <div className="container mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 space-y-10">
+            <div className="text-center space-y-2">
+              <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-foreground">
+                How Scamfy Works
+              </h2>
+              <p className="text-xs sm:text-sm text-muted-foreground max-w-xl mx-auto">
+                A structured three-step defensive workflow to protect citizens before financial loss occurs.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="rounded-xl border border-border bg-card p-6 space-y-3 relative shadow-xs">
+                <span className="flex h-7 w-7 items-center justify-center rounded-full bg-primary/10 text-primary text-xs font-bold font-mono">
+                  1
+                </span>
+                <h3 className="font-bold text-base text-foreground">1. Check</h3>
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  Paste suspicious communications into the triage engine. Analysis runs securely without tracking your identity.
+                </p>
+              </div>
+
+              <div className="rounded-xl border border-border bg-card p-6 space-y-3 relative shadow-xs">
+                <span className="flex h-7 w-7 items-center justify-center rounded-full bg-primary/10 text-primary text-xs font-bold font-mono">
+                  2
+                </span>
+                <h3 className="font-bold text-base text-foreground">2. Understand</h3>
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  Receive an explainable security breakdown: extracted VPAs, recognized psychological coercion tactics, and risk rating.
+                </p>
+              </div>
+
+              <div className="rounded-xl border border-border bg-card p-6 space-y-3 relative shadow-xs">
+                <span className="flex h-7 w-7 items-center justify-center rounded-full bg-primary/10 text-primary text-xs font-bold font-mono">
+                  3
+                </span>
+                <h3 className="font-bold text-base text-foreground">3. Take Action</h3>
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  Follow prioritized defensive instructions: block numbers, report indicators to the community, or call helpline 1930.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* 4. Common Cyber Fraud Scams in India */}
+        <section className="py-14 sm:py-18 border-b border-border/60 bg-muted/10">
+          <div className="container mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 space-y-10">
+            <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+              <div className="space-y-1.5">
+                <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-foreground">
+                  Prevalent Cyber Fraud Modus Operandi
+                </h2>
+                <p className="text-xs sm:text-sm text-muted-foreground max-w-xl">
+                  Recognize the core mechanics behind common scams actively targeting Indian students and citizens.
+                </p>
+              </div>
+              <Link
+                href="/intel"
+                className="inline-flex items-center gap-1.5 text-xs font-bold text-primary hover:underline shrink-0"
+              >
+                <span>Browse Threat Intel Directory</span>
+                <ArrowRight className="h-3.5 w-3.5" />
+              </Link>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="rounded-xl border border-border bg-card p-5 space-y-3 hover:border-primary/40 transition-colors shadow-xs">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2.5">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-100 text-amber-900 dark:bg-amber-950 dark:text-amber-300">
+                      <Zap className="h-4 w-4" />
+                    </div>
+                    <h3 className="font-bold text-sm text-foreground">Electricity Bill Disconnection</h3>
+                  </div>
+                  <span className="rounded bg-amber-100 text-amber-900 dark:bg-amber-950 dark:text-amber-300 text-[10px] font-bold px-2 py-0.5 uppercase">
+                    Urgency Trap
+                  </span>
+                </div>
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  Fake SMS alerts claiming your electricity supply will be cut at 9:30 PM due to unpaid dues. Demands calling an unofficial personal mobile number or installing remote-screen-share APKs.
+                </p>
+              </div>
+
+              <div className="rounded-xl border border-border bg-card p-5 space-y-3 hover:border-primary/40 transition-colors shadow-xs">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2.5">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-100 text-emerald-900 dark:bg-emerald-950 dark:text-emerald-300">
+                      <CreditCard className="h-4 w-4" />
+                    </div>
+                    <h3 className="font-bold text-sm text-foreground">UPI PIN Reverse Collect</h3>
+                  </div>
+                  <span className="rounded bg-emerald-100 text-emerald-900 dark:bg-emerald-950 dark:text-emerald-300 text-[10px] font-bold px-2 py-0.5 uppercase">
+                    UPI Fraud
+                  </span>
+                </div>
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  Fraudsters promise festival cashbacks or refunds, sending a QR code and instructing you to enter your UPI PIN. Crucial rule: <strong>UPI PIN is required ONLY to SEND money, never to receive it.</strong>
+                </p>
+              </div>
+
+              <div className="rounded-xl border border-border bg-card p-5 space-y-3 hover:border-primary/40 transition-colors shadow-xs">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2.5">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-100 text-blue-900 dark:bg-blue-950 dark:text-blue-300">
+                      <Briefcase className="h-4 w-4" />
+                    </div>
+                    <h3 className="font-bold text-sm text-foreground">Part-Time Task &amp; Review Scam</h3>
+                  </div>
+                  <span className="rounded bg-blue-100 text-blue-900 dark:bg-blue-950 dark:text-blue-300 text-[10px] font-bold px-2 py-0.5 uppercase">
+                    Prepaid Trap
+                  </span>
+                </div>
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  Offers ₹3,000–₹5,000 daily for liking YouTube videos or rating Google maps. Early small payouts build trust before demanding large prepaid deposit tiers that cannot be withdrawn.
+                </p>
+              </div>
+
+              <div className="rounded-xl border border-border bg-card p-5 space-y-3 hover:border-primary/40 transition-colors shadow-xs">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2.5">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-red-100 text-red-900 dark:bg-red-950 dark:text-red-300">
+                      <Building2 className="h-4 w-4" />
+                    </div>
+                    <h3 className="font-bold text-sm text-foreground">Digital Arrest Extortion</h3>
+                  </div>
+                  <span className="rounded bg-red-100 text-red-900 dark:bg-red-950 dark:text-red-300 text-[10px] font-bold px-2 py-0.5 uppercase">
+                    Impersonation
+                  </span>
+                </div>
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  Fraudsters impersonate CBI, Police, or Customs officers claiming illegal parcels or drug trafficking linked to your Aadhaar. They demand video interrogation and fund transfers to &ldquo;safety accounts&rdquo;.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* 5. Emergency 1930 & Official Reporting Banner */}
+        <section className="py-12 bg-card border-b border-border/60">
+          <div className="container mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
+            <div className="rounded-2xl border border-red-300 dark:border-red-900/60 bg-red-50/60 dark:bg-red-950/30 p-6 sm:p-8 flex flex-col sm:flex-row items-center justify-between gap-6 shadow-xs">
+              <div className="space-y-2 text-center sm:text-left">
+                <div className="flex items-center justify-center sm:justify-start gap-2">
+                  <PhoneCall className="h-5 w-5 text-red-600" />
+                  <h3 className="text-lg font-extrabold text-foreground">
+                    Active Financial Loss Emergency?
+                  </h3>
+                </div>
+                <p className="text-xs sm:text-sm text-muted-foreground max-w-xl">
+                  If you have already sent money or shared banking credentials in a scam, immediately call the <strong>National Cyber Crime Helpline at 1930</strong> or register a complaint on the official portal.
+                </p>
+              </div>
+
+              <div className="flex flex-col sm:flex-row items-center gap-3 shrink-0 w-full sm:w-auto">
+                <a
+                  href="tel:1930"
+                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl bg-red-600 px-5 py-3 text-xs font-bold text-white shadow-md hover:bg-red-700 transition-colors"
+                >
+                  <PhoneCall className="h-4 w-4" />
+                  <span>Call 1930 Now</span>
+                </a>
+                <a
+                  href="https://cybercrime.gov.in"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 rounded-xl border border-border bg-background px-4 py-3 text-xs font-bold text-foreground hover:bg-muted transition-colors"
+                >
+                  <span>cybercrime.gov.in</span>
+                  <ExternalLink className="h-3.5 w-3.5" />
+                </a>
+              </div>
+            </div>
+          </div>
+        </section>
       </main>
 
-      {/* Footer */}
-      <footer className="border-t border-border bg-muted/20 py-8 text-xs text-muted-foreground">
-        <div className="container mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 space-y-4">
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-            <div className="flex items-center gap-2">
-              <Lock className="h-4 w-4 text-emerald-600" />
-              <span>Scamfy is an educational fraud-triage tool. Not a substitute for law enforcement reporting.</span>
-            </div>
-
-            <div className="flex items-center gap-4">
-              <a
-                href="https://cybercrime.gov.in"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-1 font-semibold text-foreground hover:underline"
-              >
-                <span>cybercrime.gov.in</span>
-                <ExternalLink className="h-3 w-3" />
-              </a>
-              <span>•</span>
-              <a href="tel:1930" className="font-bold text-red-600 hover:underline">
-                Call 1930
-              </a>
-            </div>
-          </div>
-
-          <p className="text-center text-[11px] text-muted-foreground/80">
-            &copy; {new Date().getFullYear()} Scamfy Project. Built for student and public cyber safety in India.
-          </p>
-        </div>
-      </footer>
+      <SiteFooter />
     </div>
   );
 }
