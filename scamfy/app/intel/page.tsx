@@ -12,9 +12,29 @@ import {
   Radio,
   Copy,
   Check,
+  LayoutGrid,
+  Table as TableIcon,
 } from "lucide-react";
-import { Card, CardHeader, CardContent } from "@/components/ui/card";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { SiteHeader } from "@/components/shared/site-header";
 import { SiteFooter } from "@/components/shared/site-footer";
 import { RiskBadge } from "@/components/domain/risk-badge";
@@ -37,6 +57,7 @@ interface PatternItem {
 
 export default function IntelPage() {
   const [activeTab, setActiveTab] = React.useState<"verified" | "community">("verified");
+  const [viewMode, setViewMode] = React.useState<"grid" | "table">("grid");
   const [selectedType, setSelectedType] = React.useState<string>("ALL");
   const [searchQuery, setSearchQuery] = React.useState("");
   const [patterns, setPatterns] = React.useState<PatternItem[]>([]);
@@ -135,9 +156,11 @@ export default function IntelPage() {
           {/* 1. Threat Intel Header */}
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 border-b border-border/80 pb-6">
             <div className="space-y-2">
-              <div className="inline-flex items-center gap-2 rounded-full border border-border bg-muted/40 px-3 py-1 text-xs font-semibold text-foreground">
-                <Radio className="h-3.5 w-3.5 text-primary" />
-                <span>Defensive Threat Intelligence Directory</span>
+              <div className="inline-flex items-center gap-2">
+                <Badge variant="outline" className="px-3 py-1 text-xs font-semibold gap-1.5 bg-muted/40">
+                  <Radio className="h-3.5 w-3.5 text-primary" />
+                  <span>Defensive Threat Intelligence Directory</span>
+                </Badge>
               </div>
               <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight text-foreground">
                 Community Scam Intelligence
@@ -159,67 +182,83 @@ export default function IntelPage() {
             </div>
           </div>
 
-          {/* 2. Verification Tier Tabs (REP-04) */}
-          <div className="space-y-4">
-            <div className="flex border-b border-border">
-              <button
-                type="button"
-                onClick={() => {
-                  setActiveTab("verified");
-                  setLoading(true);
-                }}
-                className={cn(
-                  "flex items-center gap-2 px-5 py-3.5 text-xs sm:text-sm font-bold border-b-2 transition-colors cursor-pointer",
-                  activeTab === "verified"
-                    ? "border-emerald-600 text-emerald-700 dark:text-emerald-400 bg-emerald-50/20 dark:bg-emerald-950/10"
-                    : "border-transparent text-muted-foreground hover:text-foreground"
-                )}
-              >
-                <ShieldCheck className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
-                <span>Verified Pattern Signatures</span>
-              </button>
+          {/* 2. Verification Tier Tabs using Shadcn Tabs (REP-04) */}
+          <Tabs
+            value={activeTab}
+            onValueChange={(val) => {
+              setActiveTab(val as "verified" | "community");
+              setLoading(true);
+            }}
+            className="w-full space-y-4"
+          >
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <TabsList className="grid w-full sm:w-auto grid-cols-2">
+                <TabsTrigger
+                  value="verified"
+                  className="flex items-center gap-2 data-[state=active]:text-emerald-700 dark:data-[state=active]:text-emerald-400 font-bold"
+                >
+                  <ShieldCheck className="h-4 w-4 text-emerald-600" />
+                  <span>Verified Pattern Signatures</span>
+                </TabsTrigger>
+                <TabsTrigger
+                  value="community"
+                  className="flex items-center gap-2 data-[state=active]:text-amber-700 dark:data-[state=active]:text-amber-400 font-bold"
+                >
+                  <AlertTriangle className="h-4 w-4 text-amber-500" />
+                  <span>Unverified Community Reports</span>
+                </TabsTrigger>
+              </TabsList>
 
-              <button
-                type="button"
-                onClick={() => {
-                  setActiveTab("community");
-                  setLoading(true);
-                }}
-                className={cn(
-                  "flex items-center gap-2 px-5 py-3.5 text-xs sm:text-sm font-bold border-b-2 transition-colors cursor-pointer",
-                  activeTab === "community"
-                    ? "border-amber-500 text-amber-600 dark:text-amber-400 bg-amber-50/20 dark:bg-amber-950/10"
-                    : "border-transparent text-muted-foreground hover:text-foreground"
-                )}
-              >
-                <AlertTriangle className="h-4 w-4 text-amber-500" />
-                <span>Unverified Community Reports</span>
-              </button>
+              {/* Grid / Table View Switcher */}
+              <div className="flex items-center gap-1 self-end sm:self-center border border-border rounded-lg p-0.5 bg-muted/30">
+                <Button
+                  variant={viewMode === "grid" ? "secondary" : "ghost"}
+                  size="sm"
+                  onClick={() => setViewMode("grid")}
+                  className="h-7 px-2 text-xs gap-1"
+                  aria-label="Grid View"
+                >
+                  <LayoutGrid className="h-3.5 w-3.5" />
+                  <span className="hidden sm:inline">Cards</span>
+                </Button>
+                <Button
+                  variant={viewMode === "table" ? "secondary" : "ghost"}
+                  size="sm"
+                  onClick={() => setViewMode("table")}
+                  className="h-7 px-2 text-xs gap-1"
+                  aria-label="Table View"
+                >
+                  <TableIcon className="h-3.5 w-3.5" />
+                  <span className="hidden sm:inline">Table</span>
+                </Button>
+              </div>
             </div>
 
-            {/* Strict Tier Disclosure Callouts */}
-            {activeTab === "verified" ? (
-              <div className="rounded-xl bg-emerald-50/70 dark:bg-emerald-950/30 border border-emerald-300 dark:border-emerald-800 p-4 text-xs text-emerald-900 dark:text-emerald-200 flex items-start gap-3 shadow-xs">
-                <ShieldCheck className="h-5 w-5 text-emerald-600 shrink-0 mt-0.5" />
-                <div className="space-y-0.5">
-                  <p className="font-bold">Verified Threat Pattern Signatures</p>
-                  <p className="leading-relaxed opacity-90">
+            {/* Strict Tier Disclosures via Shadcn Alert */}
+            <TabsContent value="verified" className="mt-0">
+              <Alert className="border-emerald-300 bg-emerald-50/70 dark:border-emerald-800 dark:bg-emerald-950/30 text-emerald-900 dark:text-emerald-200">
+                <ShieldCheck className="h-5 w-5 text-emerald-600 shrink-0" />
+                <div>
+                  <AlertTitle className="font-bold">Verified Threat Pattern Signatures</AlertTitle>
+                  <AlertDescription className="text-xs leading-relaxed opacity-90 mt-1">
                     All indicators in this view have undergone human moderator triage and cross-verification. Indicators reflect crowd-sourced technical signals and do not constitute a legal or judicial determination (AI-05).
-                  </p>
+                  </AlertDescription>
                 </div>
-              </div>
-            ) : (
-              <div className="rounded-xl bg-amber-50/70 dark:bg-amber-950/30 border border-amber-300 dark:border-amber-800 p-4 text-xs text-amber-900 dark:text-amber-200 flex items-start gap-3 shadow-xs">
-                <AlertTriangle className="h-5 w-5 text-amber-600 shrink-0 mt-0.5" />
-                <div className="space-y-0.5">
-                  <p className="font-bold">Unverified Community Submissions</p>
-                  <p className="leading-relaxed opacity-90">
+              </Alert>
+            </TabsContent>
+
+            <TabsContent value="community" className="mt-0">
+              <Alert className="border-amber-300 bg-amber-50/70 dark:border-amber-800 dark:bg-amber-950/30 text-amber-900 dark:text-amber-200">
+                <AlertTriangle className="h-5 w-5 text-amber-600 shrink-0" />
+                <div>
+                  <AlertTitle className="font-bold">Unverified Community Submissions</AlertTitle>
+                  <AlertDescription className="text-xs leading-relaxed opacity-90 mt-1">
                     These indicators were reported by community users and are queued for moderator verification. They are NOT confirmed threat signatures and must not be treated as authoritative findings.
-                  </p>
+                  </AlertDescription>
                 </div>
-              </div>
-            )}
-          </div>
+              </Alert>
+            </TabsContent>
+          </Tabs>
 
           {/* 3. Search Bar & Filter Strip */}
           <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-between bg-card border border-border p-3 rounded-xl shadow-xs">
@@ -254,7 +293,7 @@ export default function IntelPage() {
             </div>
           </div>
 
-          {/* 4. Threat Indicators Grid */}
+          {/* 4. Threat Indicators Data View (Cards or Table) */}
           {loading ? (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {[1, 2, 3, 4].map((n) => (
@@ -284,7 +323,74 @@ export default function IntelPage() {
                 Reset Filters
               </Button>
             </Card>
+          ) : viewMode === "table" ? (
+            /* Shadcn Table View */
+            <Card className="shadow-xs overflow-hidden">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="w-[240px]">Indicator</TableHead>
+                    <TableHead>Category</TableHead>
+                    <TableHead>Severity</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead className="text-center">Reports</TableHead>
+                    <TableHead className="text-right">Last Seen</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {patterns.map((item) => {
+                    const isVerified = item.verificationStatus === "MODERATOR_VERIFIED";
+                    const isCopied = copiedId === item.id;
+                    return (
+                      <TableRow key={item.id}>
+                        <TableCell className="font-medium">
+                          <div className="flex items-center gap-1.5">
+                            <IndicatorTag type={item.indicatorType} value={item.indicatorValue} />
+                            <button
+                              type="button"
+                              onClick={() => handleCopyValue(item.id, item.indicatorValue)}
+                              className="rounded p-1 text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+                              title="Copy indicator value"
+                            >
+                              {isCopied ? (
+                                <Check className="h-3 w-3 text-emerald-600" />
+                              ) : (
+                                <Copy className="h-3 w-3" />
+                              )}
+                            </button>
+                          </div>
+                        </TableCell>
+                        <TableCell className="text-xs font-semibold text-foreground">
+                          {formatCategoryLabel(item.category)}
+                        </TableCell>
+                        <TableCell>
+                          <RiskBadge level={item.riskLevel} size="sm" showIcon={false} />
+                        </TableCell>
+                        <TableCell>
+                          {isVerified ? (
+                            <Badge variant="outline" className="text-emerald-700 dark:text-emerald-300 border-emerald-300 bg-emerald-50 dark:bg-emerald-950/40 text-[10px]">
+                              Verified
+                            </Badge>
+                          ) : (
+                            <Badge variant="outline" className="text-amber-700 dark:text-amber-300 border-amber-300 bg-amber-50 dark:bg-amber-950/40 text-[10px]">
+                              Unverified
+                            </Badge>
+                          )}
+                        </TableCell>
+                        <TableCell className="text-center font-mono text-xs">
+                          {item.reportCount}
+                        </TableCell>
+                        <TableCell className="text-right text-xs text-muted-foreground">
+                          {new Date(item.lastReportedAt).toLocaleDateString()}
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
+            </Card>
           ) : (
+            /* Shadcn Grid Card View */
             <div className="space-y-3">
               <div className="flex items-center justify-between text-xs text-muted-foreground px-1">
                 <span>Showing <strong>{patterns.length}</strong> of <strong>{totalCount}</strong> indicators</span>
@@ -300,9 +406,9 @@ export default function IntelPage() {
                     <Card
                       key={item.id}
                       className={cn(
-                        "border hover:shadow-md transition-all rounded-xl overflow-hidden",
+                        "hover:shadow-md transition-all rounded-xl overflow-hidden",
                         isVerified
-                          ? "border-border hover:border-emerald-500/40"
+                          ? "hover:border-emerald-500/40"
                           : "border-amber-200 dark:border-amber-900/40 hover:border-amber-500/50"
                       )}
                     >
@@ -324,9 +430,9 @@ export default function IntelPage() {
                                 )}
                               </button>
                             </div>
-                            <p className="text-xs font-bold text-foreground truncate">
+                            <CardTitle className="text-xs font-bold text-foreground truncate">
                               {formatCategoryLabel(item.category)}
-                            </p>
+                            </CardTitle>
                           </div>
                           <RiskBadge level={item.riskLevel} size="sm" showIcon={false} />
                         </div>
@@ -348,12 +454,14 @@ export default function IntelPage() {
                             )}
                           </span>
 
-                          <span className="font-mono font-semibold rounded bg-muted px-2 py-0.5 text-[11px]">
+                          <Badge variant="secondary" className="font-mono font-semibold text-[11px]">
                             {item.reportCount} {item.reportCount === 1 ? "report" : "reports"}
-                          </span>
+                          </Badge>
                         </div>
 
-                        <div className="flex items-center justify-between text-[11px] text-muted-foreground/80 border-t border-border/40 pt-2.5">
+                        <Separator />
+
+                        <div className="flex items-center justify-between text-[11px] text-muted-foreground/80 pt-0.5">
                           <span className="flex items-center gap-1">
                             <Calendar className="h-3 w-3" />
                             Last seen: {new Date(item.lastReportedAt).toLocaleDateString()}
@@ -375,15 +483,19 @@ export default function IntelPage() {
             onSuccess={() => fetchPatterns()}
           />
 
-          {/* 6. Footer Transparency Notice */}
-          <div className="rounded-xl bg-muted/30 border border-border/60 p-5 text-xs text-muted-foreground leading-relaxed text-center space-y-1">
-            <p className="font-bold text-foreground">
-              Anti-Vigilantism &amp; Defensive Threat Intelligence Notice (AI-05, OOS-04)
-            </p>
-            <p className="max-w-3xl mx-auto">
-              Scamfy Community Intelligence functions strictly as an educational cyber safety utility. Indicators represent crowd-sourced technical signals and do not constitute formal criminal accusations, judicial verdicts, or public blacklists of individuals.
-            </p>
-          </div>
+          <Separator />
+
+          {/* 6. Footer Transparency Notice via Card */}
+          <Card className="bg-muted/20 border-border/60">
+            <CardContent className="p-5 text-xs text-muted-foreground leading-relaxed text-center space-y-1">
+              <p className="font-bold text-foreground">
+                Anti-Vigilantism &amp; Defensive Threat Intelligence Notice (AI-05, OOS-04)
+              </p>
+              <p className="max-w-3xl mx-auto">
+                Scamfy Community Intelligence functions strictly as an educational cyber safety utility. Indicators represent crowd-sourced technical signals and do not constitute formal criminal accusations, judicial verdicts, or public blacklists of individuals.
+              </p>
+            </CardContent>
+          </Card>
         </div>
       </main>
 

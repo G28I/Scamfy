@@ -2,6 +2,7 @@
 import React from "react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import IntelPage from "@/app/intel/page";
 
 const mockPatternsResponse = {
@@ -47,6 +48,7 @@ describe("IntelPage Component (REP-04)", () => {
   });
 
   it("switches to Unverified Community Reports tab and updates view", async () => {
+    const user = userEvent.setup();
     const mockUnverifiedResponse = {
       patterns: [
         {
@@ -73,10 +75,10 @@ describe("IntelPage Component (REP-04)", () => {
 
     render(<IntelPage />);
 
-    const unverifiedTabBtn = screen.getByRole("button", {
+    const unverifiedTabBtn = screen.getByRole("tab", {
       name: /Unverified Community Reports/i,
     });
-    fireEvent.click(unverifiedTabBtn);
+    await user.click(unverifiedTabBtn);
 
     await waitFor(() => {
       expect(screen.getByText(/Unverified Community Submissions/i)).toBeDefined();

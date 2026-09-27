@@ -13,6 +13,18 @@ import {
   Zap,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+  CardFooter,
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import { Progress } from "@/components/ui/progress";
+import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { RiskBadge } from "@/components/domain/risk-badge";
 import { ConfidenceMeter } from "@/components/domain/confidence-meter";
 import { IndicatorTag } from "@/components/domain/indicator-tag";
@@ -105,25 +117,25 @@ export function ScamCheckResult({
         />
       )}
 
-      {/* 2. Structured Security Report Container */}
-      <div className="rounded-2xl border border-border bg-card shadow-sm overflow-hidden">
+      {/* 2. Structured Security Report Container using Shadcn Card */}
+      <Card className="rounded-2xl border-border bg-card shadow-sm overflow-hidden">
         {/* Report Top Header */}
-        <div className="border-b border-border bg-muted/20 px-5 py-4">
+        <CardHeader className="border-b border-border bg-muted/20 px-5 py-4 space-y-0">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="space-y-1.5">
               <div className="flex flex-wrap items-center gap-2">
                 <RiskBadge level={result.overall_risk} size="lg" showPulse={isEmergency} />
-                <span className="rounded-md border border-border bg-background px-2 py-0.5 text-[11px] font-mono font-medium text-muted-foreground">
+                <Badge variant="outline" className="font-mono text-[11px] font-medium text-muted-foreground">
                   ID: {result.id.slice(0, 8)}
-                </span>
-                <span className="inline-flex items-center gap-1 rounded-md border border-border bg-background px-2 py-0.5 text-[11px] font-medium text-muted-foreground">
+                </Badge>
+                <Badge variant="outline" className="inline-flex items-center gap-1 text-[11px] font-medium text-muted-foreground">
                   <Brain className="h-3 w-3 text-primary" />
                   <span>{isAiAssisted ? "Nemotron-70B Assisting" : "Rule Engine v2"}</span>
-                </span>
+                </Badge>
               </div>
-              <h3 className="text-xl font-extrabold text-foreground tracking-tight">
+              <CardTitle className="text-xl font-extrabold text-foreground tracking-tight">
                 {formatCategoryTitle(result.primary_category)}
-              </h3>
+              </CardTitle>
             </div>
 
             <div className="flex items-center gap-3 self-start sm:self-center">
@@ -138,20 +150,22 @@ export function ScamCheckResult({
               />
             </div>
           </div>
-        </div>
+        </CardHeader>
 
-        <div className="p-5 sm:p-7 space-y-6">
+        <CardContent className="p-5 sm:p-7 space-y-6">
           {/* 3. Executive Analysis Summary */}
           {result.synthesis_summary && (
-            <div className="rounded-xl border border-border/80 bg-background p-4 sm:p-5 space-y-2 shadow-xs">
-              <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                <Brain className="h-4 w-4 text-primary" />
-                <span>Executive Analysis &amp; Assessment</span>
-              </div>
-              <p className="text-sm font-medium text-foreground leading-relaxed">
-                {result.synthesis_summary}
-              </p>
-            </div>
+            <Card className="border-border/80 bg-background/50 shadow-xs">
+              <CardContent className="p-4 sm:p-5 space-y-2">
+                <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                  <Brain className="h-4 w-4 text-primary" />
+                  <span>Executive Analysis &amp; Assessment</span>
+                </div>
+                <p className="text-sm font-medium text-foreground leading-relaxed">
+                  {result.synthesis_summary}
+                </p>
+              </CardContent>
+            </Card>
           )}
 
           {/* 4. Action Protocol (Step 1, Step 2, Step 3) */}
@@ -181,9 +195,9 @@ export function ScamCheckResult({
                 />
                 <span>Immediate Defensive Action Protocol (UX-01)</span>
               </h4>
-              <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+              <Badge variant="outline" className="text-[10px] font-semibold uppercase tracking-wider">
                 Priority Steps
-              </span>
+              </Badge>
             </div>
 
             <div className="space-y-2.5 text-xs sm:text-sm text-foreground">
@@ -219,13 +233,14 @@ export function ScamCheckResult({
               </div>
               <div className="flex flex-wrap gap-2">
                 {result.psychological_tactics.map((tactic, idx) => (
-                  <span
+                  <Badge
                     key={idx}
-                    className="inline-flex items-center gap-1.5 rounded-lg border border-amber-300 bg-amber-50/80 px-3 py-1.5 text-xs font-semibold text-amber-950 dark:border-amber-900/60 dark:bg-amber-950/40 dark:text-amber-200"
+                    variant="outline"
+                    className="border-amber-300 bg-amber-50/80 px-3 py-1 text-xs font-semibold text-amber-950 dark:border-amber-900/60 dark:bg-amber-950/40 dark:text-amber-200 gap-1.5"
                   >
                     <span className="h-1.5 w-1.5 rounded-full bg-amber-500" />
                     <span>{tactic}</span>
-                  </span>
+                  </Badge>
                 ))}
               </div>
             </div>
@@ -284,9 +299,9 @@ export function ScamCheckResult({
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {result.signals.map((signal) => (
-                  <div
+                  <Card
                     key={signal.id}
-                    className="rounded-xl border border-border bg-card p-3.5 space-y-2 transition-colors hover:border-primary/40 shadow-xs"
+                    className="p-3.5 space-y-2 transition-colors hover:border-primary/40 shadow-xs"
                   >
                     <div className="flex items-center justify-between gap-2">
                       <span className="font-bold text-xs sm:text-sm text-foreground truncate">
@@ -303,7 +318,7 @@ export function ScamCheckResult({
                         <span>&ldquo;{signal.evidence}&rdquo;</span>
                       </div>
                     )}
-                  </div>
+                  </Card>
                 ))}
               </div>
             </div>
@@ -311,57 +326,63 @@ export function ScamCheckResult({
 
           {/* 8. Missing Evidence & Uncertainty Notice (DET-05) */}
           {result.missing_evidence && result.missing_evidence.length > 0 && (
-            <div className="rounded-xl border border-border bg-muted/30 p-4 space-y-2">
-              <div className="flex items-center gap-2 text-xs font-bold text-muted-foreground uppercase tracking-wider">
-                <HelpCircle className="h-4 w-4 text-blue-500" />
-                <span>Missing Corroborating Context (DET-05)</span>
+            <Alert className="border-border bg-muted/30">
+              <HelpCircle className="h-4 w-4 text-blue-500 shrink-0" />
+              <div>
+                <AlertTitle className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                  Missing Corroborating Context (DET-05)
+                </AlertTitle>
+                <AlertDescription className="mt-2">
+                  <ul className="list-disc list-inside space-y-1 text-xs text-muted-foreground leading-relaxed">
+                    {result.missing_evidence.map((item, idx) => (
+                      <li key={idx}>{item}</li>
+                    ))}
+                  </ul>
+                </AlertDescription>
               </div>
-              <ul className="list-disc list-inside space-y-1 text-xs text-muted-foreground leading-relaxed">
-                {result.missing_evidence.map((item, idx) => (
-                  <li key={idx}>{item}</li>
-                ))}
-              </ul>
-            </div>
+            </Alert>
           )}
+
+          <Separator />
 
           {/* 9. Analysis Transparency Notice */}
           <div className="rounded-lg bg-muted/20 border border-border/60 p-3.5 text-[11px] text-muted-foreground leading-relaxed">
             <span className="font-semibold text-foreground">Analysis Provenance: </span>
             <span>Engine model: {modelSlug}. Automated educational risk analysis; does not constitute a judicial, criminal, or regulatory determination (AI-05, OOS-03).</span>
           </div>
+        </CardContent>
 
-          {/* 10. Action Footer */}
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-4 border-t border-border">
+        {/* 10. Action Footer */}
+        <CardFooter className="flex flex-col sm:flex-row items-center justify-between gap-3 p-5 pt-0 border-t border-border mt-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleCopySummary}
+            leftIcon={
+              copiedSummary ? (
+                <Check className="h-3.5 w-3.5 text-emerald-600" />
+              ) : (
+                <Copy className="h-3.5 w-3.5" />
+              )
+            }
+            className="w-full sm:w-auto font-medium"
+          >
+            {copiedSummary ? "Triage Summary Copied!" : "Copy Triage Summary"}
+          </Button>
+
+          {onReset && (
             <Button
-              variant="outline"
+              variant="default"
               size="sm"
-              onClick={handleCopySummary}
-              leftIcon={
-                copiedSummary ? (
-                  <Check className="h-3.5 w-3.5 text-emerald-600" />
-                ) : (
-                  <Copy className="h-3.5 w-3.5" />
-                )
-              }
-              className="w-full sm:w-auto font-medium"
+              onClick={onReset}
+              leftIcon={<RotateCcw className="h-3.5 w-3.5" />}
+              className="w-full sm:w-auto font-bold"
             >
-              {copiedSummary ? "Triage Summary Copied!" : "Copy Triage Summary"}
+              Analyze Another Message
             </Button>
-
-            {onReset && (
-              <Button
-                variant="default"
-                size="sm"
-                onClick={onReset}
-                leftIcon={<RotateCcw className="h-3.5 w-3.5" />}
-                className="w-full sm:w-auto font-bold"
-              >
-                Analyze Another Message
-              </Button>
-            )}
-          </div>
-        </div>
-      </div>
+          )}
+        </CardFooter>
+      </Card>
     </div>
   );
 }
