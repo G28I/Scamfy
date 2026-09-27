@@ -48,9 +48,7 @@ export function ModerationQueue() {
 
   const fetchReports = React.useCallback(async () => {
     try {
-      const res = await fetch(`/api/admin/reports?status=${statusFilter}`, {
-        headers: { "x-user-role": "moderator" },
-      });
+      const res = await fetch(`/api/admin/reports?status=${statusFilter}`);
       if (res.ok) {
         const data = await res.json();
         setReports(data.reports || []);
@@ -66,9 +64,7 @@ export function ModerationQueue() {
     let ignore = false;
     async function load() {
       try {
-        const res = await fetch(`/api/admin/reports?status=${statusFilter}`, {
-          headers: { "x-user-role": "moderator" },
-        });
+        const res = await fetch(`/api/admin/reports?status=${statusFilter}`);
         if (!ignore && res.ok) {
           const data = await res.json();
           setReports(data.reports || []);
@@ -95,8 +91,6 @@ export function ModerationQueue() {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
-          "x-user-role": "moderator",
-          "x-user-id": "moderator_admin_1",
         },
         body: JSON.stringify({
           reportId,

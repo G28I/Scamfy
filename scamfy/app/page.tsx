@@ -13,8 +13,6 @@ import {
   ArrowRight,
   FileSearch,
   HelpCircle,
-  Lock,
-  Sparkle,
 } from "lucide-react";
 import { SiteHeader } from "@/components/shared/site-header";
 import { SiteFooter } from "@/components/shared/site-footer";

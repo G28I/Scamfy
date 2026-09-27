@@ -4,7 +4,13 @@ import { ReportStatus, VerificationStatus, RiskLevel } from "@prisma/client";
 
 export async function GET(req: NextRequest) {
   try {
-    const actorRole = req.headers.get("x-user-role") || "moderator";
+    const actorRole = req.headers.get("x-user-role");
+    if (!actorRole) {
+      return NextResponse.json(
+        { error: "Unauthorized", message: "Authentication required." },
+        { status: 401 }
+      );
+    }
     if (actorRole !== "moderator" && actorRole !== "college_admin") {
       return NextResponse.json(
         { error: "Forbidden", message: "Moderator role required." },
@@ -17,9 +23,16 @@ export async function GET(req: NextRequest) {
     const limit = Number(searchParams.get("limit")) || 50;
     const offset = Number(searchParams.get("offset")) || 0;
 
+    const validStatuses = new Set<string>(Object.values(ReportStatus));
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const where: any = {};
     if (statusParam !== "ALL") {
+      if (!validStatuses.has(statusParam)) {
+        return NextResponse.json(
+          { error: "ValidationError", message: `Invalid status parameter: ${statusParam}` },
+          { status: 400 }
+        );
+      }
       where.status = statusParam as ReportStatus;
     }
 
@@ -78,8 +91,13 @@ export async function GET(req: NextRequest) {
 
 export async function PATCH(req: NextRequest) {
   try {
-    const actorId = req.headers.get("x-user-id") || "system_moderator";
-    const actorRole = req.headers.get("x-user-role") || "moderator";
+    const actorRole = req.headers.get("x-user-role");
+    if (!actorRole) {
+      return NextResponse.json(
+        { error: "Unauthorized", message: "Authentication required." },
+        { status: 401 }
+      );
+    }
 
     if (actorRole !== "moderator" && actorRole !== "college_admin") {
       return NextResponse.json(
@@ -88,12 +106,21 @@ export async function PATCH(req: NextRequest) {
       );
     }
 
+    const actorId = req.headers.get("x-user-id") || "moderator_session";
+
     const body = await req.json();
     const { reportId, action, moderatorNotes, targetPatternId, riskLevel } = body;
 
     if (!reportId || !action) {
       return NextResponse.json(
         { error: "ValidationError", message: "reportId and action are required." },
+        { status: 400 }
+      );
+    }
+
+    if (riskLevel && !Object.values(RiskLevel).includes(riskLevel as RiskLevel)) {
+      return NextResponse.json(
+        { error: "ValidationError", message: `Invalid riskLevel: ${riskLevel}` },
         { status: 400 }
       );
     }
@@ -112,41 +139,46 @@ export async function PATCH(req: NextRequest) {
 
     switch (action) {
       case "APPROVE": {
-        // 1. Approve the report
-        await prisma.communityReport.update({
-          where: { id: reportId },
-          data: {
-            status: ReportStatus.APPROVED,
-            moderatorNotes: moderatorNotes || "Approved by moderator.",
-          },
-        });
+        const targetRiskLevel = (riskLevel as RiskLevel) || report.pattern?.riskLevel || RiskLevel.HIGH_RISK;
 
-        // 2. Elevate linked pattern to MODERATOR_VERIFIED (REP-05)
-        if (report.patternId) {
-          await prisma.scamPattern.update({
-            where: { id: report.patternId },
+        await prisma.$transaction(async (tx) => {
+          // 1. Approve the report
+          await tx.communityReport.update({
+            where: { id: reportId },
             data: {
-              verificationStatus: VerificationStatus.MODERATOR_VERIFIED,
-              riskLevel: (riskLevel as RiskLevel) || report.pattern?.riskLevel || RiskLevel.HIGH_RISK,
+              status: ReportStatus.APPROVED,
+              moderatorNotes: moderatorNotes || "Approved by moderator.",
             },
           });
-        }
 
-        // 3. Log immutable AuditEvent (SEC-06)
-        await prisma.auditEvent.create({
-          data: {
-            actorId,
-            actorRole,
-            action: "REPORT_APPROVED",
-            targetResourceType: "CommunityReport",
-            targetResourceId: reportId,
-            details: {
-              patternId: report.patternId,
-              indicatorType: report.indicatorType,
-              indicatorValue: report.indicatorValue,
-              newVerificationStatus: VerificationStatus.MODERATOR_VERIFIED,
+          // 2. Elevate linked pattern to MODERATOR_VERIFIED (REP-05)
+          if (report.patternId) {
+            await tx.scamPattern.update({
+              where: { id: report.patternId },
+              data: {
+                verificationStatus: VerificationStatus.MODERATOR_VERIFIED,
+                riskLevel: targetRiskLevel,
+              },
+            });
+          }
+
+          // 3. Log immutable AuditEvent (SEC-06)
+          await tx.auditEvent.create({
+            data: {
+              actorId,
+              actorRole,
+              action: "REPORT_APPROVED",
+              targetResourceType: "CommunityReport",
+              targetResourceId: reportId,
+              details: {
+                patternId: report.patternId,
+                indicatorType: report.indicatorType,
+                indicatorValue: report.indicatorValue,
+                newVerificationStatus: VerificationStatus.MODERATOR_VERIFIED,
+                riskLevel: targetRiskLevel,
+              },
             },
-          },
+          });
         });
 
         return NextResponse.json({
@@ -157,28 +189,30 @@ export async function PATCH(req: NextRequest) {
       }
 
       case "REJECT": {
-        await prisma.communityReport.update({
-          where: { id: reportId },
-          data: {
-            status: ReportStatus.REJECTED,
-            moderatorNotes: moderatorNotes || "Rejected by moderator.",
-          },
-        });
-
-        // Log immutable AuditEvent (SEC-06)
-        await prisma.auditEvent.create({
-          data: {
-            actorId,
-            actorRole,
-            action: "REPORT_REJECTED",
-            targetResourceType: "CommunityReport",
-            targetResourceId: reportId,
-            details: {
-              patternId: report.patternId,
-              indicatorValue: report.indicatorValue,
-              reason: moderatorNotes,
+        await prisma.$transaction(async (tx) => {
+          await tx.communityReport.update({
+            where: { id: reportId },
+            data: {
+              status: ReportStatus.REJECTED,
+              moderatorNotes: moderatorNotes || "Rejected by moderator.",
             },
-          },
+          });
+
+          // Log immutable AuditEvent (SEC-06)
+          await tx.auditEvent.create({
+            data: {
+              actorId,
+              actorRole,
+              action: "REPORT_REJECTED",
+              targetResourceType: "CommunityReport",
+              targetResourceId: reportId,
+              details: {
+                patternId: report.patternId,
+                indicatorValue: report.indicatorValue,
+                reason: moderatorNotes,
+              },
+            },
+          });
         });
 
         return NextResponse.json({
@@ -189,37 +223,38 @@ export async function PATCH(req: NextRequest) {
       }
 
       case "DISMISS": {
-        // Dismiss false-positive pattern
-        await prisma.communityReport.update({
-          where: { id: reportId },
-          data: {
-            status: ReportStatus.REJECTED,
-            moderatorNotes: moderatorNotes || "Dismissed as false positive.",
-          },
-        });
-
-        if (report.patternId) {
-          await prisma.scamPattern.update({
-            where: { id: report.patternId },
+        await prisma.$transaction(async (tx) => {
+          await tx.communityReport.update({
+            where: { id: reportId },
             data: {
-              verificationStatus: VerificationStatus.DISMISSED,
+              status: ReportStatus.REJECTED,
+              moderatorNotes: moderatorNotes || "Dismissed as false positive.",
             },
           });
-        }
 
-        await prisma.auditEvent.create({
-          data: {
-            actorId,
-            actorRole,
-            action: "PATTERN_DISMISSED",
-            targetResourceType: "ScamPattern",
-            targetResourceId: report.patternId || reportId,
-            details: {
-              reportId,
-              indicatorValue: report.indicatorValue,
-              reason: moderatorNotes,
+          if (report.patternId) {
+            await tx.scamPattern.update({
+              where: { id: report.patternId },
+              data: {
+                verificationStatus: VerificationStatus.DISMISSED,
+              },
+            });
+          }
+
+          await tx.auditEvent.create({
+            data: {
+              actorId,
+              actorRole,
+              action: "PATTERN_DISMISSED",
+              targetResourceType: "ScamPattern",
+              targetResourceId: report.patternId || reportId,
+              details: {
+                reportId,
+                indicatorValue: report.indicatorValue,
+                reason: moderatorNotes,
+              },
             },
-          },
+          });
         });
 
         return NextResponse.json({
@@ -237,37 +272,66 @@ export async function PATCH(req: NextRequest) {
           );
         }
 
-        // Preserve contributing report provenance while updating canonical pattern link (REP-03, REP-05)
-        await prisma.communityReport.update({
-          where: { id: reportId },
-          data: {
-            patternId: targetPatternId,
-            status: ReportStatus.MERGED,
-            moderatorNotes: moderatorNotes || `Merged into pattern ${targetPatternId}`,
-          },
-        });
-
-        await prisma.scamPattern.update({
+        const targetPattern = await prisma.scamPattern.findUnique({
           where: { id: targetPatternId },
-          data: {
-            reportCount: { increment: 1 },
-            lastReportedAt: new Date(),
-          },
         });
 
-        await prisma.auditEvent.create({
-          data: {
-            actorId,
-            actorRole,
-            action: "REPORT_MERGED",
-            targetResourceType: "CommunityReport",
-            targetResourceId: reportId,
-            details: {
-              sourcePatternId: report.patternId,
-              targetPatternId,
-              indicatorValue: report.indicatorValue,
+        if (!targetPattern) {
+          return NextResponse.json(
+            { error: "NotFound", message: "Target pattern not found for merge." },
+            { status: 404 }
+          );
+        }
+
+        await prisma.$transaction(async (tx) => {
+          // Relink report to target pattern
+          await tx.communityReport.update({
+            where: { id: reportId },
+            data: {
+              patternId: targetPatternId,
+              status: ReportStatus.MERGED,
+              moderatorNotes: moderatorNotes || `Merged into pattern ${targetPatternId}`,
             },
-          },
+          });
+
+          // Increment target pattern reportCount
+          await tx.scamPattern.update({
+            where: { id: targetPatternId },
+            data: {
+              reportCount: { increment: 1 },
+              lastReportedAt: new Date(),
+            },
+          });
+
+          // Decrement source pattern reportCount if distinct
+          if (report.patternId && report.patternId !== targetPatternId) {
+            const sourcePattern = await tx.scamPattern.findUnique({
+              where: { id: report.patternId },
+            });
+            if (sourcePattern && sourcePattern.reportCount > 0) {
+              await tx.scamPattern.update({
+                where: { id: report.patternId },
+                data: {
+                  reportCount: { decrement: 1 },
+                },
+              });
+            }
+          }
+
+          await tx.auditEvent.create({
+            data: {
+              actorId,
+              actorRole,
+              action: "REPORT_MERGED",
+              targetResourceType: "CommunityReport",
+              targetResourceId: reportId,
+              details: {
+                sourcePatternId: report.patternId,
+                targetPatternId,
+                indicatorValue: report.indicatorValue,
+              },
+            },
+          });
         });
 
         return NextResponse.json({
@@ -288,3 +352,4 @@ export async function PATCH(req: NextRequest) {
     return NextResponse.json({ error: "ModerationError", message: errorMsg }, { status: 500 });
   }
 }
+

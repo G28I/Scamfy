@@ -268,7 +268,13 @@ export default function PrivacyPolicyPage() {
                 <div className="rounded-xl border border-border bg-card p-5 space-y-1.5 text-xs">
                   <p className="font-bold text-foreground">Scamfy Privacy Office</p>
                   <p className="text-muted-foreground font-mono">
-                    Email: <span className="text-foreground font-semibold">[privacy@scamfy.org]</span>
+                    Email:{" "}
+                    <a
+                      href="mailto:privacy@scamfy.org"
+                      className="text-foreground font-semibold underline hover:text-primary transition-colors"
+                    >
+                      privacy@scamfy.org
+                    </a>
                   </p>
                   <p className="text-muted-foreground">
                     Open Cyber Threat Intelligence &amp; Triage Initiative

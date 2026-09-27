@@ -17,12 +17,12 @@ Phase 7 delivered the community reporting and threat intelligence foundation for
 
 ### 2.1 Indicator Normalization & Deduplication Service (`lib/indicators.ts`, `lib/services/pattern-service.ts`)
 - Implemented robust regex validators and canonical normalizers for 6 indicator types:
-  - `UPI_ID`: lowercased VPA matching `[\w.-]+@[\w.-]+`.
-  - `PHONE`: E.164 normalization for Indian mobiles (`+91XXXXXXXXXX`).
-  - `DOMAIN`: lowercased hostname stripping schemes and paths.
-  - `HANDLE`: `@` prefixed social/telegram handle.
-  - `BANK_ACC`: 9-18 digit account number with optional IFSC code (`ACC@IFSC`).
-  - `SCRIPT`: cleaned raw text/script indicator.
+  - `UPI_ID`: lowercased VPA requiring alphabetic-only bank suffix (`^[a-zA-Z0-9.\-_]{2,256}@[a-zA-Z]{2,64}$`).
+  - `PHONE`: stripped to a bare 10-digit Indian mobile number (`^[6-9]\d{9}$`), stripping `+91`, `91`, or `0` prefixes.
+  - `DOMAIN`: lowercased hostname stripping URL schemes, paths, and leading `www.`.
+  - `HANDLE`: lowercased handle without leading `@` (length 2–64).
+  - `BANK_ACC`: whitespace-and-hyphen normalized uppercase string with length 6–64.
+  - `SCRIPT`: cleaned raw text/script indicator (minimum length 10).
 - Deduplication leverages PostgreSQL composite unique index `[indicatorType, indicatorValue]` on `ScamPattern`.
 - Enforces strict safety invariant: High-volume report accumulation increments `reportCount` but **NEVER** auto-promotes verification tier to `MODERATOR_VERIFIED`.
 

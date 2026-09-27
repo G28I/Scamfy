@@ -54,6 +54,8 @@ export function ReportIndicatorDialog({
     if (open) {
       setIndicatorType(defaultIndicatorType);
       setIndicatorValue(defaultIndicatorValue);
+      setCategory(CATEGORIES[0]!.value);
+      setDescription("");
       setError(null);
       setSuccessMessage(null);
     }

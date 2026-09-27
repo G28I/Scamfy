@@ -4,11 +4,24 @@ import { NextRequest } from "next/server";
 import { ReportStatus, VerificationStatus, RiskLevel, IndicatorType } from "@prisma/client";
 
 describe("Admin Moderation API Route (/api/admin/reports)", () => {
-  beforeEach(() => {
+  beforeEach(async () => {
     vi.restoreAllMocks();
+    const { prisma } = await import("@/lib/prisma");
+    vi.spyOn(prisma, "$transaction").mockImplementation(async (cb: unknown) => {
+      if (typeof cb === "function") {
+        return cb(prisma);
+      }
+      return cb;
+    });
   });
 
   describe("GET /api/admin/reports", () => {
+    it("rejects unauthorized missing role with 401", async () => {
+      const req = new NextRequest("http://localhost:3000/api/admin/reports");
+      const res = await GET(req);
+      expect(res.status).toBe(401);
+    });
+
     it("rejects unauthorized non-moderator roles with 403", async () => {
       const req = new NextRequest("http://localhost:3000/api/admin/reports", {
         headers: { "x-user-role": "user" },
@@ -18,6 +31,17 @@ describe("Admin Moderation API Route (/api/admin/reports)", () => {
       expect(res.status).toBe(403);
       const data = await res.json();
       expect(data.error).toBe("Forbidden");
+    });
+
+    it("returns 400 for invalid status query parameter", async () => {
+      const req = new NextRequest("http://localhost:3000/api/admin/reports?status=INVALID_STATUS", {
+        headers: { "x-user-role": "moderator" },
+      });
+
+      const res = await GET(req);
+      expect(res.status).toBe(400);
+      const data = await res.json();
+      expect(data.error).toBe("ValidationError");
     });
 
     it("returns moderation queue for moderator actor", async () => {
@@ -68,6 +92,16 @@ describe("Admin Moderation API Route (/api/admin/reports)", () => {
   });
 
   describe("PATCH /api/admin/reports", () => {
+    it("rejects unauthorized missing role with 401", async () => {
+      const req = new NextRequest("http://localhost:3000/api/admin/reports", {
+        method: "PATCH",
+        body: JSON.stringify({ reportId: "rep-1", action: "APPROVE" }),
+      });
+
+      const res = await PATCH(req);
+      expect(res.status).toBe(401);
+    });
+
     it("rejects unauthorized non-moderator roles with 403", async () => {
       const req = new NextRequest("http://localhost:3000/api/admin/reports", {
         method: "PATCH",
@@ -77,6 +111,19 @@ describe("Admin Moderation API Route (/api/admin/reports)", () => {
 
       const res = await PATCH(req);
       expect(res.status).toBe(403);
+    });
+
+    it("rejects invalid riskLevel with 400", async () => {
+      const req = new NextRequest("http://localhost:3000/api/admin/reports", {
+        method: "PATCH",
+        headers: { "x-user-role": "moderator", "x-user-id": "mod-1" },
+        body: JSON.stringify({ reportId: "rep-1", action: "APPROVE", riskLevel: "EXTREME_DANGER" }),
+      });
+
+      const res = await PATCH(req);
+      expect(res.status).toBe(400);
+      const data = await res.json();
+      expect(data.error).toBe("ValidationError");
     });
 
     it("approves report, updates pattern to MODERATOR_VERIFIED and logs AuditEvent (SEC-06)", async () => {
@@ -212,9 +259,20 @@ describe("Admin Moderation API Route (/api/admin/reports)", () => {
         status: ReportStatus.PENDING,
       };
 
+      const mockTargetPattern = {
+        id: "pat-canonical",
+        indicatorType: IndicatorType.UPI_ID,
+        indicatorValue: "scam@ybl",
+        reportCount: 5,
+      };
+
       vi.spyOn(prisma.communityReport, "findUnique").mockResolvedValueOnce(mockReport as never);
+      vi.spyOn(prisma.scamPattern, "findUnique")
+        .mockResolvedValueOnce(mockTargetPattern as never)
+        .mockResolvedValueOnce({ id: "pat-duplicate", reportCount: 3 } as never);
+
       const updateReportSpy = vi.spyOn(prisma.communityReport, "update").mockResolvedValueOnce({} as never);
-      const updatePatternSpy = vi.spyOn(prisma.scamPattern, "update").mockResolvedValueOnce({} as never);
+      const updatePatternSpy = vi.spyOn(prisma.scamPattern, "update").mockResolvedValue({} as never);
       const createAuditSpy = vi.spyOn(prisma.auditEvent, "create").mockResolvedValueOnce({} as never);
 
       const req = new NextRequest("http://localhost:3000/api/admin/reports", {
@@ -257,3 +315,4 @@ describe("Admin Moderation API Route (/api/admin/reports)", () => {
     });
   });
 });
+

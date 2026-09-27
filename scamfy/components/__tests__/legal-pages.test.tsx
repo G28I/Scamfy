@@ -20,7 +20,7 @@ describe("Privacy & Terms Legal Information Pages", () => {
       expect(screen.getAllByText(/Information We Collect/i).length).toBeGreaterThan(0);
       expect(screen.getAllByText(/Public vs\. Private Data Segregation/i).length).toBeGreaterThan(0);
       expect(screen.getAllByText(/Storage, Security & Audit Logs/i).length).toBeGreaterThan(0);
-      expect(screen.getByText(/\[privacy@scamfy\.org\]/i)).toBeDefined();
+      expect(screen.getByRole("link", { name: /privacy@scamfy\.org/i })).toBeDefined();
     });
   });
 
@@ -36,7 +36,7 @@ describe("Privacy & Terms Legal Information Pages", () => {
       expect(screen.getByText(/Essential Safety & Informational Scope Notice/i)).toBeDefined();
       expect(screen.getAllByText(/Informational Triage & No Legal or Emergency Authority/i).length).toBeGreaterThan(0);
       expect(screen.getAllByText(/1930/i).length).toBeGreaterThan(0);
-      expect(screen.getByText(/\[legal@scamfy\.org\]/i)).toBeDefined();
+      expect(screen.getByRole("link", { name: /legal@scamfy\.org/i })).toBeDefined();
     });
   });
 

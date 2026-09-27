@@ -85,23 +85,16 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Identify or create user for report attribution (REP-02)
-    let reporterUserId = req.headers.get("x-user-id");
+    // Identify user for report attribution (REP-02)
+    const reporterUserId = req.headers.get("x-user-id");
     if (!reporterUserId) {
-      // Find or create default community reporter user
-      let defaultUser = await prisma.user.findFirst({
-        where: { clerkUserId: "community_reporter_system" },
-      });
-      if (!defaultUser) {
-        defaultUser = await prisma.user.create({
-          data: {
-            clerkUserId: "community_reporter_system",
-            email: "reporter@scamfy.internal",
-            role: "student_user",
-          },
-        });
-      }
-      reporterUserId = defaultUser.id;
+      return NextResponse.json(
+        {
+          error: "Unauthorized",
+          message: "Authentication required to submit a community report.",
+        },
+        { status: 401 }
+      );
     }
 
     const result = await ingestCommunityReport(
@@ -128,14 +121,28 @@ export async function POST(req: NextRequest) {
       { status: 201 }
     );
   } catch (err: unknown) {
-    const errorMsg = err instanceof Error ? err.message : "Failed to submit report.";
+    if (
+      err instanceof Error &&
+      (err.message.includes("indicator") ||
+        err.message.includes("description") ||
+        err.message.includes("Invalid"))
+    ) {
+      return NextResponse.json(
+        {
+          error: "ValidationError",
+          message: err.message,
+          status: 400,
+        },
+        { status: 400 }
+      );
+    }
+
     return NextResponse.json(
       {
-        error: "SubmissionError",
-        message: errorMsg,
-        status: 400,
+        error: "InternalError",
+        message: "Failed to submit report.",
       },
-      { status: 400 }
+      { status: 500 }
     );
   }
 }
@@ -144,7 +151,10 @@ export async function GET(req: NextRequest) {
   try {
     const reporterUserId = req.headers.get("x-user-id");
     if (!reporterUserId) {
-      return NextResponse.json({ reports: [], total: 0 });
+      return NextResponse.json(
+        { error: "Unauthorized", message: "Authentication required." },
+        { status: 401 }
+      );
     }
 
     const reports = await prisma.communityReport.findMany({
@@ -165,8 +175,10 @@ export async function GET(req: NextRequest) {
       })),
       total: reports.length,
     });
-  } catch (err: unknown) {
-    const errorMsg = err instanceof Error ? err.message : "Failed to fetch reports.";
-    return NextResponse.json({ error: "FetchError", message: errorMsg }, { status: 500 });
+  } catch {
+    return NextResponse.json(
+      { error: "InternalError", message: "Failed to fetch reports." },
+      { status: 500 }
+    );
   }
 }

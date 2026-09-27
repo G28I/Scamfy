@@ -50,6 +50,12 @@ describe("Indicator Normalization & Validation (REP-01, REP-03)", () => {
 describe("Pattern Service Ingestion & Deduplication (REP-01, REP-02, REP-03)", () => {
   beforeEach(() => {
     vi.restoreAllMocks();
+    vi.spyOn(prisma, "$transaction").mockImplementation(async (cb: unknown) => {
+      if (typeof cb === "function") {
+        return cb(prisma);
+      }
+      return cb;
+    });
   });
 
   it("creates a new UNVERIFIED ScamPattern when indicator is reported for the first time", async () => {
@@ -82,8 +88,7 @@ describe("Pattern Service Ingestion & Deduplication (REP-01, REP-02, REP-03)", (
       updatedAt: new Date("2026-09-26T10:00:00Z"),
     };
 
-    vi.spyOn(prisma.scamPattern, "findUnique").mockResolvedValueOnce(null);
-    vi.spyOn(prisma.scamPattern, "create").mockResolvedValueOnce(mockCreatedPattern as never);
+    vi.spyOn(prisma.scamPattern, "upsert").mockResolvedValueOnce(mockCreatedPattern as never);
     vi.spyOn(prisma.communityReport, "create").mockResolvedValueOnce(mockCreatedReport as never);
 
     const { report, pattern } = await ingestCommunityReport(
@@ -139,8 +144,7 @@ describe("Pattern Service Ingestion & Deduplication (REP-01, REP-02, REP-03)", (
       updatedAt: new Date("2026-09-26T14:00:00Z"),
     };
 
-    vi.spyOn(prisma.scamPattern, "findUnique").mockResolvedValueOnce(existingPattern as never);
-    vi.spyOn(prisma.scamPattern, "update").mockResolvedValueOnce(updatedPattern as never);
+    vi.spyOn(prisma.scamPattern, "upsert").mockResolvedValueOnce(updatedPattern as never);
     vi.spyOn(prisma.communityReport, "create").mockResolvedValueOnce(mockReport as never);
 
     const { report, pattern } = await ingestCommunityReport(

@@ -6,8 +6,15 @@ import { PATCH as patchAdminReport } from "@/app/api/admin/reports/route";
 import { NextRequest } from "next/server";
 
 describe("Critical Safety & Provenance Requirements — Community Intelligence (Phase 7)", () => {
-  beforeEach(() => {
+  beforeEach(async () => {
     vi.restoreAllMocks();
+    const { prisma } = await import("@/lib/prisma");
+    vi.spyOn(prisma, "$transaction").mockImplementation(async (cb: unknown) => {
+      if (typeof cb === "function") {
+        return cb(prisma);
+      }
+      return cb;
+    });
   });
 
   // Safety Requirement 1: Unverified community report is clearly labeled unverified
@@ -39,8 +46,7 @@ describe("Critical Safety & Provenance Requirements — Community Intelligence (
       createdAt: new Date(),
     };
 
-    vi.spyOn(prisma.scamPattern, "findUnique").mockResolvedValueOnce(null);
-    vi.spyOn(prisma.scamPattern, "create").mockResolvedValueOnce(mockPattern as never);
+    vi.spyOn(prisma.scamPattern, "upsert").mockResolvedValueOnce(mockPattern as never);
     vi.spyOn(prisma.communityReport, "create").mockResolvedValueOnce(mockReport as never);
 
     const result = await ingestCommunityReport(
@@ -191,8 +197,7 @@ describe("Critical Safety & Provenance Requirements — Community Intelligence (
       createdAt: new Date(),
     };
 
-    vi.spyOn(prisma.scamPattern, "findUnique").mockResolvedValueOnce(existingPattern as never);
-    const updateSpy = vi.spyOn(prisma.scamPattern, "update").mockResolvedValueOnce(updatedPattern as never);
+    const upsertSpy = vi.spyOn(prisma.scamPattern, "upsert").mockResolvedValueOnce(updatedPattern as never);
     vi.spyOn(prisma.communityReport, "create").mockResolvedValueOnce(mockReport as never);
 
     const result = await ingestCommunityReport(
@@ -208,10 +213,15 @@ describe("Critical Safety & Provenance Requirements — Community Intelligence (
     // Invariant check: MUST NOT be MODERATOR_VERIFIED without human moderator action
     expect(result.pattern.verificationStatus).toBe(VerificationStatus.UNVERIFIED);
     expect(result.pattern.verificationStatus).not.toBe(VerificationStatus.MODERATOR_VERIFIED);
-    expect(updateSpy).toHaveBeenCalledWith(
+    expect(upsertSpy).toHaveBeenCalledWith(
       expect.objectContaining({
-        where: { id: "pat-high-vol" },
-        data: expect.objectContaining({
+        where: {
+          uq_scam_patterns_indicator_type_value: {
+            indicatorType: IndicatorType.UPI_ID,
+            indicatorValue: "viralscam@upi",
+          },
+        },
+        update: expect.objectContaining({
           reportCount: { increment: 1 },
         }),
       })
@@ -326,8 +336,11 @@ describe("Critical Safety & Provenance Requirements — Community Intelligence (
     };
 
     vi.spyOn(prisma.communityReport, "findUnique").mockResolvedValueOnce(mockReport as never);
+    vi.spyOn(prisma.scamPattern, "findUnique")
+      .mockResolvedValueOnce({ id: "pat-canonical-master", reportCount: 5 } as never)
+      .mockResolvedValueOnce({ id: "pat-dup-1", reportCount: 2 } as never);
     const updateReportSpy = vi.spyOn(prisma.communityReport, "update").mockResolvedValueOnce({} as never);
-    const updatePatternSpy = vi.spyOn(prisma.scamPattern, "update").mockResolvedValueOnce({} as never);
+    const updatePatternSpy = vi.spyOn(prisma.scamPattern, "update").mockResolvedValue({} as never);
     vi.spyOn(prisma.auditEvent, "create").mockResolvedValueOnce({} as never);
 
     const req = new NextRequest("http://localhost:3000/api/admin/reports", {

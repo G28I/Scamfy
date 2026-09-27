@@ -17,13 +17,11 @@ import {
   Card,
   CardHeader,
   CardTitle,
-  CardDescription,
   CardContent,
   CardFooter,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Progress } from "@/components/ui/progress";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { RiskBadge } from "@/components/domain/risk-badge";
 import { ConfidenceMeter } from "@/components/domain/confidence-meter";
@@ -100,7 +98,15 @@ export function ScamCheckResult({
       {isEmergency && (
         <UrgencyBanner
           title="Critical Scam Threat Detected"
-          description="High-urgency financial extortion or UPI payment collect trap detected. Do NOT share your UPI PIN, OTP, or approve payment requests. If you have already lost money, call the National Cyber Crime Helpline 1930 immediately."
+          description={
+            result.primary_category === "UPI_REVERSE_PAYMENT_FRAUD"
+              ? "High-urgency UPI payment collect trap detected. Do NOT enter your UPI PIN to receive funds. If money was deducted, call 1930 immediately."
+              : result.primary_category === "IMPERSONATION_POLICE_EXTORTION"
+              ? "Digital arrest / law-enforcement extortion detected. Police and CBI never interrogate via Skype or demand transfer to 'safe accounts'. Call 1930 immediately."
+              : result.primary_category === "UTILITY_ELECTRICITY_FRAUD"
+              ? "Urgent utility cutoff scam detected. Power companies never disconnect without formal notice or demand payment to personal numbers. Call 1930 immediately."
+              : "High-urgency cyber fraud threat detected. Do NOT share OTPs, passwords, or approve payments. If you have already lost money, call the National Cyber Crime Helpline 1930 immediately."
+          }
           show1930CallToAction
           helplineNumber="1930"
           actionLabel="Official Cybercrime Portal"
@@ -111,7 +117,15 @@ export function ScamCheckResult({
       {isHighRisk && !isEmergency && (
         <UrgencyBanner
           title="High-Risk Fraud Pattern Identified"
-          description="High likelihood of deceptive recruitment, part-time task fraud, or credential harvesting. Do not pay advance fees or deposit money."
+          description={
+            result.primary_category === "TASK_COMMISSION_FRAUD"
+              ? "Deceptive recruitment or part-time task fraud detected. Never pay registration fees or deposit funds for promised review returns."
+              : result.primary_category === "BANK_KYC_PHISHING"
+              ? "Phishing attack targeting banking credentials and PAN/Aadhaar information. Do not click links or install remote access apps."
+              : result.primary_category === "INVESTMENT_STOCK_FRAUD"
+              ? "High-risk fraudulent investment or crypto trading scheme. Unregistered entities promising guaranteed profits are illegal."
+              : "High likelihood of fraud detected for this indicator. Do not transfer funds, share personal documents, or install unverified applications."
+          }
           show1930CallToAction={false}
           officialPortalUrl="https://cybercrime.gov.in"
         />

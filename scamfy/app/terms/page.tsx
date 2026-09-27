@@ -211,7 +211,7 @@ export default function TermsPage() {
                   9. Governing Law &amp; Dispute Resolution
                 </h2>
                 <p>
-                  These Terms shall be governed and construed in accordance with the laws of <span className="font-mono text-foreground font-semibold">[Jurisdiction / Applicable Law Placeholder]</span>, without regard to conflict of law provisions.
+                  These Terms shall be governed and construed in accordance with the laws of <span className="text-foreground font-semibold">New Delhi, India, under the Information Technology Act, 2000 and applicable Indian laws</span>, without regard to conflict of law provisions.
                 </p>
               </section>
 
@@ -227,7 +227,13 @@ export default function TermsPage() {
                 <div className="rounded-xl border border-border bg-card p-5 space-y-1.5 text-xs">
                   <p className="font-bold text-foreground">Scamfy Legal &amp; Compliance</p>
                   <p className="text-muted-foreground font-mono">
-                    Email: <span className="text-foreground font-semibold">[legal@scamfy.org]</span>
+                    Email:{" "}
+                    <a
+                      href="mailto:legal@scamfy.org"
+                      className="text-foreground font-semibold underline hover:text-primary transition-colors"
+                    >
+                      legal@scamfy.org
+                    </a>
                   </p>
                   <p className="text-muted-foreground">
                     Open Cyber Threat Intelligence &amp; Triage Initiative

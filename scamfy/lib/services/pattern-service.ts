@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import {
   IndicatorType,
+  Prisma,
   ReportStatus,
   RiskLevel,
   VerificationStatus,
@@ -63,32 +64,17 @@ export async function ingestCommunityReport(
     throw new Error("Report description must be at least 5 characters.");
   }
 
-  // 1. Check for existing pattern with composite key [indicatorType, indicatorValue] (REP-03)
-  const existingPattern = await prisma.scamPattern.findUnique({
-    where: {
-      uq_scam_patterns_indicator_type_value: {
-        indicatorType: input.indicatorType,
-        indicatorValue: normalizedValue,
-      },
-    },
-  });
-
-  let pattern: ScamPattern;
-
-  if (existingPattern) {
-    // Increment report count & bump lastReportedAt.
+  return await prisma.$transaction(async (tx) => {
+    // Upsert pattern keyed by uq_scam_patterns_indicator_type_value (REP-03)
     // INVARIANT: Do NOT change verificationStatus; volume accumulation does NOT verify a pattern.
-    pattern = await prisma.scamPattern.update({
-      where: { id: existingPattern.id },
-      data: {
-        reportCount: { increment: 1 },
-        lastReportedAt: new Date(),
+    const pattern = await tx.scamPattern.upsert({
+      where: {
+        uq_scam_patterns_indicator_type_value: {
+          indicatorType: input.indicatorType,
+          indicatorValue: normalizedValue,
+        },
       },
-    });
-  } else {
-    // Create new UNVERIFIED pattern record
-    pattern = await prisma.scamPattern.create({
-      data: {
+      create: {
         indicatorType: input.indicatorType,
         indicatorValue: normalizedValue,
         category,
@@ -99,23 +85,27 @@ export async function ingestCommunityReport(
         lastReportedAt: new Date(),
         metadataPayload: {},
       },
+      update: {
+        reportCount: { increment: 1 },
+        lastReportedAt: new Date(),
+      },
     });
-  }
 
-  // 2. Insert CommunityReport linked to pattern, preserving reporter provenance (REP-02)
-  const report = await prisma.communityReport.create({
-    data: {
-      reporterUserId,
-      patternId: pattern.id,
-      indicatorType: input.indicatorType,
-      indicatorValue: normalizedValue,
-      category,
-      description,
-      status: ReportStatus.PENDING,
-    },
+    // Insert CommunityReport linked to pattern, preserving reporter provenance (REP-02)
+    const report = await tx.communityReport.create({
+      data: {
+        reporterUserId,
+        patternId: pattern.id,
+        indicatorType: input.indicatorType,
+        indicatorValue: normalizedValue,
+        category,
+        description,
+        status: ReportStatus.PENDING,
+      },
+    });
+
+    return { report, pattern };
   });
-
-  return { report, pattern };
 }
 
 /**
@@ -128,8 +118,7 @@ export async function listPublicPatterns(
   const limit = Math.min(Math.max(Number(filters.limit) || 20, 1), 100);
   const offset = Math.max(Number(filters.offset) || 0, 0);
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const where: any = {};
+  const where: Prisma.ScamPatternWhereInput = {};
 
   if (filters.tier === "verified") {
     where.verificationStatus = VerificationStatus.MODERATOR_VERIFIED;

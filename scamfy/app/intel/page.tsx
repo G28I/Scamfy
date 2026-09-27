@@ -19,7 +19,6 @@ import {
   Card,
   CardHeader,
   CardTitle,
-  CardDescription,
   CardContent,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -66,37 +65,8 @@ export default function IntelPage() {
   const [reportModalOpen, setReportModalOpen] = React.useState(false);
   const [copiedId, setCopiedId] = React.useState<string | null>(null);
 
-  const fetchPatterns = React.useCallback(async () => {
-    try {
-      const params = new URLSearchParams();
-      params.set("tier", activeTab);
-      if (selectedType !== "ALL") {
-        params.set("indicatorType", selectedType);
-      }
-      if (searchQuery.trim()) {
-        params.set("search", searchQuery.trim());
-      }
-
-      const res = await fetch(`/api/patterns?${params.toString()}`);
-      if (res.ok) {
-        const data = await res.json();
-        setPatterns(data.patterns || []);
-        setTotalCount(data.total || 0);
-      } else {
-        setPatterns([]);
-        setTotalCount(0);
-      }
-    } catch {
-      setPatterns([]);
-      setTotalCount(0);
-    } finally {
-      setLoading(false);
-    }
-  }, [activeTab, selectedType, searchQuery]);
-
-  React.useEffect(() => {
-    let ignore = false;
-    async function load() {
+  const loadPatterns = React.useCallback(
+    async (isIgnored?: () => boolean) => {
       try {
         const params = new URLSearchParams();
         params.set("tier", activeTab);
@@ -108,7 +78,7 @@ export default function IntelPage() {
         }
 
         const res = await fetch(`/api/patterns?${params.toString()}`);
-        if (!ignore) {
+        if (!isIgnored || !isIgnored()) {
           if (res.ok) {
             const data = await res.json();
             setPatterns(data.patterns || []);
@@ -119,21 +89,30 @@ export default function IntelPage() {
           }
         }
       } catch {
-        if (!ignore) {
+        if (!isIgnored || !isIgnored()) {
           setPatterns([]);
           setTotalCount(0);
         }
       } finally {
-        if (!ignore) setLoading(false);
+        if (!isIgnored || !isIgnored()) {
+          setLoading(false);
+        }
       }
-    }
+    },
+    [activeTab, selectedType, searchQuery]
+  );
 
-    void load();
+  React.useEffect(() => {
+    let ignore = false;
+    async function execute() {
+      await loadPatterns(() => ignore);
+    }
+    void execute();
 
     return () => {
       ignore = true;
     };
-  }, [activeTab, selectedType, searchQuery]);
+  }, [loadPatterns]);
 
   const handleCopyValue = async (id: string, value: string) => {
     try {
@@ -480,7 +459,7 @@ export default function IntelPage() {
           <ReportIndicatorDialog
             open={reportModalOpen}
             onOpenChange={setReportModalOpen}
-            onSuccess={() => fetchPatterns()}
+            onSuccess={() => loadPatterns()}
           />
 
           <Separator />

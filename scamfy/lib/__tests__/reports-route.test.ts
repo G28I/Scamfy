@@ -4,8 +4,41 @@ import { NextRequest } from "next/server";
 import { IndicatorType, RiskLevel, VerificationStatus } from "@prisma/client";
 
 describe("Community Reports BFF Route (/api/reports)", () => {
-  beforeEach(() => {
+  beforeEach(async () => {
     vi.restoreAllMocks();
+    const { prisma } = await import("@/lib/prisma");
+    vi.spyOn(prisma, "$transaction").mockImplementation(async (cb: unknown) => {
+      if (typeof cb === "function") {
+        return cb(prisma);
+      }
+      return cb;
+    });
+  });
+
+  it("rejects missing authentication on POST with status 401", async () => {
+    const req = new NextRequest("http://localhost:3000/api/reports", {
+      method: "POST",
+      body: JSON.stringify({
+        indicatorType: IndicatorType.UPI_ID,
+        indicatorValue: "scam@upi",
+        category: "UPI_REVERSE_PAYMENT_FRAUD",
+        description: "Valid description here",
+      }),
+      headers: { "Content-Type": "application/json" },
+    });
+
+    const res = await POST(req);
+    expect(res.status).toBe(401);
+    const data = await res.json();
+    expect(data.error).toBe("Unauthorized");
+  });
+
+  it("rejects missing authentication on GET with status 401", async () => {
+    const req = new NextRequest("http://localhost:3000/api/reports");
+    const res = await GET(req);
+    expect(res.status).toBe(401);
+    const data = await res.json();
+    expect(data.error).toBe("Unauthorized");
   });
 
   it("rejects missing or invalid indicatorType with status 400", async () => {
@@ -17,7 +50,7 @@ describe("Community Reports BFF Route (/api/reports)", () => {
         category: "UPI_REVERSE_PAYMENT_FRAUD",
         description: "Valid description here",
       }),
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", "x-user-id": "user-123" },
     });
 
     const res = await POST(req);
@@ -36,7 +69,7 @@ describe("Community Reports BFF Route (/api/reports)", () => {
         category: "UPI_REVERSE_PAYMENT_FRAUD",
         description: "hi",
       }),
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", "x-user-id": "user-123" },
     });
 
     const res = await POST(req);
@@ -49,7 +82,6 @@ describe("Community Reports BFF Route (/api/reports)", () => {
   it("successfully creates report and returns 201 with pattern details", async () => {
     const { prisma } = await import("@/lib/prisma");
 
-    const mockUser = { id: "user-123", clerkUserId: "clerk-123" };
     const mockPattern = {
       id: "pat-123",
       indicatorType: IndicatorType.UPI_ID,
@@ -73,9 +105,7 @@ describe("Community Reports BFF Route (/api/reports)", () => {
       createdAt: new Date(),
     };
 
-    vi.spyOn(prisma.user, "findFirst").mockResolvedValueOnce(mockUser as never);
-    vi.spyOn(prisma.scamPattern, "findUnique").mockResolvedValueOnce(null);
-    vi.spyOn(prisma.scamPattern, "create").mockResolvedValueOnce(mockPattern as never);
+    vi.spyOn(prisma.scamPattern, "upsert").mockResolvedValueOnce(mockPattern as never);
     vi.spyOn(prisma.communityReport, "create").mockResolvedValueOnce(mockReport as never);
 
     const req = new NextRequest("http://localhost:3000/api/reports", {
@@ -96,6 +126,28 @@ describe("Community Reports BFF Route (/api/reports)", () => {
     expect(data.patternId).toBe("pat-123");
     expect(data.status).toBe("PENDING");
     expect(data.indicatorValue).toBe("scamvpa@icici");
+  });
+
+  it("returns generic 500 error when unexpected database failure occurs", async () => {
+    const { prisma } = await import("@/lib/prisma");
+    vi.spyOn(prisma.scamPattern, "upsert").mockRejectedValueOnce(new Error("Database connection lost"));
+
+    const req = new NextRequest("http://localhost:3000/api/reports", {
+      method: "POST",
+      body: JSON.stringify({
+        indicatorType: IndicatorType.UPI_ID,
+        indicatorValue: "scamvpa@icici",
+        category: "UPI_REVERSE_PAYMENT_FRAUD",
+        description: "Demanded UPI PIN for reward",
+      }),
+      headers: { "Content-Type": "application/json", "x-user-id": "user-123" },
+    });
+
+    const res = await POST(req);
+    expect(res.status).toBe(500);
+    const data = await res.json();
+    expect(data.error).toBe("InternalError");
+    expect(data.message).toBe("Failed to submit report.");
   });
 
   it("returns user reports via GET /api/reports", async () => {
