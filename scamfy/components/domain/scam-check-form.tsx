@@ -1,7 +1,5 @@
-"use client";
-
 import * as React from "react";
-import { ShieldCheck, Sparkles, Trash2, Lock, Clipboard, CornerDownLeft } from "lucide-react";
+import { ShieldCheck, Zap, CreditCard, Briefcase, ShieldAlert, Trash2, Clipboard, CornerDownLeft, Flame, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
@@ -15,26 +13,30 @@ export interface ScamCheckFormProps extends React.FormHTMLAttributes<HTMLFormEle
 export const SAMPLE_PRESETS = [
   {
     id: "electricity",
-    label: "⚡ Electricity Cutoff Notice",
+    label: "Electricity Cutoff Notice",
     badge: "Utility Fraud",
+    icon: Zap,
     text: "Dear consumer, your electricity power will be disconnected tonight by 9:30 PM due to previous month unpaid bill. Call our electricity officer at 9876543210 immediately to avoid power cutoff.",
   },
   {
     id: "upi-pin",
-    label: "💳 Fake Cashback & QR Collect",
+    label: "Cashback QR Collect Trap",
     badge: "UPI Fraud",
+    icon: CreditCard,
     text: "Congratulations! You have won Rs. 5,000 festival cashback reward. Scan this QR code and enter your UPI PIN to accept payment in your bank account.",
   },
   {
     id: "part-time",
-    label: "💼 Telegram Task & YouTube Job",
+    label: "Telegram Task & YouTube Job",
     badge: "Job Scam",
+    icon: Briefcase,
     text: "Work from home part time job! Earn Rs 2,500 - 5,000 daily by liking YouTube videos and rating Google maps. Join our Telegram group @task_earning to receive daily payouts.",
   },
   {
     id: "digital-arrest",
-    label: "🚨 Digital Arrest & CBI Extortion",
+    label: "Digital Arrest & CBI Extortion",
     badge: "Extortion",
+    icon: ShieldAlert,
     text: "Police Department & Narcotics Bureau Notice: An illegal parcel containing contraband has been intercepted under your Aadhaar ID. A digital arrest warrant is issued. Join WhatsApp video call immediately.",
   },
 ];
@@ -103,15 +105,15 @@ export function ScamCheckForm({
   return (
     <form
       onSubmit={handleSubmit}
-      className={cn("w-full space-y-5", className)}
+      className={cn("w-full space-y-4", className)}
       {...props}
     >
       {/* 1. Quick Scenario Presets */}
       <div className="space-y-2">
         <div className="flex items-center justify-between text-xs font-semibold text-muted-foreground">
           <span className="flex items-center gap-1.5 text-foreground">
-            <Sparkles className="h-3.5 w-3.5 text-primary" aria-hidden="true" />
-            <span>Try sample Indian scam patterns:</span>
+            <Flame className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400" aria-hidden="true" />
+            <span>Sample scam patterns to test:</span>
           </span>
           {text.length > 0 && !isLoading && (
             <button
@@ -129,6 +131,7 @@ export function ScamCheckForm({
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
           {SAMPLE_PRESETS.map((preset) => {
             const isSelected = text === preset.text;
+            const Icon = preset.icon;
             return (
               <button
                 key={preset.id}
@@ -136,16 +139,17 @@ export function ScamCheckForm({
                 disabled={isLoading}
                 onClick={() => handleSelectPreset(preset.text)}
                 className={cn(
-                  "flex items-center justify-between rounded-lg border p-2.5 text-left text-xs transition-all cursor-pointer select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-50",
+                  "group flex items-center justify-between rounded-lg border p-2.5 text-left text-xs transition-all cursor-pointer select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-50",
                   isSelected
-                    ? "border-primary bg-primary/5 text-foreground ring-1 ring-primary/40 font-semibold shadow-xs"
-                    : "border-border bg-card/80 text-muted-foreground hover:border-primary/40 hover:bg-muted/40 hover:text-foreground"
+                    ? "border-primary bg-primary/10 text-foreground ring-1 ring-primary/40 font-semibold shadow-xs"
+                    : "border-border/80 bg-muted/40 text-muted-foreground hover:border-primary/40 hover:bg-muted/80 hover:text-foreground"
                 )}
               >
-                <span className="font-medium text-foreground truncate pr-2">
-                  {preset.label}
+                <span className="flex items-center gap-2 truncate pr-2 font-medium text-foreground">
+                  <Icon className="h-3.5 w-3.5 text-muted-foreground group-hover:text-primary transition-colors shrink-0" />
+                  <span className="truncate">{preset.label}</span>
                 </span>
-                <span className="rounded bg-muted px-1.5 py-0.5 text-[10px] font-mono font-semibold text-muted-foreground shrink-0 uppercase">
+                <span className="rounded-md border border-border/70 bg-background px-1.5 py-0.5 text-[10px] font-mono font-semibold text-muted-foreground shrink-0 uppercase">
                   {preset.badge}
                 </span>
               </button>

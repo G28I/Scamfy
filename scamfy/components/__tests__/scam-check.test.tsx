@@ -56,8 +56,8 @@ describe("ScamCheckForm component", () => {
 
     expect(screen.getByLabelText(/Suspicious message text for scam analysis/i)).toBeDefined();
     expect(screen.getByRole("button", { name: "Analyze Message" })).toBeDefined();
-    expect(screen.getByText(/⚡ Electricity Cutoff/i)).toBeDefined();
-    expect(screen.getByText(/💳 Fake Cashback/i)).toBeDefined();
+    expect(screen.getByText(/Electricity Cutoff Notice/i)).toBeDefined();
+    expect(screen.getByText(/Cashback QR Collect Trap/i)).toBeDefined();
   });
 
   it("populates textarea when a preset chip is clicked", () => {
@@ -66,7 +66,7 @@ describe("ScamCheckForm component", () => {
     const textarea = screen.getByLabelText(/Suspicious message text/i) as HTMLTextAreaElement;
     expect(textarea.value).toBe("");
 
-    const electricityBtn = screen.getByText(/⚡ Electricity Cutoff/i);
+    const electricityBtn = screen.getByText(/Electricity Cutoff Notice/i);
     fireEvent.click(electricityBtn);
 
     expect(textarea.value).toBe(SAMPLE_PRESETS[0]!.text);
