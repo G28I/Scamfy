@@ -3,7 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ShieldAlert, PhoneCall, Menu, X, Shield, Radio } from "lucide-react";
+import { ShieldAlert, PhoneCall, Menu, X, Shield } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface NavItem {
@@ -102,17 +102,9 @@ export function SiteHeader() {
 
         {/* Action CTAs */}
         <div className="flex items-center gap-2.5">
-          <Link
-            href="/intel"
-            className="hidden sm:inline-flex items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-1.5 text-xs font-semibold text-foreground hover:bg-muted/60 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-          >
-            <Radio className="h-3.5 w-3.5 text-primary" />
-            <span>Threat Intel</span>
-          </Link>
-
           <a
             href="tel:1930"
-            className="inline-flex items-center gap-1.5 rounded-lg border border-red-300 bg-red-50 px-3 py-1.5 text-xs font-bold text-red-900 transition-colors hover:bg-red-100 dark:border-red-900/60 dark:bg-red-950/50 dark:text-red-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 shadow-sm"
+            className="inline-flex items-center gap-1.5 rounded-lg border border-red-300 bg-red-50 px-3.5 py-1.5 text-xs font-bold text-red-900 transition-colors hover:bg-red-100 dark:border-red-900/60 dark:bg-red-950/50 dark:text-red-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 shadow-xs"
             aria-label="Helpline 1930 Emergency Contact"
           >
             <PhoneCall className="h-3.5 w-3.5 text-red-600 dark:text-red-400" />

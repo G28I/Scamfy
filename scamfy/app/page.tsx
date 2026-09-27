@@ -119,9 +119,9 @@ export default function HomePage() {
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              <div className="rounded-xl border border-border bg-card p-5 space-y-2.5 shadow-xs">
-                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-100 text-emerald-900 dark:bg-emerald-950 dark:text-emerald-300">
-                  <CreditCard className="h-5 w-5" />
+              <div className="rounded-xl border border-border bg-card p-5 space-y-3 shadow-xs hover:border-primary/40 transition-colors">
+                <div className="flex size-10 items-center justify-center rounded-lg border border-border/80 bg-muted/50 text-foreground">
+                  <CreditCard className="size-5 text-primary" />
                 </div>
                 <h3 className="font-bold text-sm text-foreground">Payment &amp; UPI Signals</h3>
                 <p className="text-xs text-muted-foreground leading-relaxed">
@@ -129,9 +129,9 @@ export default function HomePage() {
                 </p>
               </div>
 
-              <div className="rounded-xl border border-border bg-card p-5 space-y-2.5 shadow-xs">
-                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-amber-100 text-amber-900 dark:bg-amber-950 dark:text-amber-300">
-                  <Zap className="h-5 w-5" />
+              <div className="rounded-xl border border-border bg-card p-5 space-y-3 shadow-xs hover:border-primary/40 transition-colors">
+                <div className="flex size-10 items-center justify-center rounded-lg border border-border/80 bg-muted/50 text-foreground">
+                  <Zap className="size-5 text-amber-600 dark:text-amber-400" />
                 </div>
                 <h3 className="font-bold text-sm text-foreground">Pressure &amp; Extortion</h3>
                 <p className="text-xs text-muted-foreground leading-relaxed">
@@ -139,9 +139,9 @@ export default function HomePage() {
                 </p>
               </div>
 
-              <div className="rounded-xl border border-border bg-card p-5 space-y-2.5 shadow-xs">
-                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-100 text-blue-900 dark:bg-blue-950 dark:text-blue-300">
-                  <FileSearch className="h-5 w-5" />
+              <div className="rounded-xl border border-border bg-card p-5 space-y-3 shadow-xs hover:border-primary/40 transition-colors">
+                <div className="flex size-10 items-center justify-center rounded-lg border border-border/80 bg-muted/50 text-foreground">
+                  <FileSearch className="size-5 text-blue-600 dark:text-blue-400" />
                 </div>
                 <h3 className="font-bold text-sm text-foreground">Phishing URLs &amp; APKs</h3>
                 <p className="text-xs text-muted-foreground leading-relaxed">
@@ -149,9 +149,9 @@ export default function HomePage() {
                 </p>
               </div>
 
-              <div className="rounded-xl border border-border bg-card p-5 space-y-2.5 shadow-xs">
-                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-purple-100 text-purple-900 dark:bg-purple-950 dark:text-purple-300">
-                  <Briefcase className="h-5 w-5" />
+              <div className="rounded-xl border border-border bg-card p-5 space-y-3 shadow-xs hover:border-primary/40 transition-colors">
+                <div className="flex size-10 items-center justify-center rounded-lg border border-border/80 bg-muted/50 text-foreground">
+                  <Briefcase className="size-5 text-purple-600 dark:text-purple-400" />
                 </div>
                 <h3 className="font-bold text-sm text-foreground">Task &amp; Job Fraud</h3>
                 <p className="text-xs text-muted-foreground leading-relaxed">
@@ -214,7 +214,7 @@ export default function HomePage() {
             <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
               <div className="space-y-1.5">
                 <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-foreground">
-                  Prevalent Cyber Fraud Modus Operandi
+                  Prevalent Cyber Fraud Scams in India
                 </h2>
                 <p className="text-xs sm:text-sm text-muted-foreground max-w-xl">
                   Recognize the core mechanics behind common scams actively targeting Indian students and citizens.
@@ -233,12 +233,12 @@ export default function HomePage() {
               <div className="rounded-xl border border-border bg-card p-5 space-y-3 hover:border-primary/40 transition-colors shadow-xs">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2.5">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-100 text-amber-900 dark:bg-amber-950 dark:text-amber-300">
-                      <Zap className="h-4 w-4" />
+                    <div className="flex size-8 items-center justify-center rounded-lg border border-border/80 bg-muted/50 text-foreground">
+                      <Zap className="size-4 text-amber-600 dark:text-amber-400" />
                     </div>
                     <h3 className="font-bold text-sm text-foreground">Electricity Bill Disconnection</h3>
                   </div>
-                  <span className="rounded bg-amber-100 text-amber-900 dark:bg-amber-950 dark:text-amber-300 text-[10px] font-bold px-2 py-0.5 uppercase">
+                  <span className="rounded-md border border-amber-300 bg-amber-50 px-2 py-0.5 text-[10px] font-mono font-semibold text-amber-900 dark:border-amber-900/60 dark:bg-amber-950/40 dark:text-amber-300 uppercase">
                     Urgency Trap
                   </span>
                 </div>
@@ -250,12 +250,12 @@ export default function HomePage() {
               <div className="rounded-xl border border-border bg-card p-5 space-y-3 hover:border-primary/40 transition-colors shadow-xs">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2.5">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-100 text-emerald-900 dark:bg-emerald-950 dark:text-emerald-300">
-                      <CreditCard className="h-4 w-4" />
+                    <div className="flex size-8 items-center justify-center rounded-lg border border-border/80 bg-muted/50 text-foreground">
+                      <CreditCard className="size-4 text-emerald-600 dark:text-emerald-400" />
                     </div>
                     <h3 className="font-bold text-sm text-foreground">UPI PIN Reverse Collect</h3>
                   </div>
-                  <span className="rounded bg-emerald-100 text-emerald-900 dark:bg-emerald-950 dark:text-emerald-300 text-[10px] font-bold px-2 py-0.5 uppercase">
+                  <span className="rounded-md border border-emerald-300 bg-emerald-50 px-2 py-0.5 text-[10px] font-mono font-semibold text-emerald-900 dark:border-emerald-900/60 dark:bg-emerald-950/40 dark:text-emerald-300 uppercase">
                     UPI Fraud
                   </span>
                 </div>
@@ -267,12 +267,12 @@ export default function HomePage() {
               <div className="rounded-xl border border-border bg-card p-5 space-y-3 hover:border-primary/40 transition-colors shadow-xs">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2.5">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-100 text-blue-900 dark:bg-blue-950 dark:text-blue-300">
-                      <Briefcase className="h-4 w-4" />
+                    <div className="flex size-8 items-center justify-center rounded-lg border border-border/80 bg-muted/50 text-foreground">
+                      <Briefcase className="size-4 text-blue-600 dark:text-blue-400" />
                     </div>
                     <h3 className="font-bold text-sm text-foreground">Part-Time Task &amp; Review Scam</h3>
                   </div>
-                  <span className="rounded bg-blue-100 text-blue-900 dark:bg-blue-950 dark:text-blue-300 text-[10px] font-bold px-2 py-0.5 uppercase">
+                  <span className="rounded-md border border-blue-300 bg-blue-50 px-2 py-0.5 text-[10px] font-mono font-semibold text-blue-900 dark:border-blue-900/60 dark:bg-blue-950/40 dark:text-blue-300 uppercase">
                     Prepaid Trap
                   </span>
                 </div>
@@ -284,12 +284,12 @@ export default function HomePage() {
               <div className="rounded-xl border border-border bg-card p-5 space-y-3 hover:border-primary/40 transition-colors shadow-xs">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2.5">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-red-100 text-red-900 dark:bg-red-950 dark:text-red-300">
-                      <Building2 className="h-4 w-4" />
+                    <div className="flex size-8 items-center justify-center rounded-lg border border-border/80 bg-muted/50 text-foreground">
+                      <Building2 className="size-4 text-red-600 dark:text-red-400" />
                     </div>
                     <h3 className="font-bold text-sm text-foreground">Digital Arrest Extortion</h3>
                   </div>
-                  <span className="rounded bg-red-100 text-red-900 dark:bg-red-950 dark:text-red-300 text-[10px] font-bold px-2 py-0.5 uppercase">
+                  <span className="rounded-md border border-red-300 bg-red-50 px-2 py-0.5 text-[10px] font-mono font-semibold text-red-900 dark:border-red-900/60 dark:bg-red-950/40 dark:text-red-300 uppercase">
                     Impersonation
                   </span>
                 </div>
