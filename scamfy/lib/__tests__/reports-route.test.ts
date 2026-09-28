@@ -176,4 +176,53 @@ describe("Community Reports BFF Route (/api/reports)", () => {
     expect(data.reports.length).toBe(1);
     expect(data.reports[0].indicatorValue).toBe("scam@upi");
   });
+
+  it("enforces rate limit of 10 requests per minute per user/ip", async () => {
+    const { prisma } = await import("@/lib/prisma");
+
+    const mockPattern = { id: "p-1", reportCount: 1 };
+    const mockReport = { id: "r-1", status: "PENDING" };
+    vi.spyOn(prisma.scamPattern, "upsert").mockResolvedValue(mockPattern as never);
+    vi.spyOn(prisma.communityReport, "create").mockResolvedValue(mockReport as never);
+
+    // Make 10 valid requests
+    for (let i = 0; i < 10; i++) {
+      const req = new NextRequest("http://localhost:3000/api/reports", {
+        method: "POST",
+        body: JSON.stringify({
+          indicatorType: IndicatorType.UPI_ID,
+          indicatorValue: `scam${i}@okhdfc`,
+          category: "UPI_REVERSE_PAYMENT_FRAUD",
+          description: "Valid description here",
+        }),
+        headers: {
+          "Content-Type": "application/json",
+          "x-user-id": "ratelimit-user",
+          "x-real-ip": "10.0.0.1",
+        },
+      });
+      const res = await POST(req);
+      expect(res.status).toBe(201);
+    }
+
+    // 11th request should be rejected with 429
+    const req11 = new NextRequest("http://localhost:3000/api/reports", {
+      method: "POST",
+      body: JSON.stringify({
+        indicatorType: IndicatorType.UPI_ID,
+        indicatorValue: "scam11@okhdfc",
+        category: "UPI_REVERSE_PAYMENT_FRAUD",
+        description: "Valid description here",
+      }),
+      headers: {
+        "Content-Type": "application/json",
+        "x-user-id": "ratelimit-user",
+        "x-real-ip": "10.0.0.1",
+      },
+    });
+    const res11 = await POST(req11);
+    expect(res11.status).toBe(429);
+    const data = await res11.json();
+    expect(data.error).toBe("RateLimitExceeded");
+  });
 });

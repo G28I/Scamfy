@@ -89,9 +89,15 @@ export function ReportIndicatorDialog({
         }),
       });
 
-      const data = await res.json();
+      let data: { message?: string } | null = null;
+      try {
+        data = await res.json();
+      } catch {
+        data = null;
+      }
+
       if (!res.ok) {
-        throw new Error(data.message || "Failed to submit report.");
+        throw new Error(data?.message || "Failed to submit report.");
       }
 
       setSuccessMessage("Indicator report submitted! It is now queued for moderator review.");

@@ -2,13 +2,14 @@ import { NextRequest, NextResponse } from "next/server";
 import { IndicatorType } from "@prisma/client";
 import { ingestCommunityReport } from "@/lib/services/pattern-service";
 import { prisma } from "@/lib/prisma";
+import { ValidationError } from "@/lib/errors";
 
-// In-memory rate limiting for report submissions (10 per minute per IP)
+// In-memory rate limiting for report submissions (10 per minute per IP / user)
 const reportRateLimitMap = new Map<string, { count: number; resetTime: number }>();
 const REPORT_RATE_LIMIT_WINDOW_MS = 60 * 1000;
 const MAX_REPORTS_PER_MINUTE = 10;
 
-function checkReportRateLimit(ip: string): boolean {
+function checkReportRateLimit(rateLimitKey: string): boolean {
   const now = Date.now();
   for (const [key, val] of reportRateLimitMap.entries()) {
     if (now > val.resetTime) {
@@ -16,9 +17,9 @@ function checkReportRateLimit(ip: string): boolean {
     }
   }
 
-  const record = reportRateLimitMap.get(ip);
+  const record = reportRateLimitMap.get(rateLimitKey);
   if (!record || now > record.resetTime) {
-    reportRateLimitMap.set(ip, { count: 1, resetTime: now + REPORT_RATE_LIMIT_WINDOW_MS });
+    reportRateLimitMap.set(rateLimitKey, { count: 1, resetTime: now + REPORT_RATE_LIMIT_WINDOW_MS });
     return false;
   }
 
@@ -32,12 +33,27 @@ function checkReportRateLimit(ip: string): boolean {
 
 export async function POST(req: NextRequest) {
   try {
-    const clientIp =
-      req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
-      req.headers.get("x-real-ip") ||
-      "127.0.0.1";
+    // Identify user for report attribution (REP-02)
+    const reporterUserId = req.headers.get("x-user-id");
+    if (!reporterUserId) {
+      return NextResponse.json(
+        {
+          error: "Unauthorized",
+          message: "Authentication required to submit a community report.",
+        },
+        { status: 401 }
+      );
+    }
 
-    if (checkReportRateLimit(clientIp)) {
+    const forwardedHops =
+      req.headers.get("x-forwarded-for")?.split(",").map((s) => s.trim()).filter(Boolean) || [];
+    const clientIp =
+      req.headers.get("x-real-ip") ||
+      (forwardedHops.length > 0 ? forwardedHops[forwardedHops.length - 1] : "127.0.0.1");
+
+    const rateLimitKey = `${clientIp}:${reporterUserId}`;
+
+    if (checkReportRateLimit(rateLimitKey)) {
       return NextResponse.json(
         {
           error: "RateLimitExceeded",
@@ -85,18 +101,6 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Identify user for report attribution (REP-02)
-    const reporterUserId = req.headers.get("x-user-id");
-    if (!reporterUserId) {
-      return NextResponse.json(
-        {
-          error: "Unauthorized",
-          message: "Authentication required to submit a community report.",
-        },
-        { status: 401 }
-      );
-    }
-
     const result = await ingestCommunityReport(
       {
         indicatorType,
@@ -121,12 +125,7 @@ export async function POST(req: NextRequest) {
       { status: 201 }
     );
   } catch (err: unknown) {
-    if (
-      err instanceof Error &&
-      (err.message.includes("indicator") ||
-        err.message.includes("description") ||
-        err.message.includes("Invalid"))
-    ) {
+    if (err instanceof ValidationError) {
       return NextResponse.json(
         {
           error: "ValidationError",

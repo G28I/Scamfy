@@ -89,6 +89,26 @@ describe("Admin Moderation API Route (/api/admin/reports)", () => {
       expect(data.reports[0].reporterEmail).toBe("student@college.edu");
       expect(data.reports[0].pattern.verificationStatus).toBe("UNVERIFIED");
     });
+
+    it("clamps limit to 100 and offset to 0 when out of bounds values provided", async () => {
+      const { prisma } = await import("@/lib/prisma");
+
+      const findManySpy = vi.spyOn(prisma.communityReport, "findMany").mockResolvedValueOnce([] as never);
+      vi.spyOn(prisma.communityReport, "count").mockResolvedValueOnce(0 as never);
+
+      const req = new NextRequest("http://localhost:3000/api/admin/reports?limit=500&offset=-10", {
+        headers: { "x-user-role": "moderator" },
+      });
+
+      const res = await GET(req);
+      expect(res.status).toBe(200);
+      expect(findManySpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          take: 100,
+          skip: 0,
+        })
+      );
+    });
   });
 
   describe("PATCH /api/admin/reports", () => {
@@ -102,10 +122,21 @@ describe("Admin Moderation API Route (/api/admin/reports)", () => {
       expect(res.status).toBe(401);
     });
 
+    it("rejects missing actorId with 401", async () => {
+      const req = new NextRequest("http://localhost:3000/api/admin/reports", {
+        method: "PATCH",
+        headers: { "x-user-role": "moderator" },
+        body: JSON.stringify({ reportId: "rep-1", action: "APPROVE" }),
+      });
+
+      const res = await PATCH(req);
+      expect(res.status).toBe(401);
+    });
+
     it("rejects unauthorized non-moderator roles with 403", async () => {
       const req = new NextRequest("http://localhost:3000/api/admin/reports", {
         method: "PATCH",
-        headers: { "x-user-role": "user" },
+        headers: { "x-user-role": "user", "x-user-id": "u-1" },
         body: JSON.stringify({ reportId: "rep-1", action: "APPROVE" }),
       });
 

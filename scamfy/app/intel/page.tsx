@@ -59,11 +59,19 @@ export default function IntelPage() {
   const [viewMode, setViewMode] = React.useState<"grid" | "table">("grid");
   const [selectedType, setSelectedType] = React.useState<string>("ALL");
   const [searchQuery, setSearchQuery] = React.useState("");
+  const [debouncedSearch, setDebouncedSearch] = React.useState("");
   const [patterns, setPatterns] = React.useState<PatternItem[]>([]);
   const [totalCount, setTotalCount] = React.useState<number>(0);
   const [loading, setLoading] = React.useState(true);
   const [reportModalOpen, setReportModalOpen] = React.useState(false);
   const [copiedId, setCopiedId] = React.useState<string | null>(null);
+
+  React.useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchQuery);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
 
   const loadPatterns = React.useCallback(
     async (isIgnored?: () => boolean) => {
@@ -73,8 +81,8 @@ export default function IntelPage() {
         if (selectedType !== "ALL") {
           params.set("indicatorType", selectedType);
         }
-        if (searchQuery.trim()) {
-          params.set("search", searchQuery.trim());
+        if (debouncedSearch.trim()) {
+          params.set("search", debouncedSearch.trim());
         }
 
         const res = await fetch(`/api/patterns?${params.toString()}`);
@@ -99,7 +107,7 @@ export default function IntelPage() {
         }
       }
     },
-    [activeTab, selectedType, searchQuery]
+    [activeTab, selectedType, debouncedSearch]
   );
 
   React.useEffect(() => {

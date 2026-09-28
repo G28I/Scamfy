@@ -20,8 +20,15 @@ export async function GET(req: NextRequest) {
 
     const { searchParams } = new URL(req.url);
     const statusParam = searchParams.get("status") || "PENDING";
-    const limit = Number(searchParams.get("limit")) || 50;
-    const offset = Number(searchParams.get("offset")) || 0;
+    const rawLimit = Number(searchParams.get("limit"));
+    const limit = Number.isFinite(rawLimit) && rawLimit > 0
+      ? Math.min(Math.max(rawLimit, 1), 100)
+      : 50;
+
+    const rawOffset = Number(searchParams.get("offset"));
+    const offset = Number.isFinite(rawOffset) && rawOffset >= 0
+      ? Math.max(rawOffset, 0)
+      : 0;
 
     const validStatuses = new Set<string>(Object.values(ReportStatus));
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -106,7 +113,13 @@ export async function PATCH(req: NextRequest) {
       );
     }
 
-    const actorId = req.headers.get("x-user-id") || "moderator_session";
+    const actorId = req.headers.get("x-user-id");
+    if (!actorId) {
+      return NextResponse.json(
+        { error: "Unauthorized", message: "Authentication required." },
+        { status: 401 }
+      );
+    }
 
     const body = await req.json();
     const { reportId, action, moderatorNotes, targetPatternId, riskLevel } = body;

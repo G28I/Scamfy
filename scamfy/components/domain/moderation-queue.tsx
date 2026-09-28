@@ -46,42 +46,55 @@ export function ModerationQueue() {
     null
   );
 
-  const fetchReports = React.useCallback(async () => {
-    try {
-      const res = await fetch(`/api/admin/reports?status=${statusFilter}`);
-      if (res.ok) {
-        const data = await res.json();
-        setReports(data.reports || []);
+  const loadReports = React.useCallback(
+    async (isIgnored?: () => boolean) => {
+      setLoading(true);
+      try {
+        const res = await fetch(`/api/admin/reports?status=${statusFilter}`);
+        if (!isIgnored || !isIgnored()) {
+          if (res.ok) {
+            const data = await res.json();
+            setReports(data.reports || []);
+          } else {
+            let errorMsg = "Failed to load moderation reports.";
+            try {
+              const errData = await res.json();
+              if (errData.message) errorMsg = errData.message;
+            } catch {
+              // fallback
+            }
+            setReports([]);
+            setFeedback({ type: "error", text: errorMsg });
+          }
+        }
+      } catch (err: unknown) {
+        if (!isIgnored || !isIgnored()) {
+          setReports([]);
+          setFeedback({
+            type: "error",
+            text: err instanceof Error ? err.message : "Failed to load moderation reports.",
+          });
+        }
+      } finally {
+        if (!isIgnored || !isIgnored()) {
+          setLoading(false);
+        }
       }
-    } catch {
-      setReports([]);
-    } finally {
-      setLoading(false);
-    }
-  }, [statusFilter]);
+    },
+    [statusFilter]
+  );
 
   React.useEffect(() => {
     let ignore = false;
-    async function load() {
-      try {
-        const res = await fetch(`/api/admin/reports?status=${statusFilter}`);
-        if (!ignore && res.ok) {
-          const data = await res.json();
-          setReports(data.reports || []);
-        }
-      } catch {
-        if (!ignore) setReports([]);
-      } finally {
-        if (!ignore) setLoading(false);
-      }
+    async function execute() {
+      await loadReports(() => ignore);
     }
-
-    void load();
+    void execute();
 
     return () => {
       ignore = true;
     };
-  }, [statusFilter]);
+  }, [loadReports]);
 
   const handleAction = async (reportId: string, action: "APPROVE" | "REJECT" | "DISMISS") => {
     setProcessingId(reportId);
@@ -105,7 +118,7 @@ export function ModerationQueue() {
       }
 
       setFeedback({ type: "success", text: data.message });
-      fetchReports();
+      await loadReports();
     } catch (err: unknown) {
       setFeedback({
         type: "error",
@@ -144,7 +157,7 @@ export function ModerationQueue() {
               {st}
             </button>
           ))}
-          <Button variant="outline" size="sm" onClick={() => fetchReports()} aria-label="Refresh queue">
+          <Button variant="outline" size="sm" onClick={() => loadReports()} aria-label="Refresh queue">
             <RotateCcw className="h-3.5 w-3.5" />
           </Button>
         </div>

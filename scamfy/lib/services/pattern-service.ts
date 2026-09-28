@@ -9,6 +9,7 @@ import {
   type CommunityReport,
 } from "@prisma/client";
 import { validateIndicator } from "@/lib/indicators";
+import { ValidationError } from "@/lib/errors";
 
 export interface IngestReportInput {
   indicatorType: IndicatorType;
@@ -53,7 +54,7 @@ export async function ingestCommunityReport(
 ): Promise<{ report: CommunityReport; pattern: ScamPattern }> {
   const validation = validateIndicator(input.indicatorType, input.indicatorValue);
   if (!validation.valid) {
-    throw new Error(validation.error || "Invalid indicator value.");
+    throw new ValidationError(validation.error || "Invalid indicator value.");
   }
 
   const normalizedValue = validation.normalizedValue;
@@ -61,7 +62,7 @@ export async function ingestCommunityReport(
   const description = input.description.trim();
 
   if (description.length < 5) {
-    throw new Error("Report description must be at least 5 characters.");
+    throw new ValidationError("Report description must be at least 5 characters.");
   }
 
   return await prisma.$transaction(async (tx) => {
