@@ -49,9 +49,9 @@ export default function CasesPage() {
               <FileText className="h-7 w-7 text-primary" />
             </div>
             <div className="space-y-1.5 max-w-md mx-auto">
-              <h2 className="text-lg font-bold text-foreground">No Open Victim Dockets</h2>
+              <h2 className="text-lg font-bold text-foreground">Victim Case Organization Guidance</h2>
               <p className="text-xs text-muted-foreground leading-relaxed">
-                You currently do not have any saved fraud investigations. You can triage incoming messages immediately or start a new case docket.
+                Organize incident timelines, screenshots, and transaction records privately before filing official cybercrime reports. You can triage suspicious communications or search verified threat intelligence below.
               </p>
             </div>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
@@ -79,7 +79,7 @@ export default function CasesPage() {
               <div className="space-y-0.5">
                 <span className="font-bold text-red-950 dark:text-red-200 block">Financial Fraud Emergency Helpline</span>
                 <span className="text-red-900/80 dark:text-red-300/80">
-                  If money was debited from your bank account within the last 24 hours, call <strong>1930</strong> immediately to request transaction freezing.
+                  If money was debited from your bank account, call <strong>1930</strong> as soon as possible to request emergency transaction freezing.
                 </span>
               </div>
             </div>

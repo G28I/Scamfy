@@ -169,7 +169,7 @@ export async function POST(req: NextRequest) {
 
     // 3. Call Upstream FastAPI Analysis Engine
     const backendBaseUrl = process.env.FASTAPI_BACKEND_URL || "http://127.0.0.1:8000";
-    const internalSecret = process.env.INTERNAL_API_SECRET || "scamfy-internal-secret-dev";
+    const internalSecret = process.env.INTERNAL_API_SECRET || (process.env.NODE_ENV === "production" ? "" : "scamfy-internal-secret-dev");
     let analysisPayload: Omit<AnalysisResultDto, "id" | "created_at">;
 
     try {

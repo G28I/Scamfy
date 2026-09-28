@@ -37,7 +37,7 @@ export default function ReportPage() {
               <span>The &quot;Golden Hour&quot; Rule: Act Within 2–4 Hours</span>
             </div>
             <p className="text-xs sm:text-sm text-red-950/90 dark:text-red-300/90 leading-relaxed">
-              If money was transferred under fraud or coercion, calling the National Cyber Crime Helpline at <strong>1930</strong> immediately enables the Citizen Financial Cyber Fraud Reporting and Management System (CFCFRMS) to freeze the recipient bank or wallet account before cash withdrawal.
+              If money was transferred under fraud or coercion, calling the National Cyber Crime Helpline at <strong>1930</strong> immediately alerts law enforcement and the Citizen Financial Cyber Fraud Reporting and Management System (CFCFRMS), which may help authorities attempt to stop further transfers before funds are withdrawn.
             </p>
             <div className="pt-2">
               <a

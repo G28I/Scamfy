@@ -27,7 +27,7 @@ export async function GET(req: NextRequest) {
 
     const rawOffset = Number(searchParams.get("offset"));
     const offset = Number.isFinite(rawOffset) && rawOffset >= 0
-      ? Math.max(rawOffset, 0)
+      ? Math.min(Math.max(rawOffset, 0), 10000)
       : 0;
 
     const validStatuses = new Set<string>(Object.values(ReportStatus));

@@ -8,6 +8,10 @@ export const metadata: Metadata = {
     title: "Threat Intelligence Directory — Scamfy",
     description:
       "Explore community-reported and verified scam patterns, suspicious UPI VPAs, fraudulent phone numbers, and active cyber threat indicators across India.",
+    url: "/intel",
+    type: "website",
+    siteName: "Scamfy",
+    locale: "en_IN",
   },
 };
 

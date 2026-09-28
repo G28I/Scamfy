@@ -41,7 +41,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "en_IN",
-    url: "https://scamfy.org",
+    url: "/",
     siteName: "Scamfy",
     title: "Scamfy — Check Suspicious Messages Before You Act",
     description:

@@ -51,18 +51,20 @@ export function ModerationQueue() {
       setLoading(true);
       try {
         const res = await fetch(`/api/admin/reports?status=${statusFilter}`);
-        if (!isIgnored || !isIgnored()) {
-          if (res.ok) {
-            const data = await res.json();
+        if (res.ok) {
+          const data = await res.json();
+          if (!isIgnored || !isIgnored()) {
             setReports(data.reports || []);
-          } else {
-            let errorMsg = "Failed to load moderation reports.";
-            try {
-              const errData = await res.json();
-              if (errData.message) errorMsg = errData.message;
-            } catch {
-              // fallback
-            }
+          }
+        } else {
+          let errorMsg = "Failed to load moderation reports.";
+          try {
+            const errData = await res.json();
+            if (errData.message) errorMsg = errData.message;
+          } catch {
+            // fallback
+          }
+          if (!isIgnored || !isIgnored()) {
             setReports([]);
             setFeedback({ type: "error", text: errorMsg });
           }

@@ -67,10 +67,16 @@ export default function HomePage() {
         throw new Error(data.message || "Failed to analyze message.");
       }
 
+      const entities = (data.extracted_entities || {}) as Record<string, unknown>;
+      const indicatorCount = Object.values(entities).reduce<number>(
+        (acc, val) => acc + (Array.isArray(val) ? val.length : 0),
+        0
+      );
+
       trackEvent("scam_check_completed", {
-        risk_level: data.risk_level || "UNKNOWN",
-        is_emergency: !!data.is_emergency,
-        indicator_count: Array.isArray(data.extracted_indicators) ? data.extracted_indicators.length : 0,
+        risk_level: data.overall_risk || "UNKNOWN",
+        is_emergency: data.overall_risk === "CRITICAL",
+        indicator_count: indicatorCount,
       });
 
       setAnalysisResult(data as AnalysisResultDto);

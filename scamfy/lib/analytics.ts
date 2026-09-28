@@ -11,6 +11,8 @@ export type ConsentStatus = "accepted" | "rejected" | null;
 
 export const CONSENT_STORAGE_KEY = "scamfy_cookie_consent";
 
+let inMemoryConsent: ConsentStatus = null;
+
 export interface AnalyticsEventMap {
   scam_check_started: Record<string, never>;
   scam_check_completed: {
@@ -37,21 +39,70 @@ export function getConsentStatus(): ConsentStatus {
   if (typeof window === "undefined") return null;
   try {
     const val = localStorage.getItem(CONSENT_STORAGE_KEY);
-    if (val === "accepted" || val === "rejected") return val;
+    if (val === "accepted" || val === "rejected") {
+      inMemoryConsent = val;
+      return val;
+    }
+    if (val === null) {
+      inMemoryConsent = null;
+      return null;
+    }
     return null;
   } catch {
-    return null;
+    return inMemoryConsent;
   }
 }
 
 export function setConsentStatus(status: "accepted" | "rejected"): void {
+  inMemoryConsent = status;
   if (typeof window === "undefined") return;
   try {
     localStorage.setItem(CONSENT_STORAGE_KEY, status);
-    window.dispatchEvent(new CustomEvent("scamfy_consent_change", { detail: status }));
   } catch {
-    // Ignore storage errors in restricted private contexts
+    // Best-effort storage in private browsing modes
   }
+  window.dispatchEvent(new CustomEvent("scamfy_consent_change", { detail: status }));
+}
+
+function sanitizePayload<K extends keyof AnalyticsEventMap>(
+  eventName: K,
+  payload?: AnalyticsEventMap[K]
+): Record<string, string | number | boolean> {
+  if (!payload || typeof payload !== "object") return {};
+
+  const safe: Record<string, string | number | boolean> = {};
+
+  switch (eventName) {
+    case "scam_check_completed": {
+      const p = payload as AnalyticsEventMap["scam_check_completed"];
+      if (typeof p.risk_level === "string") safe.risk_level = p.risk_level;
+      if (typeof p.is_emergency === "boolean") safe.is_emergency = p.is_emergency;
+      if (typeof p.indicator_count === "number") safe.indicator_count = p.indicator_count;
+      break;
+    }
+    case "intel_viewed": {
+      const p = payload as AnalyticsEventMap["intel_viewed"];
+      if (typeof p.filter_type === "string") safe.filter_type = p.filter_type;
+      if (typeof p.is_verified_only === "boolean") safe.is_verified_only = p.is_verified_only;
+      break;
+    }
+    case "report_submitted": {
+      const p = payload as AnalyticsEventMap["report_submitted"];
+      if (typeof p.indicator_type === "string") safe.indicator_type = p.indicator_type;
+      if (typeof p.risk_level === "string") safe.risk_level = p.risk_level;
+      break;
+    }
+    case "error_occurred": {
+      const p = payload as AnalyticsEventMap["error_occurred"];
+      if (typeof p.category === "string") safe.category = p.category;
+      if (typeof p.status_code === "number") safe.status_code = p.status_code;
+      break;
+    }
+    default:
+      break;
+  }
+
+  return safe;
 }
 
 export function trackEvent<K extends keyof AnalyticsEventMap>(
@@ -66,12 +117,9 @@ export function trackEvent<K extends keyof AnalyticsEventMap>(
     return;
   }
 
-  // Sanitize payload to guarantee no PII or raw text ever enters analytics
-  const safePayload = payload ? { ...payload } : {};
+  const safePayload = sanitizePayload(eventName, payload);
 
   if (process.env.NODE_ENV === "development" || process.env.NODE_ENV === "test") {
     console.debug(`[Scamfy Analytics] Event: ${eventName}`, safePayload);
   }
-
-  // If a privacy-conscious provider is configured via env, dispatch safely here
 }
