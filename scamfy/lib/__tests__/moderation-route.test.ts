@@ -2,8 +2,12 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { GET, PATCH } from "@/app/api/admin/reports/route";
 import { NextRequest } from "next/server";
 import { ReportStatus, VerificationStatus, RiskLevel, IndicatorType } from "@prisma/client";
+import { createSessionToken } from "@/lib/auth";
 
 describe("Admin Moderation API Route (/api/admin/reports)", () => {
+  const modToken = createSessionToken({ userId: "mod-99", role: "moderator", email: "mod@scamfy.org" });
+  const studentToken = createSessionToken({ userId: "u-1", role: "student_user", email: "student@college.edu" });
+
   beforeEach(async () => {
     vi.restoreAllMocks();
     const { prisma } = await import("@/lib/prisma");
@@ -16,7 +20,7 @@ describe("Admin Moderation API Route (/api/admin/reports)", () => {
   });
 
   describe("GET /api/admin/reports", () => {
-    it("rejects unauthorized missing role with 401", async () => {
+    it("rejects unauthorized missing session with 401", async () => {
       const req = new NextRequest("http://localhost:3000/api/admin/reports");
       const res = await GET(req);
       expect(res.status).toBe(401);
@@ -24,7 +28,7 @@ describe("Admin Moderation API Route (/api/admin/reports)", () => {
 
     it("rejects unauthorized non-moderator roles with 403", async () => {
       const req = new NextRequest("http://localhost:3000/api/admin/reports", {
-        headers: { "x-user-role": "user" },
+        headers: { Authorization: `Bearer ${studentToken}` },
       });
 
       const res = await GET(req);
@@ -35,7 +39,7 @@ describe("Admin Moderation API Route (/api/admin/reports)", () => {
 
     it("returns 400 for invalid status query parameter", async () => {
       const req = new NextRequest("http://localhost:3000/api/admin/reports?status=INVALID_STATUS", {
-        headers: { "x-user-role": "moderator" },
+        headers: { Authorization: `Bearer ${modToken}` },
       });
 
       const res = await GET(req);
@@ -69,7 +73,7 @@ describe("Admin Moderation API Route (/api/admin/reports)", () => {
           reporter: {
             id: "user-1",
             email: "student@college.edu",
-            role: "user",
+            role: "student_user",
           },
         },
       ];
@@ -78,7 +82,7 @@ describe("Admin Moderation API Route (/api/admin/reports)", () => {
       vi.spyOn(prisma.communityReport, "count").mockResolvedValueOnce(1 as never);
 
       const req = new NextRequest("http://localhost:3000/api/admin/reports?status=PENDING", {
-        headers: { "x-user-role": "moderator" },
+        headers: { Authorization: `Bearer ${modToken}` },
       });
 
       const res = await GET(req);
@@ -97,7 +101,7 @@ describe("Admin Moderation API Route (/api/admin/reports)", () => {
       vi.spyOn(prisma.communityReport, "count").mockResolvedValueOnce(0 as never);
 
       const req = new NextRequest("http://localhost:3000/api/admin/reports?limit=500&offset=-10", {
-        headers: { "x-user-role": "moderator" },
+        headers: { Authorization: `Bearer ${modToken}` },
       });
 
       const res = await GET(req);
@@ -112,20 +116,9 @@ describe("Admin Moderation API Route (/api/admin/reports)", () => {
   });
 
   describe("PATCH /api/admin/reports", () => {
-    it("rejects unauthorized missing role with 401", async () => {
+    it("rejects unauthorized missing session with 401", async () => {
       const req = new NextRequest("http://localhost:3000/api/admin/reports", {
         method: "PATCH",
-        body: JSON.stringify({ reportId: "rep-1", action: "APPROVE" }),
-      });
-
-      const res = await PATCH(req);
-      expect(res.status).toBe(401);
-    });
-
-    it("rejects missing actorId with 401", async () => {
-      const req = new NextRequest("http://localhost:3000/api/admin/reports", {
-        method: "PATCH",
-        headers: { "x-user-role": "moderator" },
         body: JSON.stringify({ reportId: "rep-1", action: "APPROVE" }),
       });
 
@@ -136,7 +129,7 @@ describe("Admin Moderation API Route (/api/admin/reports)", () => {
     it("rejects unauthorized non-moderator roles with 403", async () => {
       const req = new NextRequest("http://localhost:3000/api/admin/reports", {
         method: "PATCH",
-        headers: { "x-user-role": "user", "x-user-id": "u-1" },
+        headers: { Authorization: `Bearer ${studentToken}` },
         body: JSON.stringify({ reportId: "rep-1", action: "APPROVE" }),
       });
 
@@ -147,7 +140,7 @@ describe("Admin Moderation API Route (/api/admin/reports)", () => {
     it("rejects invalid riskLevel with 400", async () => {
       const req = new NextRequest("http://localhost:3000/api/admin/reports", {
         method: "PATCH",
-        headers: { "x-user-role": "moderator", "x-user-id": "mod-1" },
+        headers: { Authorization: `Bearer ${modToken}` },
         body: JSON.stringify({ reportId: "rep-1", action: "APPROVE", riskLevel: "EXTREME_DANGER" }),
       });
 
@@ -181,8 +174,7 @@ describe("Admin Moderation API Route (/api/admin/reports)", () => {
       const req = new NextRequest("http://localhost:3000/api/admin/reports", {
         method: "PATCH",
         headers: {
-          "x-user-id": "mod-99",
-          "x-user-role": "moderator",
+          Authorization: `Bearer ${modToken}`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
@@ -252,7 +244,7 @@ describe("Admin Moderation API Route (/api/admin/reports)", () => {
 
       const req = new NextRequest("http://localhost:3000/api/admin/reports", {
         method: "PATCH",
-        headers: { "x-user-id": "mod-99", "x-user-role": "moderator" },
+        headers: { Authorization: `Bearer ${modToken}` },
         body: JSON.stringify({
           reportId: "rep-2",
           action: "REJECT",
@@ -273,6 +265,8 @@ describe("Admin Moderation API Route (/api/admin/reports)", () => {
       expect(createAuditSpy).toHaveBeenCalledWith(
         expect.objectContaining({
           data: expect.objectContaining({
+            actorId: "mod-99",
+            actorRole: "moderator",
             action: "REPORT_REJECTED",
           }),
         })
@@ -308,7 +302,7 @@ describe("Admin Moderation API Route (/api/admin/reports)", () => {
 
       const req = new NextRequest("http://localhost:3000/api/admin/reports", {
         method: "PATCH",
-        headers: { "x-user-id": "mod-99", "x-user-role": "moderator" },
+        headers: { Authorization: `Bearer ${modToken}` },
         body: JSON.stringify({
           reportId: "rep-3",
           action: "MERGE",
@@ -339,6 +333,8 @@ describe("Admin Moderation API Route (/api/admin/reports)", () => {
       expect(createAuditSpy).toHaveBeenCalledWith(
         expect.objectContaining({
           data: expect.objectContaining({
+            actorId: "mod-99",
+            actorRole: "moderator",
             action: "REPORT_MERGED",
           }),
         })
@@ -346,4 +342,3 @@ describe("Admin Moderation API Route (/api/admin/reports)", () => {
     });
   });
 });
-

@@ -1,10 +1,11 @@
 /**
- * Privacy-Preserving Analytics Utility for Scamfy
+ * Privacy-Preserving Telemetry & Client Event Utility for Scamfy
  *
  * Invariants:
  * 1. ZERO personal data collection (No UPI VPAs, phone numbers, bank accounts, or raw user message text).
  * 2. Strict cookie consent gating: Non-essential events are ONLY captured if the user explicitly consents.
- * 3. Minimal aggregated telemetry strictly for triage quality, error detection, and community safety monitoring.
+ * 3. Minimal aggregated telemetry strictly for triage quality, error detection, and local developer inspection.
+ * 4. Production does not dispatch to commercial third-party trackers, ad brokers, or unconfigured destinations.
  */
 
 export type ConsentStatus = "accepted" | "rejected" | null;

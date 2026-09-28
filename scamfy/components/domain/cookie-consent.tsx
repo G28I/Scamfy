@@ -73,7 +73,7 @@ export function CookieConsent() {
               </span>
             </div>
             <p className="text-xs text-muted-foreground leading-relaxed">
-              Scamfy uses essential local storage for rate limits and theme settings. With your permission, we collect aggregated, anonymous threat detection metrics to improve fraud detection models. We never sell data or collect personal identities. Read our{" "}
+              Scamfy operates with strict privacy defaults and uses essential browser storage solely for rate limiting, security sessions, and theme preferences. We do not use third-party advertising trackers, profiling cookies, or sell user data. Read our{" "}
               <Link href="/privacy" className="text-foreground underline hover:text-primary font-medium">
                 Privacy Policy
               </Link>{" "}

@@ -1,17 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { ReportStatus, VerificationStatus, RiskLevel } from "@prisma/client";
+import { getAuthSession } from "@/lib/auth";
 
 export async function GET(req: NextRequest) {
   try {
-    const actorRole = req.headers.get("x-user-role");
-    if (!actorRole) {
+    const session = await getAuthSession(req);
+    if (!session) {
       return NextResponse.json(
         { error: "Unauthorized", message: "Authentication required." },
         { status: 401 }
       );
     }
-    if (actorRole !== "moderator" && actorRole !== "college_admin") {
+    if (session.role !== "moderator" && session.role !== "college_admin") {
       return NextResponse.json(
         { error: "Forbidden", message: "Moderator role required." },
         { status: 403 }
@@ -98,28 +99,23 @@ export async function GET(req: NextRequest) {
 
 export async function PATCH(req: NextRequest) {
   try {
-    const actorRole = req.headers.get("x-user-role");
-    if (!actorRole) {
+    const session = await getAuthSession(req);
+    if (!session) {
       return NextResponse.json(
         { error: "Unauthorized", message: "Authentication required." },
         { status: 401 }
       );
     }
 
-    if (actorRole !== "moderator" && actorRole !== "college_admin") {
+    if (session.role !== "moderator" && session.role !== "college_admin") {
       return NextResponse.json(
         { error: "Forbidden", message: "Moderator role required." },
         { status: 403 }
       );
     }
 
-    const actorId = req.headers.get("x-user-id");
-    if (!actorId) {
-      return NextResponse.json(
-        { error: "Unauthorized", message: "Authentication required." },
-        { status: 401 }
-      );
-    }
+    const actorId = session.userId;
+    const actorRole = session.role;
 
     const body = await req.json();
     const { reportId, action, moderatorNotes, targetPatternId, riskLevel } = body;

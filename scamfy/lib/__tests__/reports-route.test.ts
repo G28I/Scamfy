@@ -2,8 +2,12 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { POST, GET } from "@/app/api/reports/route";
 import { NextRequest } from "next/server";
 import { IndicatorType, RiskLevel, VerificationStatus } from "@prisma/client";
+import { createSessionToken } from "@/lib/auth";
 
 describe("Community Reports BFF Route (/api/reports)", () => {
+  const userToken = createSessionToken({ userId: "user-123", role: "student_user", email: "user@college.edu" });
+  const rateLimitToken = createSessionToken({ userId: "ratelimit-user", role: "student_user" });
+
   beforeEach(async () => {
     vi.restoreAllMocks();
     const { prisma } = await import("@/lib/prisma");
@@ -50,7 +54,10 @@ describe("Community Reports BFF Route (/api/reports)", () => {
         category: "UPI_REVERSE_PAYMENT_FRAUD",
         description: "Valid description here",
       }),
-      headers: { "Content-Type": "application/json", "x-user-id": "user-123" },
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${userToken}`,
+      },
     });
 
     const res = await POST(req);
@@ -69,7 +76,10 @@ describe("Community Reports BFF Route (/api/reports)", () => {
         category: "UPI_REVERSE_PAYMENT_FRAUD",
         description: "hi",
       }),
-      headers: { "Content-Type": "application/json", "x-user-id": "user-123" },
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${userToken}`,
+      },
     });
 
     const res = await POST(req);
@@ -116,7 +126,10 @@ describe("Community Reports BFF Route (/api/reports)", () => {
         category: "UPI_REVERSE_PAYMENT_FRAUD",
         description: "Demanded UPI PIN for reward",
       }),
-      headers: { "Content-Type": "application/json", "x-user-id": "user-123" },
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${userToken}`,
+      },
     });
 
     const res = await POST(req);
@@ -140,7 +153,10 @@ describe("Community Reports BFF Route (/api/reports)", () => {
         category: "UPI_REVERSE_PAYMENT_FRAUD",
         description: "Demanded UPI PIN for reward",
       }),
-      headers: { "Content-Type": "application/json", "x-user-id": "user-123" },
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${userToken}`,
+      },
     });
 
     const res = await POST(req);
@@ -167,7 +183,7 @@ describe("Community Reports BFF Route (/api/reports)", () => {
     vi.spyOn(prisma.communityReport, "findMany").mockResolvedValueOnce(mockReports as never);
 
     const req = new NextRequest("http://localhost:3000/api/reports", {
-      headers: { "x-user-id": "user-123" },
+      headers: { Authorization: `Bearer ${userToken}` },
     });
 
     const res = await GET(req);
@@ -197,7 +213,7 @@ describe("Community Reports BFF Route (/api/reports)", () => {
         }),
         headers: {
           "Content-Type": "application/json",
-          "x-user-id": "ratelimit-user",
+          Authorization: `Bearer ${rateLimitToken}`,
           "x-real-ip": "10.0.0.1",
         },
       });
@@ -216,7 +232,7 @@ describe("Community Reports BFF Route (/api/reports)", () => {
       }),
       headers: {
         "Content-Type": "application/json",
-        "x-user-id": "ratelimit-user",
+        Authorization: `Bearer ${rateLimitToken}`,
         "x-real-ip": "10.0.0.1",
       },
     });

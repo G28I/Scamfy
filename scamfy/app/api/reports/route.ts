@@ -3,6 +3,7 @@ import { IndicatorType } from "@prisma/client";
 import { ingestCommunityReport } from "@/lib/services/pattern-service";
 import { prisma } from "@/lib/prisma";
 import { ValidationError } from "@/lib/errors";
+import { getAuthSession } from "@/lib/auth";
 
 // In-memory rate limiting for report submissions (10 per minute per IP / user)
 const reportRateLimitMap = new Map<string, { count: number; resetTime: number }>();
@@ -33,9 +34,9 @@ function checkReportRateLimit(rateLimitKey: string): boolean {
 
 export async function POST(req: NextRequest) {
   try {
-    // Identify user for report attribution (REP-02)
-    const reporterUserId = req.headers.get("x-user-id");
-    if (!reporterUserId) {
+    // Identify user for report attribution via server session (REP-02)
+    const session = await getAuthSession(req);
+    if (!session) {
       return NextResponse.json(
         {
           error: "Unauthorized",
@@ -44,6 +45,7 @@ export async function POST(req: NextRequest) {
         { status: 401 }
       );
     }
+    const reporterUserId = session.userId;
 
     const forwardedHops =
       req.headers.get("x-forwarded-for")?.split(",").map((s) => s.trim()).filter(Boolean) || [];
@@ -148,8 +150,8 @@ export async function POST(req: NextRequest) {
 
 export async function GET(req: NextRequest) {
   try {
-    const reporterUserId = req.headers.get("x-user-id");
-    if (!reporterUserId) {
+    const session = await getAuthSession(req);
+    if (!session) {
       return NextResponse.json(
         { error: "Unauthorized", message: "Authentication required." },
         { status: 401 }
@@ -157,7 +159,7 @@ export async function GET(req: NextRequest) {
     }
 
     const reports = await prisma.communityReport.findMany({
-      where: { reporterUserId },
+      where: { reporterUserId: session.userId },
       orderBy: { createdAt: "desc" },
       take: 50,
     });
