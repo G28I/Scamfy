@@ -41,6 +41,7 @@ import { IndicatorTag } from "@/components/domain/indicator-tag";
 import { ReportIndicatorDialog } from "@/components/domain/report-indicator-dialog";
 import { IndicatorType, type RiskLevel, type VerificationStatus } from "@prisma/client";
 import { cn } from "@/lib/utils";
+import { trackEvent } from "@/lib/analytics";
 
 interface PatternItem {
   id: string;
@@ -91,6 +92,10 @@ export default function IntelPage() {
             const data = await res.json();
             setPatterns(data.patterns || []);
             setTotalCount(data.total || 0);
+            trackEvent("intel_viewed", {
+              filter_type: selectedType !== "ALL" ? selectedType : undefined,
+              is_verified_only: activeTab === "verified",
+            });
           } else {
             setPatterns([]);
             setTotalCount(0);

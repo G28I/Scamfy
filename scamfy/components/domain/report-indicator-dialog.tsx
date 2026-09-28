@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { IndicatorType } from "@prisma/client";
 import { validateIndicator } from "@/lib/indicators";
 import { AlertTriangle, CheckCircle2, ShieldAlert } from "lucide-react";
+import { trackEvent } from "@/lib/analytics";
 
 export interface ReportIndicatorDialogProps {
   open: boolean;
@@ -58,6 +59,7 @@ export function ReportIndicatorDialog({
       setDescription("");
       setError(null);
       setSuccessMessage(null);
+      trackEvent("report_flow_started");
     }
   }
 
@@ -99,6 +101,11 @@ export function ReportIndicatorDialog({
       if (!res.ok) {
         throw new Error(data?.message || "Failed to submit report.");
       }
+
+      trackEvent("report_submitted", {
+        indicator_type: indicatorType,
+        risk_level: "COMMUNITY_REPORT",
+      });
 
       setSuccessMessage("Indicator report submitted! It is now queued for moderator review.");
       if (onSuccess) {

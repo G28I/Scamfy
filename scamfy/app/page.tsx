@@ -37,6 +37,7 @@ import {
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import type { AnalysisResultDto } from "@/app/api/check/route";
+import { trackEvent } from "@/lib/analytics";
 
 export default function HomePage() {
   const [analysisResult, setAnalysisResult] = React.useState<AnalysisResultDto | null>(null);
@@ -48,6 +49,7 @@ export default function HomePage() {
     setIsLoading(true);
     setErrorMessage(null);
     setLastSubmittedText(text);
+    trackEvent("scam_check_started");
 
     try {
       const response = await fetch("/api/check", {
@@ -61,8 +63,15 @@ export default function HomePage() {
       const data = await response.json();
 
       if (!response.ok) {
+        trackEvent("error_occurred", { category: "scam_check", status_code: response.status });
         throw new Error(data.message || "Failed to analyze message.");
       }
+
+      trackEvent("scam_check_completed", {
+        risk_level: data.risk_level || "UNKNOWN",
+        is_emergency: !!data.is_emergency,
+        indicator_count: Array.isArray(data.extracted_indicators) ? data.extracted_indicators.length : 0,
+      });
 
       setAnalysisResult(data as AnalysisResultDto);
     } catch (err: unknown) {
