@@ -22,12 +22,32 @@ export interface SessionJwtPayload {
   exp: number;
 }
 
-const AUTH_SECRET =
-  process.env.AUTH_SECRET ||
-  process.env.SESSION_SECRET ||
-  process.env.CLERK_SECRET_KEY ||
-  process.env.INTERNAL_API_SECRET ||
-  "scamfy-session-hmac-secret-dev-2026-strict-key";
+const DEV_FALLBACK_SECRET = "scamfy-session-hmac-dev-secret-only-2026";
+
+/**
+ * Resolves the server-side authentication secret.
+ * In production, an explicit non-empty secret is mandatory; missing configuration fails closed.
+ */
+export function getAuthSecret(): string {
+  const secret =
+    process.env.AUTH_SECRET ||
+    process.env.SESSION_SECRET ||
+    process.env.CLERK_SECRET_KEY;
+
+  if (secret && secret.trim().length > 0) {
+    return secret.trim();
+  }
+
+  // Strict fail-closed boundary in production
+  if (process.env.NODE_ENV === "production") {
+    throw new Error(
+      "CRITICAL: Production AUTH_SECRET (or CLERK_SECRET_KEY / SESSION_SECRET) must be explicitly configured."
+    );
+  }
+
+  // Development/test-only isolated fallback (never usable in production)
+  return DEV_FALLBACK_SECRET;
+}
 
 function parseCookies(cookieStr: string): Record<string, string> {
   const list: Record<string, string> = {};
@@ -53,6 +73,7 @@ export function createSessionToken(
   },
   expiresInSeconds = 7 * 24 * 3600
 ): string {
+  const authSecret = getAuthSecret();
   const now = Math.floor(Date.now() / 1000);
   const header = { alg: "HS256", typ: "JWT" };
   const fullPayload: SessionJwtPayload = {
@@ -69,7 +90,7 @@ export function createSessionToken(
   const payloadB64 = Buffer.from(JSON.stringify(fullPayload)).toString("base64url");
   const dataToSign = `${headerB64}.${payloadB64}`;
   const signatureB64 = crypto
-    .createHmac("sha256", AUTH_SECRET)
+    .createHmac("sha256", authSecret)
     .update(dataToSign)
     .digest("base64url");
 
@@ -78,10 +99,18 @@ export function createSessionToken(
 
 /**
  * Verifies a session token's cryptographic signature and expiration.
- * Returns null if the token is forged, tampered with, or expired.
+ * Returns null if the token is forged, tampered with, expired, or if auth secret is missing.
  */
 export function verifySessionToken(token: string): SessionJwtPayload | null {
   if (!token || typeof token !== "string") return null;
+
+  let authSecret: string;
+  try {
+    authSecret = getAuthSecret();
+  } catch {
+    // Fail closed if production secret is missing
+    return null;
+  }
 
   const parts = token.split(".");
   if (parts.length !== 3) return null;
@@ -91,7 +120,7 @@ export function verifySessionToken(token: string): SessionJwtPayload | null {
   const dataToSign = `${headerB64}.${payloadB64}`;
 
   const expectedSig = crypto
-    .createHmac("sha256", AUTH_SECRET)
+    .createHmac("sha256", authSecret)
     .update(dataToSign)
     .digest();
 
@@ -127,8 +156,13 @@ export function verifySessionToken(token: string): SessionJwtPayload | null {
 /**
  * Server-authoritative session extractor for Next.js route handlers.
  * Extracts signed session from Cookies (__session or scamfy_session) or Authorization: Bearer.
- * Queries PostgreSQL database for authoritative user record if available.
- * NEVER trusts client-controlled x-user-id or x-user-role headers.
+ * Queries PostgreSQL database for authoritative user record and role.
+ *
+ * CRITICAL SAFETY & RBAC INVARIANTS:
+ * 1. NEVER trusts client-controlled x-user-id or x-user-role headers.
+ * 2. Fails closed if production AUTH_SECRET is not configured.
+ * 3. Fails closed for privileged roles (moderator, college_admin) if authoritative database lookup
+ *    fails or user is not confirmed as a moderator/admin in the database.
  */
 export async function getAuthSession(req: NextRequest | Request): Promise<AuthSession | null> {
   let token: string | null = null;
@@ -157,7 +191,7 @@ export async function getAuthSession(req: NextRequest | Request): Promise<AuthSe
     return null;
   }
 
-  // Lookup user in database for authoritative record if available
+  // Lookup user in database for authoritative record & role
   try {
     const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(payload.userId);
     const conditions = [
@@ -184,11 +218,28 @@ export async function getAuthSession(req: NextRequest | Request): Promise<AuthSe
         userId: user.id,
         clerkUserId: user.clerkUserId,
         email: user.email || payload.email,
-        role: user.role,
+        role: user.role, // Authoritative role strictly from database
       };
     }
-  } catch {
-    // Database lookup error fallback to verified token claims
+
+    // If user is not found in database:
+    // Privileged roles (moderator, college_admin) MUST fail closed.
+    if (payload.role === "moderator" || payload.role === "college_admin") {
+      if (process.env.NODE_ENV === "production") {
+        return null;
+      }
+    }
+  } catch (err) {
+    // Database lookup failure:
+    // Privileged roles MUST fail closed — never grant administrative access on DB error
+    if (payload.role === "moderator" || payload.role === "college_admin") {
+      return null;
+    }
+  }
+
+  // In non-production or for standard student users where DB record is pending sync:
+  if (process.env.NODE_ENV === "production" && (payload.role === "moderator" || payload.role === "college_admin")) {
+    return null;
   }
 
   return {

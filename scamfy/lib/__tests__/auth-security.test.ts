@@ -1,19 +1,77 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { NextRequest } from "next/server";
 import { GET as adminGet, PATCH as adminPatch } from "@/app/api/admin/reports/route";
 import { POST as reportPost, GET as reportGet } from "@/app/api/reports/route";
-import { createSessionToken, verifySessionToken } from "@/lib/auth";
+import { createSessionToken, verifySessionToken, getAuthSecret, getAuthSession } from "@/lib/auth";
 import { IndicatorType, ReportStatus, RiskLevel, VerificationStatus } from "@prisma/client";
 
 describe("Server-Authoritative Authentication & RBAC Security Boundary", () => {
+  const originalEnv = process.env;
+
   beforeEach(async () => {
     vi.restoreAllMocks();
+    process.env = { ...originalEnv };
     const { prisma } = await import("@/lib/prisma");
     vi.spyOn(prisma, "$transaction").mockImplementation(async (cb: unknown) => {
       if (typeof cb === "function") {
         return cb(prisma);
       }
       return cb;
+    });
+  });
+
+  afterEach(() => {
+    process.env = originalEnv;
+  });
+
+  describe("Secret Resolution & Production Fail-Closed Boundary", () => {
+    it("fails closed when AUTH_SECRET is missing in production environment", () => {
+      (process.env as Record<string, string | undefined>).NODE_ENV = "production";
+      delete process.env.AUTH_SECRET;
+      delete process.env.SESSION_SECRET;
+      delete process.env.CLERK_SECRET_KEY;
+
+      expect(() => getAuthSecret()).toThrow(/CRITICAL: Production AUTH_SECRET/);
+    });
+
+    it("verifySessionToken returns null when production auth secret is missing", () => {
+      (process.env as Record<string, string | undefined>).NODE_ENV = "production";
+      delete process.env.AUTH_SECRET;
+      delete process.env.SESSION_SECRET;
+      delete process.env.CLERK_SECRET_KEY;
+
+      const result = verifySessionToken("dummy.token.signature");
+      expect(result).toBeNull();
+    });
+
+    it("getAuthSession fails closed with null when production auth secret is missing", async () => {
+      (process.env as Record<string, string | undefined>).NODE_ENV = "production";
+      delete process.env.AUTH_SECRET;
+      delete process.env.SESSION_SECRET;
+      delete process.env.CLERK_SECRET_KEY;
+
+      const req = new NextRequest("http://localhost:3000/api/admin/reports", {
+        headers: { Authorization: "Bearer sample.token.value" },
+      });
+
+      const session = await getAuthSession(req);
+      expect(session).toBeNull();
+    });
+
+    it("authenticates and verifies session correctly when AUTH_SECRET is explicitly configured", () => {
+      process.env.AUTH_SECRET = "custom-production-secret-configured-32chars";
+
+      const token = createSessionToken({
+        userId: "11111111-1111-1111-1111-111111111111",
+        role: "moderator",
+        email: "mod@scamfy.org",
+      });
+
+      const payload = verifySessionToken(token);
+      expect(payload).not.toBeNull();
+      expect(payload?.userId).toBe("11111111-1111-1111-1111-111111111111");
+      expect(payload?.role).toBe("moderator");
+      expect(payload?.email).toBe("mod@scamfy.org");
     });
   });
 
@@ -68,6 +126,60 @@ describe("Server-Authoritative Authentication & RBAC Security Boundary", () => {
     });
   });
 
+  describe("Database-Authoritative RBAC & Fail-Closed Behavior", () => {
+    it("fails closed for privileged roles when database lookup throws an error", async () => {
+      const { prisma } = await import("@/lib/prisma");
+
+      const modToken = createSessionToken({
+        userId: "mod-uuid-1",
+        role: "moderator",
+      });
+
+      // Simulate database connection crash during user lookup
+      vi.spyOn(prisma.user, "findFirst").mockRejectedValue(new Error("Database connection failure"));
+
+      const req = new NextRequest("http://localhost:3000/api/admin/reports", {
+        headers: {
+          Authorization: `Bearer ${modToken}`,
+        },
+      });
+
+      const res = await adminGet(req);
+      expect(res.status).toBe(401);
+      const data = await res.json();
+      expect(data.error).toBe("Unauthorized");
+    });
+
+    it("enforces database-authoritative role over token claim when DB says student_user", async () => {
+      const { prisma } = await import("@/lib/prisma");
+
+      const tokenWithSpoofedModClaim = createSessionToken({
+        userId: "user-victim-uuid",
+        role: "moderator", // Token claims moderator
+      });
+
+      // But database record authoritatively states student_user
+      vi.spyOn(prisma.user, "findFirst").mockResolvedValueOnce({
+        id: "user-victim-uuid",
+        clerkUserId: "clerk-1",
+        email: "student@college.edu",
+        role: "student_user",
+      } as never);
+
+      const req = new NextRequest("http://localhost:3000/api/admin/reports", {
+        headers: {
+          Authorization: `Bearer ${tokenWithSpoofedModClaim}`,
+        },
+      });
+
+      const res = await adminGet(req);
+      expect(res.status).toBe(403);
+      const data = await res.json();
+      expect(data.error).toBe("Forbidden");
+      expect(data.message).toContain("Moderator role required");
+    });
+  });
+
   describe("Forged Header Attack Prevention (SEC-AUTH)", () => {
     it("rejects forged x-user-role and x-user-id headers on unauthenticated request with 401", async () => {
       const req = new NextRequest("http://localhost:3000/api/admin/reports", {
@@ -105,7 +217,7 @@ describe("Server-Authoritative Authentication & RBAC Security Boundary", () => {
       expect(body.message).toContain("Moderator role required");
     });
 
-    it("attributs community report to authenticated session userId, ignoring forged x-user-id header", async () => {
+    it("attributes community report to authenticated session userId, ignoring forged x-user-id header", async () => {
       const { prisma } = await import("@/lib/prisma");
 
       const realUserToken = createSessionToken({
