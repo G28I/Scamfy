@@ -1,5 +1,5 @@
-import { Webhook } from "svix";
-import { NextResponse } from "next/server";
+import { verifyWebhook } from "@clerk/nextjs/webhooks";
+import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { UserRole } from "@prisma/client";
 
@@ -33,20 +33,18 @@ function isValidWebhookPayload(payload: unknown): payload is ClerkWebhookPayload
   return true;
 }
 
-export async function POST(req: Request) {
-  const webhookSecret =
-    process.env.CLERK_WEBHOOK_SIGNING_SECRET ||
-    process.env.CLERK_WEBHOOK_SECRET;
+export async function POST(req: NextRequest | Request) {
+  const signingSecret = process.env.CLERK_WEBHOOK_SIGNING_SECRET;
 
-  if (!webhookSecret) {
+  if (!signingSecret) {
     console.error("Missing CLERK_WEBHOOK_SIGNING_SECRET.");
     return NextResponse.json(
-      { error: "ConfigurationError", message: "Webhook secret not configured." },
+      { error: "ConfigurationError", message: "Webhook signing secret not configured." },
       { status: 500 }
     );
   }
 
-  // Get Svix headers from Request object directly
+  // Svix signature header guard
   const svixId = req.headers.get("svix-id");
   const svixTimestamp = req.headers.get("svix-timestamp");
   const svixSignature = req.headers.get("svix-signature");
@@ -58,32 +56,25 @@ export async function POST(req: Request) {
     );
   }
 
-  const body = await req.text();
-
-  let unverifiedPayload: unknown;
+  let verifiedPayload: unknown;
   try {
-    const wh = new Webhook(webhookSecret);
-    unverifiedPayload = wh.verify(body, {
-      "svix-id": svixId,
-      "svix-timestamp": svixTimestamp,
-      "svix-signature": svixSignature,
-    });
+    verifiedPayload = await verifyWebhook(req as never, { signingSecret });
   } catch (err) {
-    console.error("Clerk Webhook signature verification failed:", err);
+    console.error("Clerk Webhook verification failed:", err instanceof Error ? err.message : "Unknown error");
     return NextResponse.json(
-      { error: "InvalidSignature", message: "Webhook signature verification failed." },
+      { error: "InvalidSignature", message: "Webhook verification failed." },
       { status: 400 }
     );
   }
 
-  if (!isValidWebhookPayload(unverifiedPayload)) {
+  if (!isValidWebhookPayload(verifiedPayload)) {
     return NextResponse.json(
       { error: "InvalidPayload", message: "Malformed or invalid event payload structure." },
       { status: 400 }
     );
   }
 
-  const evt = unverifiedPayload;
+  const evt = verifiedPayload;
   const eventType = evt.type;
 
   if (eventType === "user.created" || eventType === "user.updated") {

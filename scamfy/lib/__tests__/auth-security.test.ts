@@ -16,21 +16,17 @@ vi.mock("@clerk/nextjs/server", () => ({
   clerkMiddleware: vi.fn(() => () => {}),
 }));
 
-// Mock svix Webhook verification
-let mockSvixVerifyFail = false;
-vi.mock("svix", () => {
-  class MockWebhook {
-    verify(body: string) {
-      if (mockSvixVerifyFail) {
-        throw new Error("Invalid signature");
-      }
-      return JSON.parse(body);
+// Mock @clerk/nextjs/webhooks verifyWebhook helper
+let mockVerifyWebhookFail = false;
+vi.mock("@clerk/nextjs/webhooks", () => ({
+  verifyWebhook: vi.fn(async (req: Request) => {
+    if (mockVerifyWebhookFail) {
+      throw new Error("Invalid signature");
     }
-  }
-  return {
-    Webhook: MockWebhook,
-  };
-});
+    const bodyText = await req.text();
+    return JSON.parse(bodyText);
+  }),
+}));
 
 describe("Server-Authoritative Clerk Identity & RBAC Security Boundary", () => {
   const originalEnv = process.env;
@@ -40,7 +36,7 @@ describe("Server-Authoritative Clerk Identity & RBAC Security Boundary", () => {
     process.env = { ...originalEnv };
     process.env.CLERK_WEBHOOK_SIGNING_SECRET = "whsec_test_secret_key";
     currentClerkUserId = null;
-    mockSvixVerifyFail = false;
+    mockVerifyWebhookFail = false;
     const { prisma } = await import("@/lib/prisma");
     vi.spyOn(prisma, "$transaction").mockImplementation(async (cb: unknown) => {
       if (typeof cb === "function") {
@@ -359,7 +355,7 @@ describe("Server-Authoritative Clerk Identity & RBAC Security Boundary", () => {
     });
 
     it("rejects request with invalid signature with 400", async () => {
-      mockSvixVerifyFail = true;
+      mockVerifyWebhookFail = true;
 
       const req = new Request("http://localhost:3000/api/webhooks/clerk", {
         method: "POST",
