@@ -22,27 +22,29 @@ export interface SessionJwtPayload {
   exp: number;
 }
 
-const DEV_FALLBACK_SECRET = "scamfy-session-hmac-dev-secret-only-2026";
+const MIN_SECRET_LENGTH = 32;
+const DEV_FALLBACK_SECRET = "scamfy-session-hmac-dev-secret-only-2026-strict-key";
 
 /**
- * Resolves the server-side authentication secret.
- * In production, an explicit non-empty secret is mandatory; missing configuration fails closed.
+ * Resolves the server-side session authentication secret.
+ * In production, an explicit non-empty secret of at least 32 characters is mandatory.
+ * The session signing key may come ONLY from AUTH_SECRET or SESSION_SECRET.
+ * Never uses CLERK_SECRET_KEY or INTERNAL_API_SECRET for session HMAC signing.
  */
 export function getAuthSecret(): string {
-  const secret =
-    process.env.AUTH_SECRET ||
-    process.env.SESSION_SECRET ||
-    process.env.CLERK_SECRET_KEY;
+  const secret = process.env.AUTH_SECRET || process.env.SESSION_SECRET;
 
-  if (secret && secret.trim().length > 0) {
+  if (process.env.NODE_ENV === "production") {
+    if (!secret || secret.trim().length === 0 || secret.trim().length < MIN_SECRET_LENGTH) {
+      throw new Error(
+        "CRITICAL: AUTH_SECRET or SESSION_SECRET must be configured with at least 32 characters."
+      );
+    }
     return secret.trim();
   }
 
-  // Strict fail-closed boundary in production
-  if (process.env.NODE_ENV === "production") {
-    throw new Error(
-      "CRITICAL: Production AUTH_SECRET (or CLERK_SECRET_KEY / SESSION_SECRET) must be explicitly configured."
-    );
+  if (secret && secret.trim().length > 0) {
+    return secret.trim();
   }
 
   // Development/test-only isolated fallback (never usable in production)
@@ -229,7 +231,7 @@ export async function getAuthSession(req: NextRequest | Request): Promise<AuthSe
         return null;
       }
     }
-  } catch (err) {
+  } catch {
     // Database lookup failure:
     // Privileged roles MUST fail closed — never grant administrative access on DB error
     if (payload.role === "moderator" || payload.role === "college_admin") {

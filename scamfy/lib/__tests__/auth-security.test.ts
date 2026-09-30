@@ -25,41 +25,43 @@ describe("Server-Authoritative Authentication & RBAC Security Boundary", () => {
   });
 
   describe("Secret Resolution & Production Fail-Closed Boundary", () => {
-    it("fails closed when AUTH_SECRET is missing in production environment", () => {
+    it("Test A: Clerk secret cannot become session secret and fails closed in production", () => {
       (process.env as Record<string, string | undefined>).NODE_ENV = "production";
       delete process.env.AUTH_SECRET;
       delete process.env.SESSION_SECRET;
-      delete process.env.CLERK_SECRET_KEY;
+      process.env.CLERK_SECRET_KEY = "clerk_secret_key_that_is_at_least_32_characters_long";
 
-      expect(() => getAuthSecret()).toThrow(/CRITICAL: Production AUTH_SECRET/);
+      expect(() => getAuthSecret()).toThrow(
+        /CRITICAL: AUTH_SECRET or SESSION_SECRET must be configured with at least 32 characters/
+      );
     });
 
-    it("verifySessionToken returns null when production auth secret is missing", () => {
+    it("Test B: Internal API secret cannot become session secret and fails closed in production", () => {
       (process.env as Record<string, string | undefined>).NODE_ENV = "production";
       delete process.env.AUTH_SECRET;
       delete process.env.SESSION_SECRET;
-      delete process.env.CLERK_SECRET_KEY;
+      process.env.INTERNAL_API_SECRET = "internal_secret_that_is_at_least_32_characters_long";
 
-      const result = verifySessionToken("dummy.token.signature");
-      expect(result).toBeNull();
+      expect(() => getAuthSecret()).toThrow(
+        /CRITICAL: AUTH_SECRET or SESSION_SECRET must be configured with at least 32 characters/
+      );
     });
 
-    it("getAuthSession fails closed with null when production auth secret is missing", async () => {
+    it("Test C: Short production secret is rejected and fails closed", () => {
       (process.env as Record<string, string | undefined>).NODE_ENV = "production";
-      delete process.env.AUTH_SECRET;
-      delete process.env.SESSION_SECRET;
-      delete process.env.CLERK_SECRET_KEY;
+      process.env.AUTH_SECRET = "short-secret-under-32-chars";
 
-      const req = new NextRequest("http://localhost:3000/api/admin/reports", {
-        headers: { Authorization: "Bearer sample.token.value" },
-      });
-
-      const session = await getAuthSession(req);
-      expect(session).toBeNull();
+      expect(() => getAuthSecret()).toThrow(
+        /CRITICAL: AUTH_SECRET or SESSION_SECRET must be configured with at least 32 characters/
+      );
     });
 
-    it("authenticates and verifies session correctly when AUTH_SECRET is explicitly configured", () => {
-      process.env.AUTH_SECRET = "custom-production-secret-configured-32chars";
+    it("Test D: Valid dedicated production secret works for signing and verification", () => {
+      (process.env as Record<string, string | undefined>).NODE_ENV = "production";
+      process.env.AUTH_SECRET = "custom-production-secret-configured-32chars-valid";
+
+      const secret = getAuthSecret();
+      expect(secret).toBe("custom-production-secret-configured-32chars-valid");
 
       const token = createSessionToken({
         userId: "11111111-1111-1111-1111-111111111111",
@@ -72,6 +74,63 @@ describe("Server-Authoritative Authentication & RBAC Security Boundary", () => {
       expect(payload?.userId).toBe("11111111-1111-1111-1111-111111111111");
       expect(payload?.role).toBe("moderator");
       expect(payload?.email).toBe("mod@scamfy.org");
+    });
+
+    it("Test E: SESSION_SECRET works as alternative dedicated session secret in production", () => {
+      (process.env as Record<string, string | undefined>).NODE_ENV = "production";
+      delete process.env.AUTH_SECRET;
+      process.env.SESSION_SECRET = "dedicated-session-secret-at-least-32-chars-long";
+
+      const secret = getAuthSecret();
+      expect(secret).toBe("dedicated-session-secret-at-least-32-chars-long");
+
+      const token = createSessionToken({
+        userId: "22222222-2222-2222-2222-222222222222",
+        role: "college_admin",
+      });
+
+      const payload = verifySessionToken(token);
+      expect(payload).not.toBeNull();
+      expect(payload?.userId).toBe("22222222-2222-2222-2222-222222222222");
+      expect(payload?.role).toBe("college_admin");
+    });
+
+    it("Test F: Production missing secret fails closed through token verification even if Clerk/Internal secrets exist", () => {
+      (process.env as Record<string, string | undefined>).NODE_ENV = "production";
+      delete process.env.AUTH_SECRET;
+      delete process.env.SESSION_SECRET;
+      process.env.CLERK_SECRET_KEY = "clerk_secret_key_that_is_at_least_32_characters_long";
+      process.env.INTERNAL_API_SECRET = "internal_secret_that_is_at_least_32_characters_long";
+
+      const result = verifySessionToken("dummy.token.signature");
+      expect(result).toBeNull();
+    });
+
+    it("fails closed when AUTH_SECRET is completely missing in production environment", () => {
+      (process.env as Record<string, string | undefined>).NODE_ENV = "production";
+      delete process.env.AUTH_SECRET;
+      delete process.env.SESSION_SECRET;
+
+      expect(() => getAuthSecret()).toThrow(
+        /CRITICAL: AUTH_SECRET or SESSION_SECRET must be configured with at least 32 characters/
+      );
+    });
+
+    it("getAuthSession fails closed with null when production auth secret is missing or too short", async () => {
+      (process.env as Record<string, string | undefined>).NODE_ENV = "production";
+      delete process.env.AUTH_SECRET;
+      delete process.env.SESSION_SECRET;
+
+      const req = new NextRequest("http://localhost:3000/api/admin/reports", {
+        headers: { Authorization: "Bearer sample.token.value" },
+      });
+
+      const sessionMissing = await getAuthSession(req);
+      expect(sessionMissing).toBeNull();
+
+      process.env.AUTH_SECRET = "short-secret";
+      const sessionShort = await getAuthSession(req);
+      expect(sessionShort).toBeNull();
     });
   });
 
