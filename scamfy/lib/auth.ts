@@ -48,28 +48,10 @@ export async function getAuthSession(
   const normalizedClerkId = clerkUserId.trim();
 
   try {
-    const user = await prisma.user.findFirst({
+    const user = await prisma.user.upsert({
       where: { clerkUserId: normalizedClerkId },
-      select: {
-        id: true,
-        clerkUserId: true,
-        email: true,
-        role: true,
-      },
-    });
-
-    if (user) {
-      return {
-        userId: user.id,
-        clerkUserId: user.clerkUserId,
-        email: user.email,
-        role: user.role, // Authoritative role strictly from database
-      };
-    }
-
-    // Auto-provision unprivileged student_user if not yet synced via webhook
-    const newUser = await prisma.user.create({
-      data: {
+      update: {}, // Preserve existing user data and database role
+      create: {
         clerkUserId: normalizedClerkId,
         role: UserRole.student_user, // Default unprivileged role
       },
@@ -82,10 +64,10 @@ export async function getAuthSession(
     });
 
     return {
-      userId: newUser.id,
-      clerkUserId: newUser.clerkUserId,
-      email: newUser.email,
-      role: newUser.role,
+      userId: user.id,
+      clerkUserId: user.clerkUserId,
+      email: user.email,
+      role: user.role, // Authoritative role strictly from database
     };
   } catch {
     // Database lookup or insertion failure:
@@ -93,3 +75,4 @@ export async function getAuthSession(
     return null;
   }
 }
+

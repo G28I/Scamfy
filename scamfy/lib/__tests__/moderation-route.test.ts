@@ -24,7 +24,7 @@ describe("Admin Moderation API Route (/api/admin/reports)", () => {
       return cb;
     });
 
-    vi.spyOn(prisma.user, "findFirst").mockImplementation(((args?: { where?: { clerkUserId?: string } }) => {
+    vi.spyOn(prisma.user, "upsert").mockImplementation(((args?: { where?: { clerkUserId?: string } }) => {
       const clerkId = args?.where?.clerkUserId;
       if (clerkId === "clerk-mod-99") {
         return Promise.resolve({
@@ -42,7 +42,12 @@ describe("Admin Moderation API Route (/api/admin/reports)", () => {
           role: UserRole.student_user,
         });
       }
-      return Promise.resolve(null);
+      return Promise.resolve({
+        id: "default-id",
+        clerkUserId: clerkId || "unknown",
+        email: null,
+        role: UserRole.student_user,
+      });
     }) as never);
   });
 

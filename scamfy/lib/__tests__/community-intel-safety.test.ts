@@ -26,7 +26,7 @@ describe("Critical Safety & Provenance Requirements — Community Intelligence (
       return cb;
     });
 
-    vi.spyOn(prisma.user, "findFirst").mockImplementation(((args?: { where?: { clerkUserId?: string } }) => {
+    vi.spyOn(prisma.user, "upsert").mockImplementation(((args?: { where?: { clerkUserId?: string } }) => {
       const clerkId = args?.where?.clerkUserId;
       if (clerkId === "clerk-mod-1") {
         return Promise.resolve({
@@ -44,7 +44,12 @@ describe("Critical Safety & Provenance Requirements — Community Intelligence (
           role: UserRole.college_admin,
         });
       }
-      return Promise.resolve(null);
+      return Promise.resolve({
+        id: "default-id",
+        clerkUserId: clerkId || "unknown",
+        email: null,
+        role: UserRole.student_user,
+      });
     }) as never);
   });
 

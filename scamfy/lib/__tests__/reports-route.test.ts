@@ -24,7 +24,7 @@ describe("Community Reports BFF Route (/api/reports)", () => {
       return cb;
     });
 
-    vi.spyOn(prisma.user, "findFirst").mockResolvedValue({
+    vi.spyOn(prisma.user, "upsert").mockResolvedValue({
       id: "user-123",
       clerkUserId: "user-123",
       email: "user@college.edu",

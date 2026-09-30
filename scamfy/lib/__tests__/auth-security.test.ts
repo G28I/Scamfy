@@ -16,13 +16,31 @@ vi.mock("@clerk/nextjs/server", () => ({
   clerkMiddleware: vi.fn(() => () => {}),
 }));
 
+// Mock svix Webhook verification
+let mockSvixVerifyFail = false;
+vi.mock("svix", () => {
+  class MockWebhook {
+    verify(body: string) {
+      if (mockSvixVerifyFail) {
+        throw new Error("Invalid signature");
+      }
+      return JSON.parse(body);
+    }
+  }
+  return {
+    Webhook: MockWebhook,
+  };
+});
+
 describe("Server-Authoritative Clerk Identity & RBAC Security Boundary", () => {
   const originalEnv = process.env;
 
   beforeEach(async () => {
     vi.restoreAllMocks();
     process.env = { ...originalEnv };
+    process.env.CLERK_WEBHOOK_SIGNING_SECRET = "whsec_test_secret_key";
     currentClerkUserId = null;
+    mockSvixVerifyFail = false;
     const { prisma } = await import("@/lib/prisma");
     vi.spyOn(prisma, "$transaction").mockImplementation(async (cb: unknown) => {
       if (typeof cb === "function") {
@@ -53,11 +71,11 @@ describe("Server-Authoritative Clerk Identity & RBAC Security Boundary", () => {
       expect(session).toBeNull();
     });
 
-    it("resolves authenticated user and extracts authoritative database role from PostgreSQL", async () => {
+    it("resolves authenticated user and extracts authoritative database role from PostgreSQL via upsert", async () => {
       currentClerkUserId = "clerk_user_mod_123";
       const { prisma } = await import("@/lib/prisma");
 
-      vi.spyOn(prisma.user, "findFirst").mockResolvedValueOnce({
+      vi.spyOn(prisma.user, "upsert").mockResolvedValueOnce({
         id: "db-user-uuid-123",
         clerkUserId: "clerk_user_mod_123",
         email: "moderator@scamfy.org",
@@ -74,12 +92,11 @@ describe("Server-Authoritative Clerk Identity & RBAC Security Boundary", () => {
       expect(session?.email).toBe("moderator@scamfy.org");
     });
 
-    it("auto-provisions default student_user role when user exists in Clerk but not yet in PostgreSQL", async () => {
+    it("auto-provisions default student_user role atomically on user upsert", async () => {
       currentClerkUserId = "clerk_new_student_456";
       const { prisma } = await import("@/lib/prisma");
 
-      vi.spyOn(prisma.user, "findFirst").mockResolvedValueOnce(null);
-      const createSpy = vi.spyOn(prisma.user, "create").mockResolvedValueOnce({
+      const upsertSpy = vi.spyOn(prisma.user, "upsert").mockResolvedValueOnce({
         id: "new-student-db-id",
         clerkUserId: "clerk_new_student_456",
         email: null,
@@ -91,9 +108,11 @@ describe("Server-Authoritative Clerk Identity & RBAC Security Boundary", () => {
 
       expect(session).not.toBeNull();
       expect(session?.role).toBe(UserRole.student_user);
-      expect(createSpy).toHaveBeenCalledWith(
+      expect(upsertSpy).toHaveBeenCalledWith(
         expect.objectContaining({
-          data: expect.objectContaining({
+          where: { clerkUserId: "clerk_new_student_456" },
+          update: {},
+          create: expect.objectContaining({
             clerkUserId: "clerk_new_student_456",
             role: UserRole.student_user,
           }),
@@ -101,11 +120,11 @@ describe("Server-Authoritative Clerk Identity & RBAC Security Boundary", () => {
       );
     });
 
-    it("fails closed with null when database lookup/insertion throws an error", async () => {
+    it("fails closed with null when database upsert throws an error", async () => {
       currentClerkUserId = "clerk_user_mod_crash";
       const { prisma } = await import("@/lib/prisma");
 
-      vi.spyOn(prisma.user, "findFirst").mockRejectedValueOnce(new Error("DB Connection Pool Timeout"));
+      vi.spyOn(prisma.user, "upsert").mockRejectedValueOnce(new Error("DB Connection Pool Timeout"));
 
       const req = new NextRequest("http://localhost:3000/api/admin/reports");
       const session = await getAuthSession(req);
@@ -128,7 +147,7 @@ describe("Server-Authoritative Clerk Identity & RBAC Security Boundary", () => {
       currentClerkUserId = "clerk_student_victim";
       const { prisma } = await import("@/lib/prisma");
 
-      vi.spyOn(prisma.user, "findFirst").mockResolvedValueOnce({
+      vi.spyOn(prisma.user, "upsert").mockResolvedValueOnce({
         id: "student-uuid",
         clerkUserId: "clerk_student_victim",
         email: "student@college.edu",
@@ -166,7 +185,7 @@ describe("Server-Authoritative Clerk Identity & RBAC Security Boundary", () => {
       currentClerkUserId = "clerk_student_hacker";
       const { prisma } = await import("@/lib/prisma");
 
-      vi.spyOn(prisma.user, "findFirst").mockResolvedValueOnce({
+      vi.spyOn(prisma.user, "upsert").mockResolvedValueOnce({
         id: "hacker-student-uuid",
         clerkUserId: "clerk_student_hacker",
         email: "student@college.edu",
@@ -191,7 +210,7 @@ describe("Server-Authoritative Clerk Identity & RBAC Security Boundary", () => {
       currentClerkUserId = "clerk_legitimate_reporter";
       const { prisma } = await import("@/lib/prisma");
 
-      vi.spyOn(prisma.user, "findFirst").mockResolvedValueOnce({
+      vi.spyOn(prisma.user, "upsert").mockResolvedValueOnce({
         id: "legitimate-user-db-uuid",
         clerkUserId: "clerk_legitimate_reporter",
         email: "victim@college.edu",
@@ -252,7 +271,7 @@ describe("Server-Authoritative Clerk Identity & RBAC Security Boundary", () => {
       currentClerkUserId = "clerk_real_moderator";
       const { prisma } = await import("@/lib/prisma");
 
-      vi.spyOn(prisma.user, "findFirst").mockResolvedValueOnce({
+      vi.spyOn(prisma.user, "upsert").mockResolvedValueOnce({
         id: "real-mod-db-id-77",
         clerkUserId: "clerk_real_moderator",
         email: "moderator@scamfy.org",
@@ -307,7 +326,77 @@ describe("Server-Authoritative Clerk Identity & RBAC Security Boundary", () => {
   });
 
   describe("Clerk Webhook User Synchronization (/api/webhooks/clerk)", () => {
-    it("creates unprivileged student_user in PostgreSQL on user.created event", async () => {
+    it("rejects request if webhook secret is missing", async () => {
+      delete process.env.CLERK_WEBHOOK_SIGNING_SECRET;
+      delete process.env.CLERK_WEBHOOK_SECRET;
+
+      const req = new Request("http://localhost:3000/api/webhooks/clerk", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "svix-id": "msg_123",
+          "svix-timestamp": "123456",
+          "svix-signature": "v1,sig",
+        },
+        body: JSON.stringify({ type: "user.created", data: { id: "u_1" } }),
+      });
+
+      const res = await clerkWebhookPost(req);
+      expect(res.status).toBe(500);
+    });
+
+    it("rejects request without Svix signature headers with 400", async () => {
+      const req = new Request("http://localhost:3000/api/webhooks/clerk", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ type: "user.created", data: { id: "u_1" } }),
+      });
+
+      const res = await clerkWebhookPost(req);
+      expect(res.status).toBe(400);
+      const data = await res.json();
+      expect(data.error).toBe("Unauthorized");
+    });
+
+    it("rejects request with invalid signature with 400", async () => {
+      mockSvixVerifyFail = true;
+
+      const req = new Request("http://localhost:3000/api/webhooks/clerk", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "svix-id": "msg_123",
+          "svix-timestamp": "123456",
+          "svix-signature": "v1,invalid",
+        },
+        body: JSON.stringify({ type: "user.created", data: { id: "u_1" } }),
+      });
+
+      const res = await clerkWebhookPost(req);
+      expect(res.status).toBe(400);
+      const data = await res.json();
+      expect(data.error).toBe("InvalidSignature");
+    });
+
+    it("rejects malformed event payload structure with 400", async () => {
+      const req = new Request("http://localhost:3000/api/webhooks/clerk", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "svix-id": "msg_123",
+          "svix-timestamp": "123456",
+          "svix-signature": "v1,sig",
+        },
+        body: JSON.stringify({ invalid: true }),
+      });
+
+      const res = await clerkWebhookPost(req);
+      expect(res.status).toBe(400);
+      const data = await res.json();
+      expect(data.error).toBe("InvalidPayload");
+    });
+
+    it("creates unprivileged student_user and selects primary email matching primary_email_address_id", async () => {
       const { prisma } = await import("@/lib/prisma");
       const upsertSpy = vi.spyOn(prisma.user, "upsert").mockResolvedValueOnce({} as never);
 
@@ -315,13 +404,22 @@ describe("Server-Authoritative Clerk Identity & RBAC Security Boundary", () => {
         type: "user.created",
         data: {
           id: "user_clerk_new_999",
-          email_addresses: [{ email_address: "student@college.edu" }],
+          primary_email_address_id: "email_2",
+          email_addresses: [
+            { id: "email_1", email_address: "secondary@college.edu" },
+            { id: "email_2", email_address: "primary@college.edu" },
+          ],
         },
       };
 
       const req = new Request("http://localhost:3000/api/webhooks/clerk", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "svix-id": "msg_123",
+          "svix-timestamp": "123456",
+          "svix-signature": "v1,sig",
+        },
         body: JSON.stringify(payload),
       });
 
@@ -333,7 +431,7 @@ describe("Server-Authoritative Clerk Identity & RBAC Security Boundary", () => {
           where: { clerkUserId: "user_clerk_new_999" },
           create: expect.objectContaining({
             clerkUserId: "user_clerk_new_999",
-            email: "student@college.edu",
+            email: "primary@college.edu",
             role: UserRole.student_user,
           }),
         })
@@ -341,3 +439,4 @@ describe("Server-Authoritative Clerk Identity & RBAC Security Boundary", () => {
     });
   });
 });
+
