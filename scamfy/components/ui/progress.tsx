@@ -7,6 +7,12 @@ export interface ProgressProps extends React.HTMLAttributes<HTMLDivElement> {
   indicatorClassName?: string;
 }
 
+/**
+ * Accessible horizontal progress bar component displaying a bounded percentage indicator.
+ *
+ * @param props - Progress component properties including value, max, and styling classes
+ * @returns React JSX element rendering the progress bar
+ */
 export const Progress = React.forwardRef<HTMLDivElement, ProgressProps>(
   ({ className, value = 0, max = 100, indicatorClassName, ...props }, ref) => {
     const validMax = typeof max === "number" && Number.isFinite(max) && max > 0 ? max : 100;

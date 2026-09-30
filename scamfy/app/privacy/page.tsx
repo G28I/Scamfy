@@ -10,6 +10,11 @@ export const metadata: Metadata = {
     "Learn how Scamfy handles scam check inputs, community threat reports, extracted indicators, and user data with transparent privacy safeguards.",
 };
 
+/**
+ * Privacy Policy page component detailing data collection boundaries, analysis transparency, and retention policies.
+ *
+ * @returns React JSX element rendering the privacy policy page
+ */
 export default function PrivacyPolicyPage() {
   const lastUpdated = "September 26, 2026";
 

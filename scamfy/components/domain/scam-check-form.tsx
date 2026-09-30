@@ -43,6 +43,12 @@ export const SAMPLE_PRESETS = [
 
 const MAX_CHARS = 5000;
 
+/**
+ * Scam check input form component supporting text submission, preset samples, clipboard paste, and validation.
+ *
+ * @param props - Form component properties including analysis callback and loading states
+ * @returns React JSX element rendering the submission form
+ */
 export function ScamCheckForm({
   onAnalyze,
   isLoading = false,

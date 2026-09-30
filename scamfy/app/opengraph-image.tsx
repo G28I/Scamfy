@@ -7,6 +7,11 @@ export const size = {
 };
 export const contentType = "image/png";
 
+/**
+ * Generates the dynamic OpenGraph preview banner image for social shares and search previews.
+ *
+ * @returns ImageResponse containing the visual preview card layout
+ */
 export default function Image() {
   return new ImageResponse(
     (

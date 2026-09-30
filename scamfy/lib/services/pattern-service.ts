@@ -47,6 +47,10 @@ export interface PublicPatternDto {
  *
  * CRITICAL SAFETY INVARIANT: Increasing reportCount alone NEVER auto-promotes an indicator
  * to MODERATOR_VERIFIED.
+ *
+ * @param input - IngestReportInput containing indicatorType, indicatorValue, category, and description
+ * @param reporterUserId - Authenticated internal user ID of the reporter
+ * @returns Promise resolving to the created CommunityReport and upserted ScamPattern records
  */
 export async function ingestCommunityReport(
   input: IngestReportInput,
@@ -112,6 +116,9 @@ export async function ingestCommunityReport(
 /**
  * Lists public threat patterns strictly segmented by verification tier (REP-04).
  * Excludes internal moderation notes and private reporter identities.
+ *
+ * @param filters - Optional query filters for tier, indicatorType, category, search, limit, and offset
+ * @returns Promise resolving to public pattern DTOs, total count, limit, and offset
  */
 export async function listPublicPatterns(
   filters: ListPatternsFilters = {}

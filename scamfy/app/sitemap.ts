@@ -1,5 +1,10 @@
 import type { MetadataRoute } from "next";
 
+/**
+ * Generates the XML sitemap metadata for Scamfy's public routes.
+ *
+ * @returns MetadataRoute.Sitemap array of indexable route definitions
+ */
 export default function sitemap(): MetadataRoute.Sitemap {
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://scamfy.org";
   const currentDate = new Date();

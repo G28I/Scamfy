@@ -15,6 +15,12 @@ export const metadata: Metadata = {
   },
 };
 
+/**
+ * Layout component for the Threat Intelligence Directory page.
+ *
+ * @param props - Layout component properties including children
+ * @returns React JSX fragment wrapping children
+ */
 export default function IntelLayout({
   children,
 }: {

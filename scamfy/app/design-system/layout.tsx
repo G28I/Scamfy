@@ -9,6 +9,12 @@ export const metadata: Metadata = {
   },
 };
 
+/**
+ * Layout wrapper for the internal Design System showcase.
+ *
+ * @param props - Layout component properties including children
+ * @returns React JSX fragment wrapping children
+ */
 export default function DesignSystemLayout({
   children,
 }: {

@@ -76,6 +76,12 @@ export const metadata: Metadata = {
   },
 };
 
+/**
+ * Root application layout component wrapping all routes with ClerkProvider, fonts, and CookieConsent.
+ *
+ * @param props - Root layout properties containing children elements
+ * @returns React JSX element rendering the html structure
+ */
 export default function RootLayout({
   children,
 }: {

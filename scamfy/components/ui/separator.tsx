@@ -6,6 +6,12 @@ export interface SeparatorProps extends React.HTMLAttributes<HTMLDivElement> {
   decorative?: boolean;
 }
 
+/**
+ * Visual or semantic divider component supporting horizontal and vertical orientations.
+ *
+ * @param props - Separator component properties including orientation and decorative flags
+ * @returns React JSX element rendering the divider line
+ */
 export const Separator = React.forwardRef<HTMLDivElement, SeparatorProps>(
   ({ className, orientation = "horizontal", decorative = true, ...props }, ref) => (
     <div

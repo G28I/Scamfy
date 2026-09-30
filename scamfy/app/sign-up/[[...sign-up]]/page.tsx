@@ -7,6 +7,11 @@ export const metadata = {
   description: "Create an account on Scamfy to access cyber defense tools, community threat intelligence, and secure case records.",
 };
 
+/**
+ * User registration and sign-up page component powered by Clerk authentication.
+ *
+ * @returns React JSX element rendering the registration view
+ */
 export default function SignUpPage() {
   return (
     <div className="min-h-screen flex flex-col bg-background text-foreground">

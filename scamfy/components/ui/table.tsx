@@ -1,6 +1,9 @@
 import * as React from "react";
 import { cn } from "@/lib/utils";
 
+/**
+ * Root table container with horizontal scroll overflow wrapper.
+ */
 export const Table = React.forwardRef<
   HTMLTableElement,
   React.HTMLAttributes<HTMLTableElement>
@@ -15,6 +18,9 @@ export const Table = React.forwardRef<
 ));
 Table.displayName = "Table";
 
+/**
+ * Table header container component.
+ */
 export const TableHeader = React.forwardRef<
   HTMLTableSectionElement,
   React.HTMLAttributes<HTMLTableSectionElement>
@@ -23,6 +29,9 @@ export const TableHeader = React.forwardRef<
 ));
 TableHeader.displayName = "TableHeader";
 
+/**
+ * Table body rows container component.
+ */
 export const TableBody = React.forwardRef<
   HTMLTableSectionElement,
   React.HTMLAttributes<HTMLTableSectionElement>
@@ -35,6 +44,9 @@ export const TableBody = React.forwardRef<
 ));
 TableBody.displayName = "TableBody";
 
+/**
+ * Table footer container component.
+ */
 export const TableFooter = React.forwardRef<
   HTMLTableSectionElement,
   React.HTMLAttributes<HTMLTableSectionElement>
@@ -50,6 +62,9 @@ export const TableFooter = React.forwardRef<
 ));
 TableFooter.displayName = "TableFooter";
 
+/**
+ * Table row item component with hover transition state.
+ */
 export const TableRow = React.forwardRef<
   HTMLTableRowElement,
   React.HTMLAttributes<HTMLTableRowElement>
@@ -65,6 +80,9 @@ export const TableRow = React.forwardRef<
 ));
 TableRow.displayName = "TableRow";
 
+/**
+ * Table column header cell component.
+ */
 export const TableHead = React.forwardRef<
   HTMLTableCellElement,
   React.ThHTMLAttributes<HTMLTableCellElement>
@@ -80,6 +98,9 @@ export const TableHead = React.forwardRef<
 ));
 TableHead.displayName = "TableHead";
 
+/**
+ * Table data cell component.
+ */
 export const TableCell = React.forwardRef<
   HTMLTableCellElement,
   React.TdHTMLAttributes<HTMLTableCellElement>
@@ -92,6 +113,9 @@ export const TableCell = React.forwardRef<
 ));
 TableCell.displayName = "TableCell";
 
+/**
+ * Table caption description component.
+ */
 export const TableCaption = React.forwardRef<
   HTMLTableCaptionElement,
   React.HTMLAttributes<HTMLTableCaptionElement>

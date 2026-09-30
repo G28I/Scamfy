@@ -46,6 +46,12 @@ const ipRateLimitMap = new Map<string, { count: number; resetTime: number }>();
 const RATE_LIMIT_WINDOW_MS = 60 * 1000;
 const MAX_REQUESTS_PER_MINUTE = 30;
 
+/**
+ * Checks in-memory rate limit for a client IP address.
+ *
+ * @param ip - Client IP address string
+ * @returns True if rate limit is exceeded, false otherwise
+ */
 function checkRateLimit(ip: string): boolean {
   const now = Date.now();
 
@@ -71,6 +77,12 @@ function checkRateLimit(ip: string): boolean {
   return false;
 }
 
+/**
+ * Validates the schema and structure of the upstream FastAPI analysis response.
+ *
+ * @param data - The raw unknown data object received from FastAPI
+ * @returns Type predicate confirming whether data conforms to AnalysisResultDto
+ */
 function isValidAnalysisPayload(data: unknown): data is Omit<AnalysisResultDto, "id" | "created_at"> {
   if (!data || typeof data !== "object") return false;
   const d = data as Record<string, unknown>;
@@ -119,6 +131,15 @@ function isValidAnalysisPayload(data: unknown): data is Omit<AnalysisResultDto, 
   return true;
 }
 
+/**
+ * POST /api/check
+ *
+ * BFF endpoint for scam text analysis, rate limiting, upstream FastAPI delegation,
+ * and Prisma persistence.
+ *
+ * @param req - Incoming Next.js request with message text
+ * @returns JSON response with risk classification, entities, signals, and recommendations
+ */
 export async function POST(req: NextRequest) {
   try {
     // 1. Enforce Rate Limiting (SEC-05)

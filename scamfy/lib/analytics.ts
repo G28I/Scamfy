@@ -36,6 +36,11 @@ export interface AnalyticsEventMap {
   };
 }
 
+/**
+ * Retrieves the current cookie consent status from localStorage or memory.
+ *
+ * @returns ConsentStatus ('accepted', 'rejected', or null if undecided)
+ */
 export function getConsentStatus(): ConsentStatus {
   if (typeof window === "undefined") return null;
   try {
@@ -54,6 +59,11 @@ export function getConsentStatus(): ConsentStatus {
   }
 }
 
+/**
+ * Stores the user's consent choice and dispatches a change event across the application.
+ *
+ * @param status - The chosen consent status ('accepted' | 'rejected')
+ */
 export function setConsentStatus(status: "accepted" | "rejected"): void {
   inMemoryConsent = status;
   if (typeof window === "undefined") return;
@@ -65,6 +75,13 @@ export function setConsentStatus(status: "accepted" | "rejected"): void {
   window.dispatchEvent(new CustomEvent("scamfy_consent_change", { detail: status }));
 }
 
+/**
+ * Sanitizes event payloads to ensure zero PII or raw message text is logged.
+ *
+ * @param eventName - The name of the analytics event
+ * @param payload - The typed payload for the event
+ * @returns Sanitized key-value object containing only non-sensitive metrics
+ */
 function sanitizePayload<K extends keyof AnalyticsEventMap>(
   eventName: K,
   payload?: AnalyticsEventMap[K]
@@ -106,6 +123,12 @@ function sanitizePayload<K extends keyof AnalyticsEventMap>(
   return safe;
 }
 
+/**
+ * Tracks a privacy-preserving client telemetry event if user consent has been granted.
+ *
+ * @param eventName - Name of the event to record
+ * @param payload - Optional sanitized data payload
+ */
 export function trackEvent<K extends keyof AnalyticsEventMap>(
   eventName: K,
   payload?: AnalyticsEventMap[K]

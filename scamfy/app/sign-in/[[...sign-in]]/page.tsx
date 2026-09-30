@@ -7,6 +7,11 @@ export const metadata = {
   description: "Sign in to your Scamfy account to access community threat reports, track scam checks, and manage case evidence.",
 };
 
+/**
+ * User sign-in page component powered by Clerk authentication.
+ *
+ * @returns React JSX element rendering the sign-in view
+ */
 export default function SignInPage() {
   return (
     <div className="min-h-screen flex flex-col bg-background text-foreground">

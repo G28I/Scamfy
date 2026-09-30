@@ -19,12 +19,24 @@ interface ClerkWebhookPayload {
   data: ClerkWebhookUserEventData;
 }
 
+/**
+ * Type guard verifying if event data contains a valid user identifier.
+ *
+ * @param data - Raw event data object
+ * @returns True if data contains a valid non-empty string id
+ */
 function isValidUserEventData(data: unknown): data is ClerkWebhookUserEventData {
   if (!data || typeof data !== "object") return false;
   const d = data as Record<string, unknown>;
   return typeof d.id === "string" && d.id.trim().length > 0;
 }
 
+/**
+ * Type guard verifying if an unverified payload has a valid webhook event structure.
+ *
+ * @param payload - Raw verified payload object
+ * @returns True if payload has valid type and data properties
+ */
 function isValidWebhookPayload(payload: unknown): payload is ClerkWebhookPayload {
   if (!payload || typeof payload !== "object") return false;
   const p = payload as Record<string, unknown>;
@@ -33,6 +45,15 @@ function isValidWebhookPayload(payload: unknown): payload is ClerkWebhookPayload
   return true;
 }
 
+/**
+ * POST /api/webhooks/clerk
+ *
+ * Receives, verifies, and processes incoming Clerk user lifecycle webhooks (user.created, user.updated).
+ * Enforces Svix signature verification and syncs user records to PostgreSQL.
+ *
+ * @param req - Incoming webhook request
+ * @returns JSON response confirming event processing
+ */
 export async function POST(req: NextRequest | Request) {
   const signingSecret = process.env.CLERK_WEBHOOK_SIGNING_SECRET;
 

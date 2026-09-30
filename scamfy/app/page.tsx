@@ -39,6 +39,12 @@ import { Button } from "@/components/ui/button";
 import type { AnalysisResultDto } from "@/app/api/check/route";
 import { trackEvent } from "@/lib/analytics";
 
+/**
+ * Main application landing page featuring the instant Scam Check input form,
+ * real-time risk triage results, emergency helpline banners, and threat guides.
+ *
+ * @returns React JSX element rendering the home page
+ */
 export default function HomePage() {
   const [analysisResult, setAnalysisResult] = React.useState<AnalysisResultDto | null>(null);
   const [isLoading, setIsLoading] = React.useState(false);

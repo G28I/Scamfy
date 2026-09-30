@@ -2,6 +2,11 @@ import * as React from "react";
 import Link from "next/link";
 import { ExternalLink, Lock, PhoneCall, ShieldAlert } from "lucide-react";
 
+/**
+ * Global site footer component containing platform navigation, emergency helplines, and legal links.
+ *
+ * @returns React JSX element rendering the site footer
+ */
 export function SiteFooter() {
   return (
     <footer className="border-t border-border bg-muted/20 text-xs text-muted-foreground mt-auto">

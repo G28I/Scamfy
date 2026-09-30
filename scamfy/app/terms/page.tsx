@@ -10,6 +10,11 @@ export const metadata: Metadata = {
     "Terms of service, usage guidelines, safety limitations, and legal disclaimers for the Scamfy cyber fraud triage platform.",
 };
 
+/**
+ * Terms and Conditions page component detailing terms of service, liability limits, and reporting rules.
+ *
+ * @returns React JSX element rendering the terms and conditions page
+ */
 export default function TermsPage() {
   const lastUpdated = "September 26, 2026";
 

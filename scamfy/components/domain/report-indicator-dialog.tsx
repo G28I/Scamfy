@@ -34,6 +34,12 @@ const CATEGORIES = [
   { value: "SUSPICIOUS_COMMUNICATION", label: "Other Suspicious Communication" },
 ];
 
+/**
+ * Modal dialog component for reporting suspicious threat indicators (UPI IDs, phone numbers, domains).
+ *
+ * @param props - Dialog properties including open state, change handlers, and default values
+ * @returns React JSX element rendering the submission modal dialog
+ */
 export function ReportIndicatorDialog({
   open,
   onOpenChange,

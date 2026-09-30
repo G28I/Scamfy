@@ -2,6 +2,15 @@ import { NextRequest, NextResponse } from "next/server";
 import { IndicatorType } from "@prisma/client";
 import { listPublicPatterns, type ListPatternsFilters } from "@/lib/services/pattern-service";
 
+/**
+ * GET /api/patterns
+ *
+ * Retrieves public threat intelligence patterns segmented by verification tier.
+ * Strips all private reporter identifiers and moderator notes for public safety.
+ *
+ * @param req - Incoming Next.js request with search, tier, category, limit, and offset params
+ * @returns JSON response containing sanitized public pattern records and pagination metadata
+ */
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);

@@ -55,6 +55,12 @@ interface PatternItem {
   lastReportedAt: string;
 }
 
+/**
+ * Threat Intelligence Directory page component.
+ * Features verified patterns vs community reports tabs, search, filtering, and indicator submission dialog.
+ *
+ * @returns React JSX element rendering the directory page
+ */
 export default function IntelPage() {
   const [activeTab, setActiveTab] = React.useState<"verified" | "community">("verified");
   const [viewMode, setViewMode] = React.useState<"grid" | "table">("grid");

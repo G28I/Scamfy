@@ -37,6 +37,11 @@ export interface ModerationReportItem {
   } | null;
 }
 
+/**
+ * Moderator console component for reviewing, approving, rejecting, and dismissing community reports.
+ *
+ * @returns React JSX element rendering the triage moderation queue
+ */
 export function ModerationQueue() {
   const [reports, setReports] = React.useState<ModerationReportItem[]>([]);
   const [loading, setLoading] = React.useState(true);

@@ -11,6 +11,12 @@ export const metadata: Metadata = {
     "Private incident timeline and evidence organizer to help fraud victims document cyber extortion and UPI scams before filing official police reports.",
 };
 
+/**
+ * Victim Case Center page component.
+ * Provides private workspace guidance for victims organizing evidence before filing cybercrime reports.
+ *
+ * @returns React JSX element rendering the cases workspace page
+ */
 export default function CasesPage() {
   return (
     <div className="flex min-h-screen flex-col bg-background text-foreground selection:bg-primary/20">

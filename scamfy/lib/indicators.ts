@@ -13,6 +13,10 @@ const PHONE_INDIAN_REGEX = /^[6-9]\d{9}$/;
 
 /**
  * Normalizes an indicator value based on its IndicatorType for consistent deduplication (REP-03).
+ *
+ * @param type - Indicator taxonomy type (UPI_ID, PHONE, DOMAIN, HANDLE, BANK_ACC, SCRIPT)
+ * @param value - Raw indicator string input
+ * @returns Canonicalized string representation
  */
 export function normalizeIndicator(type: IndicatorType, value: string): string {
   const trimmed = value.trim();
@@ -73,6 +77,10 @@ export function normalizeIndicator(type: IndicatorType, value: string): string {
 
 /**
  * Validates indicator syntax and returns validation result with normalized value (REP-01).
+ *
+ * @param type - Indicator taxonomy type
+ * @param value - Raw indicator input string
+ * @returns IndicatorValidationResult with validity boolean, normalized value, and optional error string
  */
 export function validateIndicator(type: IndicatorType, value: string): IndicatorValidationResult {
   if (!value || typeof value !== "string" || value.trim().length === 0) {

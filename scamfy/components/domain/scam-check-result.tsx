@@ -35,6 +35,13 @@ export interface ScamCheckResultProps extends React.HTMLAttributes<HTMLDivElemen
   onReset?: () => void;
 }
 
+/**
+ * Threat analysis result visualization component displaying risk severity, confidence score,
+ * extracted entities, detected psychological tactics, and actionable security recommendations.
+ *
+ * @param props - Component properties containing the AnalysisResultDto and reset handler
+ * @returns React JSX element rendering the triage result card
+ */
 export function ScamCheckResult({
   result,
   onReset,

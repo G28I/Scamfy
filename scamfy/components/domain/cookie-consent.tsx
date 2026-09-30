@@ -6,6 +6,12 @@ import { ShieldCheck, Cookie, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { getConsentStatus, setConsentStatus, type ConsentStatus } from "@/lib/analytics";
 
+/**
+ * Subscribes to custom consent change events and browser storage updates.
+ *
+ * @param callback - Function invoked when consent state changes
+ * @returns Cleanup function to remove event listeners
+ */
 function subscribe(callback: () => void) {
   if (typeof window === "undefined") return () => {};
   window.addEventListener("scamfy_consent_change", callback);
@@ -16,14 +22,29 @@ function subscribe(callback: () => void) {
   };
 }
 
+/**
+ * Reads client consent state snapshot from localStorage.
+ *
+ * @returns Current ConsentStatus ('accepted' | 'rejected' | null)
+ */
 function getSnapshot(): ConsentStatus {
   return getConsentStatus();
 }
 
+/**
+ * Server snapshot fallback preventing hydration layout shifts.
+ *
+ * @returns Default 'accepted' state for SSR
+ */
 function getServerSnapshot(): ConsentStatus {
   return "accepted"; // Default to hidden on server snapshot to avoid layout flash
 }
 
+/**
+ * Accessible Cookie Consent banner allowing users to accept or reject privacy-preserving telemetry.
+ *
+ * @returns React JSX element rendering the consent banner or null if already decided
+ */
 export function CookieConsent() {
   const consent = React.useSyncExternalStore(
     subscribe,

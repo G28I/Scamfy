@@ -26,6 +26,9 @@ export interface AuthSession {
  * - NEVER trusts client-controlled x-user-id or x-user-role headers.
  * - Fails closed if unauthenticated or if database lookup fails for privileged access.
  * - Privileged roles (moderator, college_admin) MUST be explicitly confirmed in the database.
+ *
+ * @param req - Optional incoming Next.js request
+ * @returns AuthSession object with internal userId, clerkUserId, email, and authoritative role, or null if unauthenticated
  */
 export async function getAuthSession(
   req?: NextRequest | Request

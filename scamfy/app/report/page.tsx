@@ -9,6 +9,12 @@ export const metadata: Metadata = {
     "Official Indian cybercrime reporting procedures for 1930 National Helpline, cybercrime.gov.in, bank grievance officers, and police FIR filing.",
 };
 
+/**
+ * Official Cybercrime Reporting Gateway page component.
+ * Provides instructions on calling 1930, using cybercrime.gov.in, and filing bank dispute notices.
+ *
+ * @returns React JSX element rendering the reporting guide page
+ */
 export default function ReportPage() {
   return (
     <div className="flex min-h-screen flex-col bg-background text-foreground selection:bg-primary/20">

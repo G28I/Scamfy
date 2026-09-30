@@ -10,6 +10,12 @@ const reportRateLimitMap = new Map<string, { count: number; resetTime: number }>
 const REPORT_RATE_LIMIT_WINDOW_MS = 60 * 1000;
 const MAX_REPORTS_PER_MINUTE = 10;
 
+/**
+ * Checks in-memory submission rate limit for a client IP and user key.
+ *
+ * @param rateLimitKey - Combined IP and user identifier string
+ * @returns True if rate limit is exceeded, false otherwise
+ */
 function checkReportRateLimit(rateLimitKey: string): boolean {
   const now = Date.now();
   for (const [key, val] of reportRateLimitMap.entries()) {
@@ -32,6 +38,15 @@ function checkReportRateLimit(rateLimitKey: string): boolean {
   return false;
 }
 
+/**
+ * POST /api/reports
+ *
+ * Submits a community scam report, validates indicator syntax, links/upserts the pattern,
+ * and attributes the report to the authenticated user.
+ *
+ * @param req - Incoming Next.js request with indicatorType, indicatorValue, category, and description
+ * @returns JSON response with report and pattern IDs, status, and confirmation message
+ */
 export async function POST(req: NextRequest) {
   try {
     // Identify user for report attribution via server session (REP-02)
@@ -148,6 +163,14 @@ export async function POST(req: NextRequest) {
   }
 }
 
+/**
+ * GET /api/reports
+ *
+ * Retrieves reports previously submitted by the currently authenticated user.
+ *
+ * @param req - Incoming Next.js request
+ * @returns JSON response containing list of submitted reports
+ */
 export async function GET(req: NextRequest) {
   try {
     const session = await getAuthSession(req);

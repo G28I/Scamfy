@@ -19,6 +19,12 @@ const NAV_ITEMS: NavItem[] = [
   { href: "/design-system", label: "Design System" },
 ];
 
+/**
+ * Global application site header component with desktop/mobile navigation drawers,
+ * emergency 1930 helpline badges, and Clerk user authentication controls.
+ *
+ * @returns React JSX element rendering the header bar
+ */
 export function SiteHeader() {
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);

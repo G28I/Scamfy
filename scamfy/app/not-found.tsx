@@ -4,6 +4,11 @@ import { SiteFooter } from "@/components/shared/site-footer";
 import { Button } from "@/components/ui/button";
 import { ShieldAlert, Search, ArrowLeft, PhoneCall } from "lucide-react";
 
+/**
+ * Custom 404 Not Found page component with return actions and helpline guidance.
+ *
+ * @returns React JSX element rendering the 404 error page
+ */
 export default function NotFound() {
   return (
     <div className="flex min-h-screen flex-col bg-background text-foreground selection:bg-primary/20">

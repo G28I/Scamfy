@@ -3,6 +3,15 @@ import { prisma } from "@/lib/prisma";
 import { ReportStatus, VerificationStatus, RiskLevel } from "@prisma/client";
 import { getAuthSession } from "@/lib/auth";
 
+/**
+ * GET /api/admin/reports
+ *
+ * Retrieves community reports for moderator triage with filtering and pagination.
+ * Requires authenticated session with 'moderator' or 'college_admin' role.
+ *
+ * @param req - The incoming Next.js request containing search query parameters (status, limit, offset)
+ * @returns JSON response containing reports list, total count, limit, and offset
+ */
 export async function GET(req: NextRequest) {
   try {
     const session = await getAuthSession(req);
@@ -97,6 +106,16 @@ export async function GET(req: NextRequest) {
   }
 }
 
+/**
+ * PATCH /api/admin/reports
+ *
+ * Applies a moderation triage action (APPROVE, REJECT, DISMISS, MERGE) to a community report
+ * and records an immutable audit log entry.
+ * Requires authenticated session with 'moderator' or 'college_admin' role.
+ *
+ * @param req - The incoming Next.js request containing reportId, action, moderatorNotes, targetPatternId, riskLevel
+ * @returns JSON response indicating status and outcome of the moderation action
+ */
 export async function PATCH(req: NextRequest) {
   try {
     const session = await getAuthSession(req);
