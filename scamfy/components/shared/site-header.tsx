@@ -4,6 +4,7 @@ import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ShieldAlert, PhoneCall, Menu, X, Shield } from "lucide-react";
+import { Show, UserButton } from "@clerk/nextjs";
 import { cn } from "@/lib/utils";
 
 interface NavItem {
@@ -102,6 +103,24 @@ export function SiteHeader() {
 
         {/* Action CTAs */}
         <div className="flex items-center gap-2.5">
+          <Show when="signed-out">
+            <Link
+              href="/sign-in"
+              className="inline-flex items-center justify-center rounded-lg border border-border bg-background px-3 py-1.5 text-xs font-semibold text-foreground hover:bg-muted transition-colors shadow-xs"
+            >
+              Sign In
+            </Link>
+          </Show>
+          <Show when="signed-in">
+            <UserButton
+              appearance={{
+                elements: {
+                  avatarBox: "h-8 w-8",
+                },
+              }}
+            />
+          </Show>
+
           <a
             href="tel:1930"
             className="inline-flex items-center gap-1.5 rounded-lg border border-red-300 bg-red-50 px-3.5 py-1.5 text-xs font-bold text-red-900 transition-colors hover:bg-red-100 dark:border-red-900/60 dark:bg-red-950/50 dark:text-red-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 shadow-xs"
@@ -148,6 +167,15 @@ export function SiteHeader() {
                 </Link>
               );
             })}
+            <Show when="signed-out">
+              <Link
+                href="/sign-in"
+                onClick={() => setMobileMenuOpen(false)}
+                className="flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-semibold bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
+              >
+                <span>Sign In to Account</span>
+              </Link>
+            </Show>
           </div>
 
           <div className="pt-2 border-t border-border flex items-center justify-between text-xs text-muted-foreground px-1">

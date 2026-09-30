@@ -1,15 +1,21 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { GET, PATCH } from "@/app/api/admin/reports/route";
 import { NextRequest } from "next/server";
-import { ReportStatus, VerificationStatus, RiskLevel, IndicatorType } from "@prisma/client";
-import { createSessionToken } from "@/lib/auth";
+import { ReportStatus, VerificationStatus, RiskLevel, IndicatorType, UserRole } from "@prisma/client";
+
+let mockClerkUserId: string | null = "clerk-mod-99";
+
+vi.mock("@clerk/nextjs/server", () => ({
+  auth: vi.fn(async () => ({
+    userId: mockClerkUserId,
+  })),
+  clerkMiddleware: vi.fn(() => () => {}),
+}));
 
 describe("Admin Moderation API Route (/api/admin/reports)", () => {
-  const modToken = createSessionToken({ userId: "mod-99", role: "moderator", email: "mod@scamfy.org" });
-  const studentToken = createSessionToken({ userId: "u-1", role: "student_user", email: "student@college.edu" });
-
   beforeEach(async () => {
     vi.restoreAllMocks();
+    mockClerkUserId = "clerk-mod-99";
     const { prisma } = await import("@/lib/prisma");
     vi.spyOn(prisma, "$transaction").mockImplementation(async (cb: unknown) => {
       if (typeof cb === "function") {
@@ -17,19 +23,40 @@ describe("Admin Moderation API Route (/api/admin/reports)", () => {
       }
       return cb;
     });
+
+    vi.spyOn(prisma.user, "findFirst").mockImplementation(((args?: { where?: { clerkUserId?: string } }) => {
+      const clerkId = args?.where?.clerkUserId;
+      if (clerkId === "clerk-mod-99") {
+        return Promise.resolve({
+          id: "mod-99",
+          clerkUserId: "clerk-mod-99",
+          email: "mod@scamfy.org",
+          role: UserRole.moderator,
+        });
+      }
+      if (clerkId === "clerk-student-1") {
+        return Promise.resolve({
+          id: "u-1",
+          clerkUserId: "clerk-student-1",
+          email: "student@college.edu",
+          role: UserRole.student_user,
+        });
+      }
+      return Promise.resolve(null);
+    }) as never);
   });
 
   describe("GET /api/admin/reports", () => {
     it("rejects unauthorized missing session with 401", async () => {
+      mockClerkUserId = null;
       const req = new NextRequest("http://localhost:3000/api/admin/reports");
       const res = await GET(req);
       expect(res.status).toBe(401);
     });
 
     it("rejects unauthorized non-moderator roles with 403", async () => {
-      const req = new NextRequest("http://localhost:3000/api/admin/reports", {
-        headers: { Authorization: `Bearer ${studentToken}` },
-      });
+      mockClerkUserId = "clerk-student-1";
+      const req = new NextRequest("http://localhost:3000/api/admin/reports");
 
       const res = await GET(req);
       expect(res.status).toBe(403);
@@ -38,9 +65,7 @@ describe("Admin Moderation API Route (/api/admin/reports)", () => {
     });
 
     it("returns 400 for invalid status query parameter", async () => {
-      const req = new NextRequest("http://localhost:3000/api/admin/reports?status=INVALID_STATUS", {
-        headers: { Authorization: `Bearer ${modToken}` },
-      });
+      const req = new NextRequest("http://localhost:3000/api/admin/reports?status=INVALID_STATUS");
 
       const res = await GET(req);
       expect(res.status).toBe(400);
@@ -81,9 +106,7 @@ describe("Admin Moderation API Route (/api/admin/reports)", () => {
       vi.spyOn(prisma.communityReport, "findMany").mockResolvedValueOnce(mockReports as never);
       vi.spyOn(prisma.communityReport, "count").mockResolvedValueOnce(1 as never);
 
-      const req = new NextRequest("http://localhost:3000/api/admin/reports?status=PENDING", {
-        headers: { Authorization: `Bearer ${modToken}` },
-      });
+      const req = new NextRequest("http://localhost:3000/api/admin/reports?status=PENDING");
 
       const res = await GET(req);
       expect(res.status).toBe(200);
@@ -100,9 +123,7 @@ describe("Admin Moderation API Route (/api/admin/reports)", () => {
       const findManySpy = vi.spyOn(prisma.communityReport, "findMany").mockResolvedValueOnce([] as never);
       vi.spyOn(prisma.communityReport, "count").mockResolvedValueOnce(0 as never);
 
-      const req = new NextRequest("http://localhost:3000/api/admin/reports?limit=500&offset=-10", {
-        headers: { Authorization: `Bearer ${modToken}` },
-      });
+      const req = new NextRequest("http://localhost:3000/api/admin/reports?limit=500&offset=-10");
 
       const res = await GET(req);
       expect(res.status).toBe(200);
@@ -117,6 +138,7 @@ describe("Admin Moderation API Route (/api/admin/reports)", () => {
 
   describe("PATCH /api/admin/reports", () => {
     it("rejects unauthorized missing session with 401", async () => {
+      mockClerkUserId = null;
       const req = new NextRequest("http://localhost:3000/api/admin/reports", {
         method: "PATCH",
         body: JSON.stringify({ reportId: "rep-1", action: "APPROVE" }),
@@ -127,9 +149,9 @@ describe("Admin Moderation API Route (/api/admin/reports)", () => {
     });
 
     it("rejects unauthorized non-moderator roles with 403", async () => {
+      mockClerkUserId = "clerk-student-1";
       const req = new NextRequest("http://localhost:3000/api/admin/reports", {
         method: "PATCH",
-        headers: { Authorization: `Bearer ${studentToken}` },
         body: JSON.stringify({ reportId: "rep-1", action: "APPROVE" }),
       });
 
@@ -140,7 +162,6 @@ describe("Admin Moderation API Route (/api/admin/reports)", () => {
     it("rejects invalid riskLevel with 400", async () => {
       const req = new NextRequest("http://localhost:3000/api/admin/reports", {
         method: "PATCH",
-        headers: { Authorization: `Bearer ${modToken}` },
         body: JSON.stringify({ reportId: "rep-1", action: "APPROVE", riskLevel: "EXTREME_DANGER" }),
       });
 
@@ -174,7 +195,6 @@ describe("Admin Moderation API Route (/api/admin/reports)", () => {
       const req = new NextRequest("http://localhost:3000/api/admin/reports", {
         method: "PATCH",
         headers: {
-          Authorization: `Bearer ${modToken}`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
@@ -244,7 +264,6 @@ describe("Admin Moderation API Route (/api/admin/reports)", () => {
 
       const req = new NextRequest("http://localhost:3000/api/admin/reports", {
         method: "PATCH",
-        headers: { Authorization: `Bearer ${modToken}` },
         body: JSON.stringify({
           reportId: "rep-2",
           action: "REJECT",
@@ -302,7 +321,6 @@ describe("Admin Moderation API Route (/api/admin/reports)", () => {
 
       const req = new NextRequest("http://localhost:3000/api/admin/reports", {
         method: "PATCH",
-        headers: { Authorization: `Bearer ${modToken}` },
         body: JSON.stringify({
           reportId: "rep-3",
           action: "MERGE",

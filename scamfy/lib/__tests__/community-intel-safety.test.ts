@@ -1,14 +1,23 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { IndicatorType, RiskLevel, VerificationStatus, ReportStatus } from "@prisma/client";
+import { IndicatorType, RiskLevel, VerificationStatus, ReportStatus, UserRole } from "@prisma/client";
 import { ingestCommunityReport, listPublicPatterns } from "@/lib/services/pattern-service";
 import { GET as getPublicPatterns } from "@/app/api/patterns/route";
 import { PATCH as patchAdminReport } from "@/app/api/admin/reports/route";
 import { NextRequest } from "next/server";
-import { createSessionToken } from "@/lib/auth";
+
+let mockClerkUserId: string | null = "clerk-mod-1";
+
+vi.mock("@clerk/nextjs/server", () => ({
+  auth: vi.fn(async () => ({
+    userId: mockClerkUserId,
+  })),
+  clerkMiddleware: vi.fn(() => () => {}),
+}));
 
 describe("Critical Safety & Provenance Requirements — Community Intelligence (Phase 7)", () => {
   beforeEach(async () => {
     vi.restoreAllMocks();
+    mockClerkUserId = "clerk-mod-1";
     const { prisma } = await import("@/lib/prisma");
     vi.spyOn(prisma, "$transaction").mockImplementation(async (cb: unknown) => {
       if (typeof cb === "function") {
@@ -16,6 +25,27 @@ describe("Critical Safety & Provenance Requirements — Community Intelligence (
       }
       return cb;
     });
+
+    vi.spyOn(prisma.user, "findFirst").mockImplementation(((args?: { where?: { clerkUserId?: string } }) => {
+      const clerkId = args?.where?.clerkUserId;
+      if (clerkId === "clerk-mod-1") {
+        return Promise.resolve({
+          id: "moderator-1",
+          clerkUserId: "clerk-mod-1",
+          email: "mod@scamfy.org",
+          role: UserRole.moderator,
+        });
+      }
+      if (clerkId === "clerk-admin-1") {
+        return Promise.resolve({
+          id: "admin-1",
+          clerkUserId: "clerk-admin-1",
+          email: "admin@scamfy.org",
+          role: UserRole.college_admin,
+        });
+      }
+      return Promise.resolve(null);
+    }) as never);
   });
 
   // Safety Requirement 1: Unverified community report is clearly labeled unverified
@@ -251,12 +281,11 @@ describe("Critical Safety & Provenance Requirements — Community Intelligence (
     const updatePatternSpy = vi.spyOn(prisma.scamPattern, "update").mockResolvedValueOnce({} as never);
     vi.spyOn(prisma.auditEvent, "create").mockResolvedValueOnce({} as never);
 
-    const modToken = createSessionToken({ userId: "moderator-1", role: "moderator" });
+    mockClerkUserId = "clerk-mod-1";
 
     const req = new NextRequest("http://localhost:3000/api/admin/reports", {
       method: "PATCH",
       headers: {
-        Authorization: `Bearer ${modToken}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
@@ -302,10 +331,9 @@ describe("Critical Safety & Provenance Requirements — Community Intelligence (
     const updatePatternSpy = vi.spyOn(prisma.scamPattern, "update").mockResolvedValueOnce({} as never);
     vi.spyOn(prisma.auditEvent, "create").mockResolvedValueOnce({} as never);
 
-    const modToken = createSessionToken({ userId: "moderator-1", role: "moderator" });
+    mockClerkUserId = "clerk-mod-1";
     const req = new NextRequest("http://localhost:3000/api/admin/reports", {
       method: "PATCH",
-      headers: { Authorization: `Bearer ${modToken}` },
       body: JSON.stringify({
         reportId: "rep-fp-1",
         action: "DISMISS",
@@ -346,10 +374,9 @@ describe("Critical Safety & Provenance Requirements — Community Intelligence (
     const updatePatternSpy = vi.spyOn(prisma.scamPattern, "update").mockResolvedValue({} as never);
     vi.spyOn(prisma.auditEvent, "create").mockResolvedValueOnce({} as never);
 
-    const modToken = createSessionToken({ userId: "moderator-1", role: "moderator" });
+    mockClerkUserId = "clerk-mod-1";
     const req = new NextRequest("http://localhost:3000/api/admin/reports", {
       method: "PATCH",
-      headers: { Authorization: `Bearer ${modToken}` },
       body: JSON.stringify({
         reportId: "rep-dup-1",
         action: "MERGE",
@@ -398,10 +425,9 @@ describe("Critical Safety & Provenance Requirements — Community Intelligence (
     vi.spyOn(prisma.scamPattern, "update").mockResolvedValueOnce({} as never);
     const auditSpy = vi.spyOn(prisma.auditEvent, "create").mockResolvedValueOnce({} as never);
 
-    const adminToken = createSessionToken({ userId: "admin-1", role: "college_admin" });
+    mockClerkUserId = "clerk-admin-1";
     const req = new NextRequest("http://localhost:3000/api/admin/reports", {
       method: "PATCH",
-      headers: { Authorization: `Bearer ${adminToken}` },
       body: JSON.stringify({
         reportId: "rep-audit-test",
         action: "APPROVE",

@@ -1,15 +1,21 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { POST, GET } from "@/app/api/reports/route";
 import { NextRequest } from "next/server";
-import { IndicatorType, RiskLevel, VerificationStatus } from "@prisma/client";
-import { createSessionToken } from "@/lib/auth";
+import { IndicatorType, RiskLevel, VerificationStatus, UserRole } from "@prisma/client";
+
+let mockClerkUserId: string | null = "user-123";
+
+vi.mock("@clerk/nextjs/server", () => ({
+  auth: vi.fn(async () => ({
+    userId: mockClerkUserId,
+  })),
+  clerkMiddleware: vi.fn(() => () => {}),
+}));
 
 describe("Community Reports BFF Route (/api/reports)", () => {
-  const userToken = createSessionToken({ userId: "user-123", role: "student_user", email: "user@college.edu" });
-  const rateLimitToken = createSessionToken({ userId: "ratelimit-user", role: "student_user" });
-
   beforeEach(async () => {
     vi.restoreAllMocks();
+    mockClerkUserId = "user-123";
     const { prisma } = await import("@/lib/prisma");
     vi.spyOn(prisma, "$transaction").mockImplementation(async (cb: unknown) => {
       if (typeof cb === "function") {
@@ -17,9 +23,17 @@ describe("Community Reports BFF Route (/api/reports)", () => {
       }
       return cb;
     });
+
+    vi.spyOn(prisma.user, "findFirst").mockResolvedValue({
+      id: "user-123",
+      clerkUserId: "user-123",
+      email: "user@college.edu",
+      role: UserRole.student_user,
+    } as never);
   });
 
   it("rejects missing authentication on POST with status 401", async () => {
+    mockClerkUserId = null;
     const req = new NextRequest("http://localhost:3000/api/reports", {
       method: "POST",
       body: JSON.stringify({
@@ -38,6 +52,7 @@ describe("Community Reports BFF Route (/api/reports)", () => {
   });
 
   it("rejects missing authentication on GET with status 401", async () => {
+    mockClerkUserId = null;
     const req = new NextRequest("http://localhost:3000/api/reports");
     const res = await GET(req);
     expect(res.status).toBe(401);
@@ -56,7 +71,6 @@ describe("Community Reports BFF Route (/api/reports)", () => {
       }),
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${userToken}`,
       },
     });
 
@@ -78,7 +92,6 @@ describe("Community Reports BFF Route (/api/reports)", () => {
       }),
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${userToken}`,
       },
     });
 
@@ -128,7 +141,6 @@ describe("Community Reports BFF Route (/api/reports)", () => {
       }),
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${userToken}`,
       },
     });
 
@@ -155,7 +167,6 @@ describe("Community Reports BFF Route (/api/reports)", () => {
       }),
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${userToken}`,
       },
     });
 
@@ -182,9 +193,7 @@ describe("Community Reports BFF Route (/api/reports)", () => {
 
     vi.spyOn(prisma.communityReport, "findMany").mockResolvedValueOnce(mockReports as never);
 
-    const req = new NextRequest("http://localhost:3000/api/reports", {
-      headers: { Authorization: `Bearer ${userToken}` },
-    });
+    const req = new NextRequest("http://localhost:3000/api/reports");
 
     const res = await GET(req);
     expect(res.status).toBe(200);
@@ -195,6 +204,7 @@ describe("Community Reports BFF Route (/api/reports)", () => {
 
   it("enforces rate limit of 10 requests per minute per user/ip", async () => {
     const { prisma } = await import("@/lib/prisma");
+    mockClerkUserId = "ratelimit-user";
 
     const mockPattern = { id: "p-1", reportCount: 1 };
     const mockReport = { id: "r-1", status: "PENDING" };
@@ -213,7 +223,6 @@ describe("Community Reports BFF Route (/api/reports)", () => {
         }),
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${rateLimitToken}`,
           "x-real-ip": "10.0.0.1",
         },
       });
@@ -232,7 +241,6 @@ describe("Community Reports BFF Route (/api/reports)", () => {
       }),
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${rateLimitToken}`,
         "x-real-ip": "10.0.0.1",
       },
     });
