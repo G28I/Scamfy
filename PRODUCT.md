@@ -71,6 +71,6 @@ Technical constraints:
 
 ## Accessibility & Inclusion
 
-- Full WCAG AA color contrast ratios ($\ge 4.5:1$ for normal text, $\ge 3:1$ for badges/graphics) across all 5 risk tiers in dark and light themes.
+- Full WCAG AA color contrast ratios ($\ge 4.5:1$ for badge labels and normal text, $\ge 3:1$ for large text and non-text graphics) across all 5 risk tiers in dark and light themes.
 - Touch targets $\ge 36\text{--}44\text{px}$ and mobile viewport overflow safety.
 - Modal focus management, keyboard escape handling, and screen-reader accessible labels on all form inputs.

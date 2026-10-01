@@ -43,6 +43,10 @@ Thumbs.db
 next-env.d.ts
 .agents/
 .gemini/
-.claude/
+.claude/*
+!.claude/skills/
+.claude/skills/*
+!.claude/skills/ui-ux-pro-max/
+!.claude/skills/ui-ux-pro-max/**
 .codex/
 agent/

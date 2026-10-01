@@ -83,3 +83,12 @@ def test_benign_official_salary_notification():
 
     assert res.overall_risk == RiskLevel.SAFE
     assert not any("MULE" in s.id for s in res.signals)
+
+
+def test_mistaken_transfer_unrelated_request_does_not_trigger_mule_reversal():
+    text = "I accidentally transferred Rs. 500 yesterday. Please send documents and the report to my email."
+    entities = extract_all_entities(text)
+    res = evaluate_message(text, entities)
+
+    assert not any(s.id == "RULE-OVERPAYMENT-REVERSAL-MULE" for s in res.signals)
+

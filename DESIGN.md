@@ -127,7 +127,7 @@ Scamfy employs a dual-theme palette anchored by deep obsidian slates and calibra
 - **Caution Tier (Amber)** (`#fbbf24` text / `#291804` bg in Dark; `#92400e` text / `#fffbeb` bg in Light): Unverified promotional patterns, missing technical verification.
 - **Suspicious Tier (Orange)** (`#fb923c` text / `#2d1306` bg in Dark; `#9a3412` text / `#fff7ed` bg in Light): Moderate social engineering tactics, generic shorteners, unverified UPI IDs.
 - **High Risk Tier (Rose)** (`#fb7185` text / `#2e0813` bg in Dark; `#9f1239` text / `#fff1f2` bg in Light): Prepaid task deposits, phishing APKs, impersonation extortion.
-- **Critical Risk Tier (Crimson)** (`#ef4444` border / `#450a0a` bg in Dark; `#dc2626` text / `#450a0a` bg in Light): Money-mule recruitment, account rental, active UPI PIN collect traps, digital arrest demands.
+- **Critical Risk Tier (Crimson)** (`#ef4444` border / `#450a0a` bg in Dark; `#dc2626` text / `#fef2f2` bg in Light): Money-mule recruitment, account rental, active UPI PIN collect traps, digital arrest demands.
 
 ### Named Rules
 **The Rarity of Red Rule.** Crimson and rose tones are strictly reserved for high-risk threat classification, emergency warnings, and 1930 helpline banners. Decorative or non-critical UI elements must never use red hues.

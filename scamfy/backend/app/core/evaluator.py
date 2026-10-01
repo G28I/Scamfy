@@ -241,8 +241,8 @@ RULES = [
         "name": "Accidental Overpayment & Third-Party Reversal Lure",
         "description": "The sender claims to have sent excess money by mistake and urgently requests a refund or transfer to a different account or UPI ID.",
         "patterns": [
-            r"(?:sent|transferred|credited|paid)\s+(?:(?:rs\.?|₹|inr)?\s*[\d,]+|excess|extra|money|amount|funds).*?(?:mistakenly|accidentally|wrongly|by\s*mistake|in\s*error).*?(?:send|transfer|refund|return|pay\s*back)",
-            r"(?:mistakenly|accidentally|wrongly|by\s*mistake)\s+(?:sent|transferred|credited|paid)\s+(?:(?:rs\.?|₹|inr)?\s*[\d,]+|excess|extra|money|amount|funds).*?(?:send|transfer|refund|return|pay\s*back)",
+            r"(?:sent|transferred|credited|paid)\s+(?:(?:rs\.?|₹|inr)?\s*[\d,]+|excess|extra|money|amount|funds)\b.{0,60}?(?:mistakenly|accidentally|wrongly|by\s*mistake|in\s*error).{0,80}?(?:(?:send|transfer|refund|return|pay)(?:\s+(?:it|them|the\s*(?:excess|extra|difference|amount|money|funds|rest)|(?:rs\.?|₹|inr)?\s*[\d,]+))?\s*back|(?:send|transfer|refund|return|pay\s*back)\s+(?:the\s*(?:excess|extra|difference|amount|money|funds|rest)|(?:rs\.?|₹|inr)?\s*[\d,]+|it\s+to|them\s+to))",
+            r"(?:mistakenly|accidentally|wrongly|by\s*mistake)\s+(?:sent|transferred|credited|paid)\s+(?:(?:rs\.?|₹|inr)?\s*[\d,]+|excess|extra|money|amount|funds)\b.{0,80}?(?:(?:send|transfer|refund|return|pay)(?:\s+(?:it|them|the\s*(?:excess|extra|difference|amount|money|funds|rest)|(?:rs\.?|₹|inr)?\s*[\d,]+))?\s*back|(?:send|transfer|refund|return|pay\s*back)\s+(?:the\s*(?:excess|extra|difference|amount|money|funds|rest)|(?:rs\.?|₹|inr)?\s*[\d,]+|it\s+to|them\s+to))",
             r"(?:refund|return|send\s*back|transfer\s*back)\s+(?:extra|excess|difference|money|amount|funds).*?(?:to\s+)?(?:this|another|different|other|my\s*friend)",
             r"(?:keep|deduct)\s+(?:(?:rs\.?|₹|inr)?\s*[\d,]+|\d+%\s*|some\s*(?:money|amount|cash)|commission|cut|share|part)\s*(?:for\s*your\s*(?:trouble|help))?.*?(?:send|refund|transfer|forward)\s+(?:back|the\s*rest|remaining)",
         ],
