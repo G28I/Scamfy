@@ -49,7 +49,7 @@ export function PreTransferWarningModal({
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent
-        className="sm:max-w-2xl border-rose-500/40 bg-background/95 backdrop-blur-md shadow-2xl p-6"
+        className="max-h-[90vh] overflow-y-auto sm:max-w-2xl border-rose-500/40 bg-background/95 backdrop-blur-md shadow-2xl p-6"
         aria-describedby="pre-transfer-warning-description"
       >
         <DialogHeader className="space-y-3 text-left">
