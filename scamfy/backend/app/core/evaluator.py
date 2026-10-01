@@ -194,6 +194,65 @@ RULES = [
             "Check links using a safe URL scanner before opening.",
         ],
     },
+    {
+        "id": "RULE-MONEY-MULE-FORWARDING",
+        "category": "MONEY_MULE_RECRUITMENT",
+        "severity": RiskLevel.CRITICAL,
+        "name": "Money Mule Fund Forwarding Lure",
+        "description": "The message solicits receiving third-party funds into a personal bank or UPI account and forwarding or converting them in exchange for a commission.",
+        "patterns": [
+            r"(?:receive|accept|get|deposit)\s+.*?(?:in|into|to)\s+.*?(?:bank|savings|current|upi|account|wallet|vpa).*?(?:forward|transfer|send|convert|withdraw|pass)",
+            r"(?:transfer|forward|send|wire)\s+.*?(?:remaining|rest|balance|funds|amount).*?(?:keep|take|deduct|retain)\s+.*?(?:commission|cut|share|profit|percent|%)",
+            r"(?:keep|earn|take|get|deduct)\s+.*?(?:commission|cut|share|profit|percent|%).*?(?:transfer|forward|send|wire|return)\s+.*?(?:to|back|remaining|balance|rest|upi|bank|account)",
+            r"(?:payment|transfer|financial)\s*assistant.*?(?:receive|accept|deposit).*?(?:forward|send|crypto|usdt|cash|atm)",
+            r"(?:buy|purchase|convert\s*(?:to|into)?)\s+.*?(?:usdt|crypto|gift\s*cards?|bitcoins?)\s+.*?(?:with|using|from)\s+.*?(?:received|credited|deposited|funds|money)",
+            r"(?:deposit|receive|get)\s+.*?(?:into|in|to)\s+.*?(?:account|bank|wallet).*?(?:buy|convert|purchase)\s+.*?(?:usdt|crypto|gift\s*card)",
+        ],
+        "tactics": ["Commission / Easy Money Lure", "Layering / Mule Exploitation"],
+        "recommendations": [
+            "CRITICAL: Do NOT receive or forward third-party funds through your personal bank account or UPI.",
+            "Allowing your account to route unsolicited funds risks immediate bank debit holds and law enforcement scrutiny.",
+            "Refuse the proposal and do not touch, spend, or transfer any unsolicited funds.",
+        ],
+    },
+    {
+        "id": "RULE-ACCOUNT-RENTAL-P2P",
+        "category": "MONEY_MULE_RECRUITMENT",
+        "severity": RiskLevel.CRITICAL,
+        "name": "Bank Account / UPI Rental Scheme",
+        "description": "Solicits renting, leasing, or sharing personal or corporate bank accounts, current accounts, or UPI handles for gaming payouts or crypto P2P arbitrage.",
+        "patterns": [
+            r"(?:rent|lease|share|provide|lend|give)\s+.*?(?:bank|savings|current|corporate|upi|crypto)\s+.*?(?:account|id|handle|vpa).*?(?:daily|weekly|monthly|commission|crypto|gaming|p2p|arbitrage)",
+            r"(?:need|wanted|looking\s*for)\s+.*?(?:current|savings|bank)\s*(?:account|accounts).*?(?:for\s+)?(?:p2p|crypto|arbitrage|gaming|commission|daily\s*rent)",
+            r"(?:earn|get|make)\s+.*?(?:daily|per\s*day|monthly).*?(?:renting|providing|giving|sharing)\s+.*?(?:bank\s*)?account",
+            r"(?:daily|weekly)\s*rent\s+.*?(?:for|of)\s+.*?(?:bank|current|savings|upi)\s*account",
+        ],
+        "tactics": ["Account Rental Lure", "Identity Shielding Exploitation"],
+        "recommendations": [
+            "Never rent, lease, or share your bank account, NetBanking, or UPI credentials with third parties.",
+            "Account holders remain legally and financially responsible for all transactions passing through their accounts.",
+            "Report and block any contact soliciting account sharing or rental.",
+        ],
+    },
+    {
+        "id": "RULE-OVERPAYMENT-REVERSAL-MULE",
+        "category": "MONEY_MULE_RECRUITMENT",
+        "severity": RiskLevel.CRITICAL,
+        "name": "Accidental Overpayment & Third-Party Reversal Lure",
+        "description": "The sender claims to have sent excess money by mistake and urgently requests a refund or transfer to a different account or UPI ID.",
+        "patterns": [
+            r"(?:sent|transferred|credited|paid)\s+.*?(?:mistakenly|accidentally|wrongly|by\s*mistake|in\s*error).*?(?:send|transfer|refund|return|pay\s*back)",
+            r"(?:mistakenly|accidentally|wrongly|by\s*mistake)\s+.*?(?:sent|transferred|credited|paid).*?(?:send|transfer|refund|return|pay\s*back)",
+            r"(?:refund|return|send\s*back|transfer\s*back)\s+.*?(?:extra|excess|difference|money|amount|funds).*?(?:to\s+)?(?:this|another|different|other|my\s*friend)",
+            r"(?:keep|deduct)\s+.*?(?:for\s*your\s*(?:trouble|help))?.*?(?:send|refund|transfer)\s+.*?(?:back|the\s*rest|remaining)",
+        ],
+        "tactics": ["Fake Mistake Deception", "Third-Party Routing Trap"],
+        "recommendations": [
+            "Do NOT transfer money back to a different UPI ID or account provided by an unknown caller.",
+            "Instruct the sender to raise an official dispute through their own banking app for authorized reversal.",
+            "If unsolicited funds were credited, notify your bank immediately in writing to place a temporary debit hold on that transaction amount.",
+        ],
+    },
 ]
 
 
@@ -335,10 +394,19 @@ def evaluate_message(text: str, entities: ExtractedEntities) -> AnalyzeResponse:
             )
             highest_severity_rank = max(highest_severity_rank, severity_order[RiskLevel.CAUTION])
 
-    # Determine overall risk
+    # Determine overall risk and primary category (prioritizing highest severity matched rule)
     overall_risk = rank_to_severity[highest_severity_rank]
-    primary_category = categories[0] if categories else "INFORMATIONAL_OR_UNKNOWN"
-    secondary_categories = list(dict.fromkeys(categories[1:]))
+    if matched_rules:
+        highest_rule = max(matched_rules, key=lambda r: severity_order[r["severity"]])
+        primary_category = highest_rule["category"]
+        other_categories = [c for c in categories if c != primary_category]
+        secondary_categories = list(dict.fromkeys(other_categories))
+    elif categories:
+        primary_category = categories[0]
+        secondary_categories = list(dict.fromkeys(categories[1:]))
+    else:
+        primary_category = "INFORMATIONAL_OR_UNKNOWN"
+        secondary_categories = []
 
     # Missing evidence per DET-05
     missing_evidence = detect_missing_evidence(text, entities, matched_rules)

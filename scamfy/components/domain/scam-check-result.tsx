@@ -27,6 +27,9 @@ import { RiskBadge } from "@/components/domain/risk-badge";
 import { ConfidenceMeter } from "@/components/domain/confidence-meter";
 import { IndicatorTag } from "@/components/domain/indicator-tag";
 import { UrgencyBanner } from "@/components/domain/urgency-banner";
+import { PreTransferWarningModal } from "@/components/domain/pre-transfer-warning-modal";
+import { MuleReceivedFundsGuide } from "@/components/domain/mule-received-funds-guide";
+import { isMoneyMuleRisk } from "@/lib/mule";
 import type { AnalysisResultDto } from "@/app/api/check/route";
 import { cn } from "@/lib/utils";
 
@@ -49,6 +52,9 @@ export function ScamCheckResult({
   ...props
 }: ScamCheckResultProps) {
   const [copiedSummary, setCopiedSummary] = React.useState(false);
+  const isMuleThreat = React.useMemo(() => isMoneyMuleRisk(result), [result]);
+  const [showMuleWarningModal, setShowMuleWarningModal] = React.useState(isMuleThreat);
+  const [showReceivedFundsGuide, setShowReceivedFundsGuide] = React.useState(false);
 
   const isEmergency = result.overall_risk === "CRITICAL";
   const isHighRisk = result.overall_risk === "HIGH_RISK";
@@ -101,8 +107,53 @@ export function ScamCheckResult({
 
   return (
     <div className={cn("w-full space-y-6 animate-in fade-in-50 duration-300", className)} {...props}>
+      {/* 0. Pre-Transfer Warning Modal (MULE-02, UX-02) */}
+      {isMuleThreat && (
+        <PreTransferWarningModal
+          isOpen={showMuleWarningModal}
+          onOpenChange={setShowMuleWarningModal}
+          result={result}
+          onOpenReceivedFundsGuide={() => setShowReceivedFundsGuide(true)}
+        />
+      )}
+
+      {/* 0.1 Dedicated Money-Mule Risk Banner */}
+      {isMuleThreat && (
+        <div className="rounded-xl border border-rose-500/40 bg-rose-500/10 p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div className="space-y-1">
+            <div className="flex items-center gap-2 font-bold text-rose-500 text-sm">
+              <AlertTriangle className="h-4 w-4" />
+              <span>Money-Mule / Account Rental Risk Detected</span>
+            </div>
+            <p className="text-xs text-muted-foreground max-w-xl leading-relaxed">
+              You are being asked to receive and forward funds or share your account credentials. Doing so risks immediate bank debit holds and investigation under cybercrime laws.
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-2 shrink-0">
+            <Button
+              type="button"
+              size="sm"
+              variant="destructive"
+              onClick={() => setShowMuleWarningModal(true)}
+              className="text-xs font-semibold bg-rose-600 hover:bg-rose-700 text-white"
+            >
+              Pre-Transfer Warning
+            </Button>
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              onClick={() => setShowReceivedFundsGuide((prev) => !prev)}
+              className="text-xs font-semibold border-rose-500/30 hover:bg-rose-500/10"
+            >
+              {showReceivedFundsGuide ? "Hide Received Funds Protocol" : "Received Unsolicited Money? (Guide)"}
+            </Button>
+          </div>
+        </div>
+      )}
+
       {/* 1. Emergency 1930 Headline Alert (UX-02) */}
-      {isEmergency && (
+      {isEmergency && !isMuleThreat && (
         <UrgencyBanner
           title="Critical Scam Threat Detected"
           description={
@@ -121,7 +172,7 @@ export function ScamCheckResult({
         />
       )}
 
-      {isHighRisk && !isEmergency && (
+      {isHighRisk && !isEmergency && !isMuleThreat && (
         <UrgencyBanner
           title="High-Risk Fraud Pattern Identified"
           description={
@@ -404,12 +455,22 @@ export function ScamCheckResult({
           )}
         </CardFooter>
       </Card>
+
+      {/* 11. Collapsible/Expandable Received Funds Emergency Guide */}
+      {isMuleThreat && showReceivedFundsGuide && (
+        <div className="pt-2 animate-in fade-in-50 slide-in-from-top-4 duration-300">
+          <MuleReceivedFundsGuide onComplete={() => setShowReceivedFundsGuide(false)} />
+        </div>
+      )}
     </div>
   );
 }
 
 function formatCategoryTitle(category: string): string {
   switch (category) {
+    case "MONEY_MULE_RECRUITMENT":
+    case "CAT_MONEY_MULE":
+      return "Money-Mule Solicitation & Fund Routing Scheme";
     case "UPI_REVERSE_PAYMENT_FRAUD":
       return "UPI PIN Reverse Payment Lure";
     case "UTILITY_ELECTRICITY_FRAUD":
