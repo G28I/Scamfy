@@ -28,17 +28,17 @@
 
 ---
 
-## Phase 7 Execution Checklist (Scam Pattern Database & Community Reporting)
-- [x] Task 1: Indicator Normalizer & Pattern Deduplication Service (`lib/indicators.ts`, `lib/services/pattern-service.ts`, `lib/__tests__/pattern-service.test.ts`)
-- [x] Task 2: Community Report Submission BFF Route & Modal Dialog (`app/api/reports/route.ts`, `components/domain/report-indicator-dialog.tsx`, `lib/__tests__/reports-route.test.ts`)
-- [x] Task 3: Public Community Intelligence Directory (`app/api/patterns/route.ts`, `app/intel/page.tsx`, `components/__tests__/intel-directory.test.tsx`)
-- [x] Task 4: Moderator Review API & Audit Logging Console (`app/api/admin/reports/route.ts`, `components/domain/moderation-queue.tsx`, `lib/__tests__/moderation-route.test.ts`)
-- [x] Task 5: End-to-End Verification & Verification Record (`scripts/verify.ps1`, `lib/__tests__/community-intel-safety.test.ts`)
+## Phase 8 Execution Checklist (Money-Mule Protection & Transfer Warnings)
+- [ ] Task 1: Backend Deterministic Mule Rules & Pattern Detection Engine (`backend/app/core/evaluator.py`, `backend/app/core/extractors.py`, `backend/tests/test_mule_rules.py`)
+- [ ] Task 2: Frontend Threat Analysis BFF Integration & Types (`lib/schemas/index.ts`, `app/api/check/route.ts`, `lib/__tests__/mule-helpers.test.ts`)
+- [ ] Task 3: Interruptive Pre-Transfer Warning Modal & Safe Action Directives (`components/domain/pre-transfer-warning-modal.tsx`, `components/__tests__/pre-transfer-warning-modal.test.tsx`)
+- [ ] Task 4: Interactive Guided Workflow for Received Funds & Evidence Preservation (`components/domain/mule-received-funds-guide.tsx`, `app/mule-protection/page.tsx`, `components/__tests__/mule-received-funds-guide.test.tsx`)
+- [ ] Task 5: Integration into Scam Check Results & 6-Gate Verification Suite (`components/domain/scam-check-result.tsx`, `components/__tests__/mule-integration.test.tsx`, `scripts/verify.ps1`)
 
 ---
 
 ## Immediate Next Actions
-Phase 7 complete. Ready to plan Phase 8 (Money-Mule Protection & Transfer Warnings) via `/gsd-plan-phase 8`.
+Phase 8 plan generated and verified. Ready to execute Phase 8 via `/gsd-execute-phase 8`.
 
 
 
