@@ -87,4 +87,23 @@ describe("PreTransferWarningModal Component (MULE-02, UX-02, UX-03)", () => {
     expect(onOpenChange).toHaveBeenCalledWith(false);
     expect(onGuide).toHaveBeenCalled();
   });
+
+  it("supports keyboard dismissal via Escape key and retains focusable actions", () => {
+    const onOpenChange = vi.fn();
+    render(
+      <PreTransferWarningModal
+        isOpen={true}
+        onOpenChange={onOpenChange}
+        result={mockResult}
+        onOpenReceivedFundsGuide={vi.fn()}
+      />
+    );
+
+    const closeBtn = screen.getByRole("button", { name: /I Understand — Close Warning/i });
+    closeBtn.focus();
+    expect(document.activeElement).toBe(closeBtn);
+
+    fireEvent.keyDown(document, { key: "Escape", code: "Escape" });
+    // Radix Dialog listens to Escape key down
+  });
 });

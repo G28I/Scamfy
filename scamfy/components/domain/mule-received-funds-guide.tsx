@@ -209,10 +209,11 @@ export function MuleReceivedFundsGuide({
 
             <div className="grid gap-3 sm:grid-cols-2">
               <div>
-                <label className="text-xs font-semibold text-foreground block mb-1">
+                <label htmlFor="account-holder-name" className="text-xs font-semibold text-foreground block mb-1">
                   Account Holder Name
                 </label>
                 <input
+                  id="account-holder-name"
                   type="text"
                   placeholder="e.g. Rahul Sharma"
                   value={formData.accountHolderName}
@@ -222,10 +223,11 @@ export function MuleReceivedFundsGuide({
               </div>
 
               <div>
-                <label className="text-xs font-semibold text-foreground block mb-1">
+                <label htmlFor="bank-name" className="text-xs font-semibold text-foreground block mb-1">
                   Bank Name
                 </label>
                 <input
+                  id="bank-name"
                   type="text"
                   placeholder="e.g. State Bank of India / HDFC Bank"
                   value={formData.bankName}
@@ -235,10 +237,11 @@ export function MuleReceivedFundsGuide({
               </div>
 
               <div>
-                <label className="text-xs font-semibold text-foreground block mb-1">
+                <label htmlFor="account-number" className="text-xs font-semibold text-foreground block mb-1">
                   Account Number
                 </label>
                 <input
+                  id="account-number"
                   type="text"
                   placeholder="e.g. 30012345678"
                   value={formData.accountNumber}
@@ -248,10 +251,11 @@ export function MuleReceivedFundsGuide({
               </div>
 
               <div>
-                <label className="text-xs font-semibold text-foreground block mb-1">
+                <label htmlFor="disputed-amount" className="text-xs font-semibold text-foreground block mb-1">
                   Disputed Amount (₹)
                 </label>
                 <input
+                  id="disputed-amount"
                   type="text"
                   placeholder="e.g. 45,000"
                   value={formData.amount}
@@ -261,10 +265,11 @@ export function MuleReceivedFundsGuide({
               </div>
 
               <div>
-                <label className="text-xs font-semibold text-foreground block mb-1">
+                <label htmlFor="transaction-ref-or-utr" className="text-xs font-semibold text-foreground block mb-1">
                   Transaction UTR / Reference No.
                 </label>
                 <input
+                  id="transaction-ref-or-utr"
                   type="text"
                   placeholder="e.g. UPI/429183928193 or IMPS-..."
                   value={formData.transactionRefOrUtr}
@@ -274,10 +279,11 @@ export function MuleReceivedFundsGuide({
               </div>
 
               <div>
-                <label className="text-xs font-semibold text-foreground block mb-1">
+                <label htmlFor="sender-identifier" className="text-xs font-semibold text-foreground block mb-1">
                   Sender Handle / Number (if known)
                 </label>
                 <input
+                  id="sender-identifier"
                   type="text"
                   placeholder="e.g. fraudster@okhdfcbank / +919876543210"
                   value={formData.senderIdentifier}

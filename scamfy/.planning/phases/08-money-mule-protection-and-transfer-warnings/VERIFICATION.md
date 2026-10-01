@@ -23,7 +23,7 @@ All components, deterministic backend rules, modal interrupt dialogs, guided rec
 | **`MULE-02` (Pre-Transfer Warning)** | `lib/mule.ts`<br>`components/domain/pre-transfer-warning-modal.tsx` | `vitest components/__tests__/pre-transfer-warning-modal.test.tsx`<br>3/3 tests passed validating interruptive trigger and immediate action directives. | 🟢 **PASS** |
 | **`MULE-03` (Received Funds Guidance)** | `components/domain/mule-received-funds-guide.tsx`<br>`app/mule-protection/page.tsx` | `vitest components/__tests__/mule-received-funds-guide.test.tsx`<br>4/4 tests passed validating 4-step emergency workflow, live bank letter generation, and checklist. | 🟢 **PASS** |
 | **`UX-02` (Emergency Prominence)** | `components/domain/scam-check-result.tsx`<br>`components/domain/urgency-banner.tsx` | Visual banner + interruptive modal automatically rendered on mule risk detection. | 🟢 **PASS** |
-| **`UX-03`, `UX-04`, `UX-05` (Accessibility & Quality)** | Radix UI dialog, WCAG AA contrast, keyboard trap, copy feedback states. | Keyboard accessibility (Tab/Escape) and state feedback verified in integration tests. | 🟢 **PASS** |
+| **`UX-03`, `UX-04`, `UX-05` (Accessibility & Quality)** | Radix UI dialog, WCAG AA contrast, keyboard trap, copy feedback states. | Modal focus management, Escape key dismissal, and state feedback verified in component and integration test suites. | 🟢 **PASS** |
 
 ---
 

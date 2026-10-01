@@ -201,9 +201,9 @@ RULES = [
         "name": "Money Mule Fund Forwarding Lure",
         "description": "The message solicits receiving third-party funds into a personal bank or UPI account and forwarding or converting them in exchange for a commission.",
         "patterns": [
-            r"(?:receive|accept|get|deposit)\s+.*?(?:in|into|to)\s+.*?(?:bank|savings|current|upi|account|wallet|vpa).*?(?:forward|transfer|send|convert|withdraw|pass)",
-            r"(?:transfer|forward|send|wire)\s+.*?(?:remaining|rest|balance|funds|amount).*?(?:keep|take|deduct|retain)\s+.*?(?:commission|cut|share|profit|percent|%)",
-            r"(?:keep|earn|take|get|deduct)\s+.*?(?:commission|cut|share|profit|percent|%).*?(?:transfer|forward|send|wire|return)\s+.*?(?:to|back|remaining|balance|rest|upi|bank|account)",
+            r"(?:receive|accept|get|deposit)\s+(?:(?:rs\.?|₹|inr)?\s*[\d,]+|money|funds|payments?|cash).*?(?:in|into|to)\s+.*?(?:bank|savings|current|upi|account|wallet|vpa).*?(?:forward|transfer|send|convert|withdraw|pass)",
+            r"(?:transfer|forward|send|wire)\s+.*?(?:remaining|rest|balance|funds|amount).*?(?:keep|take|deduct|retain)\s+(?:(?:rs\.?|₹|inr)?\s*[\d,]+|\d+%\s*|a\s*(?:cut|share|commission|part)|commission|cut|share|profit|percent|%)",
+            r"(?:keep|earn|take|get|deduct)\s+(?:(?:rs\.?|₹|inr)?\s*[\d,]+|\d+%\s*|a\s*(?:cut|share|commission|part)|commission|cut|share|profit|percent|%).*?(?:transfer|forward|send|wire|return)\s+.*?(?:to|back|remaining|balance|rest|upi|bank|account)",
             r"(?:payment|transfer|financial)\s*assistant.*?(?:receive|accept|deposit).*?(?:forward|send|crypto|usdt|cash|atm)",
             r"(?:buy|purchase|convert\s*(?:to|into)?)\s+.*?(?:usdt|crypto|gift\s*cards?|bitcoins?)\s+.*?(?:with|using|from)\s+.*?(?:received|credited|deposited|funds|money)",
             r"(?:deposit|receive|get)\s+.*?(?:into|in|to)\s+.*?(?:account|bank|wallet).*?(?:buy|convert|purchase)\s+.*?(?:usdt|crypto|gift\s*card)",
@@ -241,10 +241,10 @@ RULES = [
         "name": "Accidental Overpayment & Third-Party Reversal Lure",
         "description": "The sender claims to have sent excess money by mistake and urgently requests a refund or transfer to a different account or UPI ID.",
         "patterns": [
-            r"(?:sent|transferred|credited|paid)\s+.*?(?:mistakenly|accidentally|wrongly|by\s*mistake|in\s*error).*?(?:send|transfer|refund|return|pay\s*back)",
-            r"(?:mistakenly|accidentally|wrongly|by\s*mistake)\s+.*?(?:sent|transferred|credited|paid).*?(?:send|transfer|refund|return|pay\s*back)",
-            r"(?:refund|return|send\s*back|transfer\s*back)\s+.*?(?:extra|excess|difference|money|amount|funds).*?(?:to\s+)?(?:this|another|different|other|my\s*friend)",
-            r"(?:keep|deduct)\s+.*?(?:for\s*your\s*(?:trouble|help))?.*?(?:send|refund|transfer)\s+.*?(?:back|the\s*rest|remaining)",
+            r"(?:sent|transferred|credited|paid)\s+(?:(?:rs\.?|₹|inr)?\s*[\d,]+|excess|extra|money|amount|funds).*?(?:mistakenly|accidentally|wrongly|by\s*mistake|in\s*error).*?(?:send|transfer|refund|return|pay\s*back)",
+            r"(?:mistakenly|accidentally|wrongly|by\s*mistake)\s+(?:sent|transferred|credited|paid)\s+(?:(?:rs\.?|₹|inr)?\s*[\d,]+|excess|extra|money|amount|funds).*?(?:send|transfer|refund|return|pay\s*back)",
+            r"(?:refund|return|send\s*back|transfer\s*back)\s+(?:extra|excess|difference|money|amount|funds).*?(?:to\s+)?(?:this|another|different|other|my\s*friend)",
+            r"(?:keep|deduct)\s+(?:(?:rs\.?|₹|inr)?\s*[\d,]+|\d+%\s*|some\s*(?:money|amount|cash)|commission|cut|share|part)\s*(?:for\s*your\s*(?:trouble|help))?.*?(?:send|refund|transfer|forward)\s+(?:back|the\s*rest|remaining)",
         ],
         "tactics": ["Fake Mistake Deception", "Third-Party Routing Trap"],
         "recommendations": [

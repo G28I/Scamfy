@@ -20,10 +20,15 @@ describe("MuleReceivedFundsGuide Component (MULE-03, UX-05)", () => {
     fireEvent.click(nextBtn);
 
     expect(screen.getByText(/Step 2: Formal Bank Notification/i)).toBeDefined();
-    expect(screen.getByPlaceholderText(/e\.g\. Rahul Sharma/i)).toBeDefined();
+    expect(screen.getByLabelText(/Account Holder Name/i)).toBeDefined();
+    expect(screen.getByLabelText(/Bank Name/i)).toBeDefined();
+    expect(screen.getByLabelText(/Account Number/i)).toBeDefined();
+    expect(screen.getByLabelText(/Disputed Amount/i)).toBeDefined();
+    expect(screen.getByLabelText(/Transaction UTR/i)).toBeDefined();
+    expect(screen.getByLabelText(/Sender Handle/i)).toBeDefined();
 
-    // Input account holder name
-    const nameInput = screen.getByPlaceholderText(/e\.g\. Rahul Sharma/i);
+    // Input account holder name via label association
+    const nameInput = screen.getByLabelText(/Account Holder Name/i);
     fireEvent.change(nameInput, { target: { value: "Test User" } });
 
     expect(screen.getByText(/Generated Written Notice Template/i)).toBeDefined();
