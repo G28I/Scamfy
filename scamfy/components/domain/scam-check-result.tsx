@@ -2,7 +2,6 @@
 
 import * as React from "react";
 import {
-  CheckCircle2,
   AlertTriangle,
   RotateCcw,
   Copy,
@@ -13,8 +12,17 @@ import {
   HelpCircle,
   Zap,
 } from "lucide-react";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardContent,
+  CardFooter,
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { RiskBadge } from "@/components/domain/risk-badge";
 import { ConfidenceMeter } from "@/components/domain/confidence-meter";
 import { IndicatorTag } from "@/components/domain/indicator-tag";
@@ -27,6 +35,13 @@ export interface ScamCheckResultProps extends React.HTMLAttributes<HTMLDivElemen
   onReset?: () => void;
 }
 
+/**
+ * Threat analysis result visualization component displaying risk severity, confidence score,
+ * extracted entities, detected psychological tactics, and actionable security recommendations.
+ *
+ * @param props - Component properties containing the AnalysisResultDto and reset handler
+ * @returns React JSX element rendering the triage result card
+ */
 export function ScamCheckResult({
   result,
   onReset,
@@ -86,11 +101,19 @@ export function ScamCheckResult({
 
   return (
     <div className={cn("w-full space-y-6 animate-in fade-in-50 duration-300", className)} {...props}>
-      {/* 1. Emergency Helpline Banner (UX-02) */}
+      {/* 1. Emergency 1930 Headline Alert (UX-02) */}
       {isEmergency && (
         <UrgencyBanner
           title="Critical Scam Threat Detected"
-          description="This message contains high-urgency financial extortion or payment traps. Do NOT enter your UPI PIN, click links, or transfer money. If you have already lost funds, call the National Cyber Crime Helpline 1930 immediately."
+          description={
+            result.primary_category === "UPI_REVERSE_PAYMENT_FRAUD"
+              ? "High-urgency UPI payment collect trap detected. Do NOT enter your UPI PIN to receive funds. If money was deducted, call 1930 immediately."
+              : result.primary_category === "IMPERSONATION_POLICE_EXTORTION"
+              ? "Digital arrest / law-enforcement extortion detected. Police and CBI never interrogate via Skype or demand transfer to 'safe accounts'. Call 1930 immediately."
+              : result.primary_category === "UTILITY_ELECTRICITY_FRAUD"
+              ? "Urgent utility cutoff scam detected. Power companies never disconnect without formal notice or demand payment to personal numbers. Call 1930 immediately."
+              : "High-urgency cyber fraud threat detected. Do NOT share OTPs, passwords, or approve payments. If you have already lost money, call the National Cyber Crime Helpline 1930 immediately."
+          }
           show1930CallToAction
           helplineNumber="1930"
           actionLabel="Official Cybercrime Portal"
@@ -101,28 +124,37 @@ export function ScamCheckResult({
       {isHighRisk && !isEmergency && (
         <UrgencyBanner
           title="High-Risk Fraud Pattern Identified"
-          description="High likelihood of scam recruitment, fake tasks, or phishing. Do NOT deposit any advance fees, share OTPs, or click unverified links."
+          description={
+            result.primary_category === "TASK_COMMISSION_FRAUD"
+              ? "Deceptive recruitment or part-time task fraud detected. Never pay registration fees or deposit funds for promised review returns."
+              : result.primary_category === "BANK_KYC_PHISHING"
+              ? "Phishing attack targeting banking credentials and PAN/Aadhaar information. Do not click links or install remote access apps."
+              : result.primary_category === "INVESTMENT_STOCK_FRAUD"
+              ? "High-risk fraudulent investment or crypto trading scheme. Unregistered entities promising guaranteed profits are illegal."
+              : "High likelihood of fraud detected for this indicator. Do not transfer funds, share personal documents, or install unverified applications."
+          }
           show1930CallToAction={false}
           officialPortalUrl="https://cybercrime.gov.in"
         />
       )}
 
-      {/* 2. Main Analysis Overview Card */}
-      <Card className="border-border shadow-md overflow-hidden">
-        <CardHeader className="border-b border-border bg-muted/20 pb-4">
+      {/* 2. Structured Security Report Container using Shadcn Card */}
+      <Card className="rounded-2xl border-border bg-card shadow-sm overflow-hidden">
+        {/* Report Top Header */}
+        <CardHeader className="border-b border-border bg-muted/20 px-5 py-4 space-y-0">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div className="space-y-1">
-              <div className="flex items-center gap-2">
+            <div className="space-y-1.5">
+              <div className="flex flex-wrap items-center gap-2">
                 <RiskBadge level={result.overall_risk} size="lg" showPulse={isEmergency} />
-                <span className="text-xs font-mono text-muted-foreground">
-                  ID: {result.id.slice(0, 8)}…
-                </span>
-                <span className="inline-flex items-center gap-1 rounded bg-muted/80 px-2 py-0.5 text-[10px] font-semibold text-muted-foreground">
+                <Badge variant="outline" className="font-mono text-[11px] font-medium text-muted-foreground">
+                  ID: {result.id.slice(0, 8)}
+                </Badge>
+                <Badge variant="outline" className="inline-flex items-center gap-1 text-[11px] font-medium text-muted-foreground">
                   <Brain className="h-3 w-3 text-primary" />
                   <span>{isAiAssisted ? "Nemotron-70B Assisting" : "Rule Engine v2"}</span>
-                </span>
+                </Badge>
               </div>
-              <CardTitle className="text-lg font-bold text-foreground pt-1">
+              <CardTitle className="text-xl font-extrabold text-foreground tracking-tight">
                 {formatCategoryTitle(result.primary_category)}
               </CardTitle>
             </div>
@@ -133,117 +165,118 @@ export function ScamCheckResult({
                 signalCount={result.signals.length}
                 explanation={
                   isAiAssisted
-                    ? "Confidence rating based on deterministic red-flag pattern matches and linguistic evaluation."
-                    : "Confidence rating based on deterministic red-flag pattern matches."
+                    ? "Confidence determined by deterministic red-flag pattern matches and AI linguistic evaluation."
+                    : "Confidence determined by deterministic red-flag pattern matches."
                 }
               />
             </div>
           </div>
         </CardHeader>
 
-        <CardContent className="space-y-6 pt-6">
-          {/* 3. Executive AI Synthesis Summary */}
+        <CardContent className="p-5 sm:p-7 space-y-6">
+          {/* 3. Executive Analysis Summary */}
           {result.synthesis_summary && (
-            <div className="rounded-xl border border-border bg-card p-4 space-y-1.5 shadow-sm">
-              <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                <Brain className="h-3.5 w-3.5 text-primary" />
-                <span>Executive Analysis Summary</span>
-              </div>
-              <p className="text-sm font-medium text-foreground leading-relaxed">
-                {result.synthesis_summary}
-              </p>
-            </div>
+            <Card className="border-border/80 bg-background/50 shadow-xs">
+              <CardContent className="p-4 sm:p-5 space-y-2">
+                <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                  <Brain className="h-4 w-4 text-primary" />
+                  <span>Executive Analysis &amp; Assessment</span>
+                </div>
+                <p className="text-sm font-medium text-foreground leading-relaxed">
+                  {result.synthesis_summary}
+                </p>
+              </CardContent>
+            </Card>
           )}
 
-          {/* 4. Psychological Pressure Tactics */}
-          {result.psychological_tactics && result.psychological_tactics.length > 0 && (
-            <div className="space-y-2">
-              <div className="flex items-center gap-1.5 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                <Zap className="h-3.5 w-3.5 text-amber-500" />
-                <span>Detected Psychological Pressure Tactics</span>
-              </div>
-              <div className="flex flex-wrap gap-1.5">
-                {result.psychological_tactics.map((tactic, idx) => (
-                  <span
-                    key={idx}
-                    className="inline-flex items-center rounded-md border border-amber-300 bg-amber-50/80 px-2.5 py-1 text-xs font-medium text-amber-900 dark:border-amber-900/60 dark:bg-amber-950/40 dark:text-amber-200"
-                  >
-                    {tactic}
-                  </span>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* 5. Recommended Action Guidance (UX-01) */}
+          {/* 4. Action Protocol (Step 1, Step 2, Step 3) */}
           <div
             className={cn(
-              "rounded-xl border p-4 sm:p-5 space-y-3",
+              "rounded-xl border p-5 space-y-3.5",
               isEmergency
-                ? "border-red-300 bg-red-50/60 dark:border-red-900/60 dark:bg-red-950/30"
+                ? "border-red-300 bg-red-50/50 dark:border-red-900/60 dark:bg-red-950/20"
                 : isHighRisk
-                  ? "border-amber-300 bg-amber-50/60 dark:border-amber-900/60 dark:bg-amber-950/30"
+                  ? "border-amber-300 bg-amber-50/50 dark:border-amber-900/60 dark:bg-amber-950/20"
                   : isSafe
-                    ? "border-emerald-300 bg-emerald-50/60 dark:border-emerald-900/60 dark:bg-emerald-950/30"
-                    : "border-blue-300 bg-blue-50/60 dark:border-blue-900/60 dark:bg-blue-950/30"
+                    ? "border-emerald-300 bg-emerald-50/50 dark:border-emerald-900/60 dark:bg-emerald-950/20"
+                    : "border-blue-300 bg-blue-50/50 dark:border-blue-900/60 dark:bg-blue-950/20"
             )}
           >
-            <h4 className="text-sm font-bold tracking-tight text-foreground flex items-center gap-2">
-              <ShieldCheck
-                className={cn(
-                  "h-4 w-4 shrink-0",
-                  isEmergency
-                    ? "text-red-600"
-                    : isHighRisk
-                      ? "text-amber-600"
-                      : "text-emerald-600"
-                )}
-              />
-              <span>Recommended Next Actions (UX-01)</span>
-            </h4>
+            <div className="flex items-center justify-between">
+              <h4 className="text-sm font-bold tracking-tight text-foreground flex items-center gap-2">
+                <ShieldCheck
+                  className={cn(
+                    "h-4 w-4 shrink-0",
+                    isEmergency
+                      ? "text-red-600"
+                      : isHighRisk
+                        ? "text-amber-600"
+                        : "text-emerald-600"
+                  )}
+                />
+                <span>Immediate Defensive Action Protocol (UX-01)</span>
+              </h4>
+              <Badge variant="outline" className="text-[10px] font-semibold uppercase tracking-wider">
+                Priority Steps
+              </Badge>
+            </div>
 
-            <ul className="space-y-2 text-xs sm:text-sm leading-relaxed text-foreground">
+            <div className="space-y-2.5 text-xs sm:text-sm text-foreground">
               {result.action_recommendations.map((rec, idx) => (
-                <li key={idx} className="flex items-start gap-2">
-                  <CheckCircle2
+                <div
+                  key={idx}
+                  className="flex items-start gap-3 rounded-lg border border-border/60 bg-background/90 p-3 shadow-xs"
+                >
+                  <span
                     className={cn(
-                      "h-4 w-4 shrink-0 mt-0.5",
+                      "flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-xs font-bold",
                       isEmergency
-                        ? "text-red-600"
+                        ? "bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-300"
                         : isHighRisk
-                          ? "text-amber-600"
-                          : "text-emerald-600"
+                          ? "bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300"
+                          : "bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300"
                     )}
-                  />
-                  <span>{rec}</span>
-                </li>
+                  >
+                    {idx + 1}
+                  </span>
+                  <span className="leading-relaxed font-medium pt-0.5">{rec}</span>
+                </div>
               ))}
-            </ul>
+            </div>
           </div>
 
-          {/* 6. Missing Evidence & Uncertainty Notice (DET-05) */}
-          {result.missing_evidence && result.missing_evidence.length > 0 && (
-            <div className="rounded-lg border border-border bg-muted/40 p-3.5 space-y-1.5">
-              <div className="flex items-center gap-2 text-xs font-semibold text-muted-foreground">
-                <HelpCircle className="h-3.5 w-3.5 text-blue-500" />
-                <span>Missing Corroborating Context (DET-05)</span>
+          {/* 5. Detected Psychological Pressure Tactics */}
+          {result.psychological_tactics && result.psychological_tactics.length > 0 && (
+            <div className="space-y-2.5">
+              <div className="flex items-center gap-2 text-xs font-bold text-muted-foreground uppercase tracking-wider">
+                <Zap className="h-4 w-4 text-amber-500" />
+                <span>Detected Psychological Pressure Tactics</span>
               </div>
-              <ul className="list-disc list-inside space-y-1 text-xs text-muted-foreground leading-relaxed">
-                {result.missing_evidence.map((item, idx) => (
-                  <li key={idx}>{item}</li>
+              <div className="flex flex-wrap gap-2">
+                {result.psychological_tactics.map((tactic, idx) => (
+                  <Badge
+                    key={idx}
+                    variant="outline"
+                    className="border-amber-300 bg-amber-50/80 px-3 py-1 text-xs font-semibold text-amber-950 dark:border-amber-900/60 dark:bg-amber-950/40 dark:text-amber-200 gap-1.5"
+                  >
+                    <span className="h-1.5 w-1.5 rounded-full bg-amber-500" />
+                    <span>{tactic}</span>
+                  </Badge>
                 ))}
-              </ul>
+              </div>
             </div>
           )}
 
-          {/* 7. Extracted Identifiers & Evidence (DET-03) */}
+          {/* 6. Extracted Identifiers & Evidence (DET-03) */}
           <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <h4 className="text-sm font-semibold text-foreground flex items-center gap-2">
+            <div className="flex items-center justify-between border-b border-border/50 pb-2">
+              <h4 className="text-sm font-bold text-foreground flex items-center gap-2">
                 <FileSearch className="h-4 w-4 text-primary" />
-                <span>Extracted Identifiers ({totalEntitiesCount})</span>
+                <span>Extracted Technical Indicators ({totalEntitiesCount})</span>
               </h4>
-              <span className="text-xs text-muted-foreground">Click to copy value</span>
+              <span className="text-[11px] text-muted-foreground font-mono">
+                Click indicator to copy
+              </span>
             </div>
 
             {totalEntitiesCount > 0 ? (
@@ -271,28 +304,28 @@ export function ScamCheckResult({
                 ))}
               </div>
             ) : (
-              <p className="text-xs text-muted-foreground italic bg-muted/30 rounded-lg p-3">
-                No direct payment VPAs, contact numbers, or phishing URLs were extracted from this message text.
+              <p className="text-xs text-muted-foreground italic bg-muted/30 rounded-lg p-3.5 border border-border/40">
+                No direct payment VPAs, contact phone numbers, or external URLs were identified in this message text.
               </p>
             )}
           </div>
 
-          {/* 8. Detected Signals Breakdown (DET-04) */}
+          {/* 7. Detected Threat Signals Breakdown (DET-04) */}
           {result.signals.length > 0 && (
-            <div className="space-y-3 pt-2">
-              <h4 className="text-sm font-semibold text-foreground flex items-center gap-2">
+            <div className="space-y-3 pt-1">
+              <h4 className="text-sm font-bold text-foreground flex items-center gap-2 border-b border-border/50 pb-2">
                 <AlertTriangle className="h-4 w-4 text-amber-500" />
-                <span>Detected Threat Signals ({result.signals.length})</span>
+                <span>Triggered Threat Signals ({result.signals.length})</span>
               </h4>
 
-              <div className="space-y-2.5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {result.signals.map((signal) => (
-                  <div
+                  <Card
                     key={signal.id}
-                    className="rounded-lg border border-border bg-card p-3.5 space-y-1.5 transition-colors"
+                    className="p-3.5 space-y-2 transition-colors hover:border-primary/40 shadow-xs"
                   >
                     <div className="flex items-center justify-between gap-2">
-                      <span className="font-semibold text-xs sm:text-sm text-foreground">
+                      <span className="font-bold text-xs sm:text-sm text-foreground truncate">
                         {signal.name}
                       </span>
                       <RiskBadge level={signal.severity} size="sm" showIcon={false} />
@@ -301,52 +334,75 @@ export function ScamCheckResult({
                       {signal.description}
                     </p>
                     {signal.evidence && (
-                      <div className="rounded bg-muted/60 px-2.5 py-1 text-[11px] font-mono text-muted-foreground">
+                      <div className="rounded-md bg-muted/60 px-2.5 py-1 text-[11px] font-mono text-muted-foreground break-all">
                         <span className="font-semibold text-foreground">Matched text: </span>
                         <span>&ldquo;{signal.evidence}&rdquo;</span>
                       </div>
                     )}
-                  </div>
+                  </Card>
                 ))}
               </div>
             </div>
           )}
 
-          {/* 9. Legal & Model Transparency Disclaimer (AI-04, AI-05) */}
-          <div className="rounded-lg bg-muted/20 border border-border/60 p-3 text-[11px] text-muted-foreground leading-relaxed">
-            <span className="font-medium text-foreground">Analysis Provenance: </span>
-            <span>Engine model: {modelSlug}. Automated security risk assessment; does not constitute a legal, criminal, or regulatory determination (AI-05).</span>
-          </div>
+          {/* 8. Missing Evidence & Uncertainty Notice (DET-05) */}
+          {result.missing_evidence && result.missing_evidence.length > 0 && (
+            <Alert className="border-border bg-muted/30">
+              <HelpCircle className="h-4 w-4 text-blue-500 shrink-0" />
+              <div>
+                <AlertTitle className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                  Missing Corroborating Context (DET-05)
+                </AlertTitle>
+                <AlertDescription className="mt-2">
+                  <ul className="list-disc list-inside space-y-1 text-xs text-muted-foreground leading-relaxed">
+                    {result.missing_evidence.map((item, idx) => (
+                      <li key={idx}>{item}</li>
+                    ))}
+                  </ul>
+                </AlertDescription>
+              </div>
+            </Alert>
+          )}
 
-          {/* 10. Footer Controls */}
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-4 border-t border-border">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleCopySummary}
-              leftIcon={
-                copiedSummary ? (
-                  <Check className="h-3.5 w-3.5 text-emerald-600" />
-                ) : (
-                  <Copy className="h-3.5 w-3.5" />
-                )
-              }
-            >
-              {copiedSummary ? "Report Copied to Clipboard" : "Copy Triage Summary"}
-            </Button>
+          <Separator />
 
-            {onReset && (
-              <Button
-                variant="default"
-                size="sm"
-                onClick={onReset}
-                leftIcon={<RotateCcw className="h-3.5 w-3.5" />}
-              >
-                Analyze Another Message
-              </Button>
-            )}
+          {/* 9. Analysis Transparency Notice */}
+          <div className="rounded-lg bg-muted/20 border border-border/60 p-3.5 text-[11px] text-muted-foreground leading-relaxed">
+            <span className="font-semibold text-foreground">Analysis Provenance: </span>
+            <span>Engine model: {modelSlug}. Automated educational risk analysis; does not constitute a judicial, criminal, or regulatory determination (AI-05, OOS-03).</span>
           </div>
         </CardContent>
+
+        {/* 10. Action Footer */}
+        <CardFooter className="flex flex-col sm:flex-row items-center justify-between gap-3 p-5 pt-0 border-t border-border mt-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleCopySummary}
+            leftIcon={
+              copiedSummary ? (
+                <Check className="h-3.5 w-3.5 text-emerald-600" />
+              ) : (
+                <Copy className="h-3.5 w-3.5" />
+              )
+            }
+            className="w-full sm:w-auto font-medium"
+          >
+            {copiedSummary ? "Triage Summary Copied!" : "Copy Triage Summary"}
+          </Button>
+
+          {onReset && (
+            <Button
+              variant="default"
+              size="sm"
+              onClick={onReset}
+              leftIcon={<RotateCcw className="h-3.5 w-3.5" />}
+              className="w-full sm:w-auto font-bold"
+            >
+              Analyze Another Message
+            </Button>
+          )}
+        </CardFooter>
       </Card>
     </div>
   );
