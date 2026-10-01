@@ -291,8 +291,8 @@ export default function HomePage() {
                   Recognize the core mechanics behind common scams actively targeting Indian students and citizens.
                 </p>
               </div>
-              <Button asChild variant="outline" size="sm" className="font-bold shrink-0">
-                <Link href="/intel" className="inline-flex items-center gap-1.5">
+              <Button asChild variant="outline" size="sm" className="font-bold w-full sm:w-auto shrink-0 min-h-[44px] sm:min-h-[36px]">
+                <Link href="/intel" className="inline-flex items-center justify-center gap-1.5">
                   <span>Browse Threat Intel Directory</span>
                   <ArrowRight className="h-3.5 w-3.5" />
                 </Link>

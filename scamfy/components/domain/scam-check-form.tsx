@@ -58,6 +58,7 @@ export function ScamCheckForm({
 }: ScamCheckFormProps) {
   const [text, setText] = React.useState(initialText);
   const [inputError, setInputError] = React.useState<string | null>(null);
+  const textareaRef = React.useRef<HTMLTextAreaElement>(null);
 
   const handleSubmit = (e?: React.FormEvent) => {
     e?.preventDefault();
@@ -87,11 +88,13 @@ export function ScamCheckForm({
   const handleSelectPreset = (presetText: string) => {
     setText(presetText);
     setInputError(null);
+    textareaRef.current?.focus();
   };
 
   const handleClear = () => {
     setText("");
     setInputError(null);
+    textareaRef.current?.focus();
   };
 
   const handlePaste = async () => {
@@ -101,6 +104,7 @@ export function ScamCheckForm({
         if (clipText) {
           setText(clipText);
           setInputError(null);
+          textareaRef.current?.focus();
         }
       }
     } catch {
@@ -125,7 +129,7 @@ export function ScamCheckForm({
             <button
               type="button"
               onClick={handleClear}
-              className="inline-flex items-center gap-1 text-xs font-medium text-muted-foreground hover:text-destructive transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded px-1.5 py-0.5"
+              className="inline-flex items-center gap-1 text-xs font-medium text-muted-foreground hover:text-destructive transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded px-2 py-1 min-h-[32px]"
               aria-label="Clear text input"
             >
               <Trash2 className="h-3 w-3" />
@@ -145,7 +149,7 @@ export function ScamCheckForm({
                 disabled={isLoading}
                 onClick={() => handleSelectPreset(preset.text)}
                 className={cn(
-                  "group flex items-center justify-between rounded-lg border p-2.5 text-left text-xs transition-all cursor-pointer select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-50",
+                  "group flex items-center justify-between rounded-lg border p-2.5 min-h-[44px] text-left text-xs transition-all cursor-pointer select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-50",
                   isSelected
                     ? "border-primary bg-primary/10 text-foreground ring-1 ring-primary/40 font-semibold shadow-xs"
                     : "border-border/80 bg-muted/40 text-muted-foreground hover:border-primary/40 hover:bg-muted/80 hover:text-foreground"
@@ -177,7 +181,7 @@ export function ScamCheckForm({
               type="button"
               onClick={handlePaste}
               disabled={isLoading}
-              className="inline-flex items-center gap-1 rounded bg-card border border-border px-2 py-0.5 text-[11px] font-medium text-foreground hover:bg-muted transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              className="inline-flex items-center gap-1 rounded bg-card border border-border px-2.5 py-1 text-[11px] font-medium text-foreground hover:bg-muted transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring min-h-[32px]"
               title="Paste from clipboard"
             >
               <Clipboard className="h-3 w-3" />
@@ -188,6 +192,7 @@ export function ScamCheckForm({
 
         <div className="p-1">
           <Textarea
+            ref={textareaRef}
             id="scam-check-input"
             value={text}
             onChange={(e) => {
