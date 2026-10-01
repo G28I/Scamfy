@@ -1,0 +1,155 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-01T14:17:00Z",
+  "title": "Design System: Scamfy",
+  "extensions": {
+    "colorMeta": {
+      "primary": {
+        "role": "primary",
+        "displayName": "Deep Slate",
+        "canonical": "oklch(20% 0.03 260)",
+        "tonalRamp": ["#080c14", "#0f172a", "#1e293b", "#334155", "#64748b", "#94a3b8", "#e2e8f0", "#f8fafc"]
+      },
+      "background": {
+        "role": "neutral",
+        "displayName": "Terminal Obsidian",
+        "canonical": "oklch(12% 0.02 260)",
+        "tonalRamp": ["#05080e", "#080c14", "#0f172a", "#1e293b", "#334155", "#64748b", "#e2e8f0", "#f8fafc"]
+      },
+      "risk-safe": {
+        "role": "secondary",
+        "displayName": "Verified Emerald",
+        "canonical": "oklch(75% 0.18 160)",
+        "tonalRamp": ["#022c22", "#064e3b", "#065f46", "#047857", "#10b981", "#34d399", "#a7f3d0", "#ecfdf5"]
+      },
+      "risk-caution": {
+        "role": "secondary",
+        "displayName": "Caution Amber",
+        "canonical": "oklch(80% 0.16 85)",
+        "tonalRamp": ["#451a03", "#78350f", "#92400e", "#b45309", "#f59e0b", "#fbbf24", "#fde68a", "#fffbeb"]
+      },
+      "risk-suspicious": {
+        "role": "secondary",
+        "displayName": "Suspicious Orange",
+        "canonical": "oklch(75% 0.19 55)",
+        "tonalRamp": ["#431407", "#7c2d12", "#9a3412", "#c2410c", "#f97316", "#fb923c", "#fed7aa", "#fff7ed"]
+      },
+      "risk-high": {
+        "role": "secondary",
+        "displayName": "High-Risk Rose",
+        "canonical": "oklch(70% 0.22 15)",
+        "tonalRamp": ["#4c0519", "#881337", "#9f1239", "#be123c", "#e11d48", "#fb7185", "#fecdd3", "#fff1f2"]
+      },
+      "risk-critical": {
+        "role": "primary",
+        "displayName": "Critical Crimson",
+        "canonical": "oklch(60% 0.25 25)",
+        "tonalRamp": ["#450a0a", "#7f1d1d", "#991b1b", "#b91c1c", "#dc2626", "#ef4444", "#fca5a5", "#fef2f2"]
+      }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Display", "purpose": "Hero headline value propositions." },
+      "headline": { "displayName": "Headline", "purpose": "Section headers and primary tool titles." },
+      "title": { "displayName": "Title", "purpose": "Card headers and alert banners." },
+      "body": { "displayName": "Body", "purpose": "Guidance copy and analysis narrative." },
+      "label": { "displayName": "Telemetry Label", "purpose": "Extracted VPAs, phone numbers, and timestamps." }
+    },
+    "shadows": [
+      { "name": "resting", "value": "none", "purpose": "Flush machined surface resting on dark background." },
+      { "name": "card-subtle", "value": "0 1px 2px 0 rgba(0, 0, 0, 0.05)", "purpose": "Subtle card elevation." },
+      { "name": "modal-overlay", "value": "0 25px 50px -12px rgba(0, 0, 0, 0.5)", "purpose": "High-priority security modal." },
+      { "name": "critical-glow", "value": "0 0 20px rgba(220, 38, 38, 0.25)", "purpose": "Active high-urgency threat highlight." }
+    ],
+    "motion": [
+      { "name": "ease-standard", "value": "cubic-bezier(0.4, 0, 0.2, 1)", "purpose": "Default easing for state transitions." },
+      { "name": "duration-fast", "value": "150ms", "purpose": "Button and chip active feedback." },
+      { "name": "duration-normal", "value": "250ms", "purpose": "Modal entry and drawer transitions." }
+    ],
+    "breakpoints": [
+      { "name": "sm", "value": "640px" },
+      { "name": "md", "value": "768px" },
+      { "name": "lg", "value": "1024px" },
+      { "name": "xl", "value": "1280px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Action Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Main submission trigger for scam message analysis.",
+      "html": "<button class=\"ds-btn-primary\">Analyze Message</button>",
+      "css": ".ds-btn-primary { background: #0f172a; color: #ffffff; padding: 10px 20px; font-family: var(--font-geist-sans), sans-serif; font-size: 0.875rem; font-weight: 700; border-radius: 8px; border: 1px solid #1e293b; cursor: pointer; transition: background 0.15s, transform 0.1s; } .ds-btn-primary:hover { background: #1e293b; } .ds-btn-primary:active { transform: scale(0.99); }"
+    },
+    {
+      "name": "Destructive / Emergency Button",
+      "kind": "button",
+      "refersTo": "button-destructive",
+      "description": "High-urgency emergency action button for transfer warnings and helpline dialing.",
+      "html": "<button class=\"ds-btn-destructive\">Call 1930 Helpline</button>",
+      "css": ".ds-btn-destructive { background: #dc2626; color: #ffffff; padding: 10px 20px; font-family: var(--font-geist-sans), sans-serif; font-size: 0.875rem; font-weight: 700; border-radius: 8px; border: none; cursor: pointer; transition: background 0.15s, transform 0.1s; } .ds-btn-destructive:hover { background: #b91c1c; } .ds-btn-destructive:active { transform: scale(0.99); }"
+    },
+    {
+      "name": "Critical Risk Badge",
+      "kind": "chip",
+      "refersTo": "badge-risk-critical",
+      "description": "Pill badge denoting confirmed high-threat or money-mule scam patterns.",
+      "html": "<span class=\"ds-badge-critical\"><span class=\"ds-badge-dot\"></span>CRITICAL THREAT</span>",
+      "css": ".ds-badge-critical { display: inline-flex; align-items: center; gap: 6px; background: rgba(220, 38, 38, 0.15); border: 1px solid #dc2626; color: #ef4444; padding: 4px 10px; border-radius: 9999px; font-family: var(--font-geist-mono), monospace; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; } .ds-badge-dot { width: 6px; height: 6px; border-radius: 9999px; background: #ef4444; box-shadow: 0 0 8px #ef4444; }"
+    },
+    {
+      "name": "Tactical Threat Card",
+      "kind": "card",
+      "refersTo": "card-container",
+      "description": "Structured container for threat intelligence items and analysis summaries.",
+      "html": "<div class=\"ds-card\"><div class=\"ds-card-header\"><h4 class=\"ds-card-title\">Money-Mule Recruitment Trap</h4><span class=\"ds-badge-critical\"><span class=\"ds-badge-dot\"></span>CRITICAL</span></div><p class=\"ds-card-body\">Solicits receiving third-party funds and forwarding 90% in exchange for commission.</p></div>",
+      "css": ".ds-card { background: #0f172a; border: 1px solid #1e293b; border-radius: 16px; padding: 20px; font-family: var(--font-geist-sans), sans-serif; } .ds-card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; } .ds-card-title { color: #f8fafc; font-size: 1rem; font-weight: 700; margin: 0; } .ds-card-body { color: #94a3b8; font-size: 0.8125rem; line-height: 1.5; margin: 0; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Tactical Cyber Defense Terminal",
+    "overview": "Scamfy is an authoritative, high-precision cybersecurity defense interface built for immediate fraud triage in India. The interface evokes the calm, decisive clarity of a command terminal: dark-mode-first aesthetic with deep obsidian surfaces (#080c14), tactical wireframe borders (#1e293b), crisp monospace telemetry accents, and luminous threat signals.\n\nThe system communicates urgent security information without panic or sensationalism. Visual hierarchy is instant and unambiguous: dangerous fraud indicators ignite high-contrast red alerts, while verified defensive protocols offer steady, step-by-step guidance.",
+    "keyCharacteristics": [
+      "Tactical Authority: Clean structure, crisp borders, dark-surfaced command cards, and structured signal breakdowns.",
+      "Immediate Threat Clarity: Strict 5-tier chromatic risk taxonomy engineered for instant recognition.",
+      "High-Density Legibility: Geist Sans for reading paired with Geist Mono for technical hashes and VPAs.",
+      "Full WCAG AA Accessibility: Measured contrast ratios >= 4.5:1 across all risk tiers."
+    ],
+    "rules": [
+      {
+        "name": "The Rarity of Red Rule",
+        "body": "Crimson and rose tones are strictly reserved for high-risk threat classification, emergency warnings, and 1930 helpline banners. Decorative or non-critical UI elements must never use red hues.",
+        "section": "colors"
+      },
+      {
+        "name": "The Contrast Floor Rule",
+        "body": "Every text and badge pairing across all 5 risk tiers must maintain >= 4.5:1 contrast against its container background.",
+        "section": "colors"
+      },
+      {
+        "name": "The Telemetry Mono Rule",
+        "body": "All machine-extracted entities (UPI VPAs, phone numbers, transaction hashes, UTR codes, dates) must render in Geist Mono with uppercase tracking.",
+        "section": "typography"
+      },
+      {
+        "name": "The State-Driven Glow Rule",
+        "body": "Atmospheric glows are active only on critical alerts, focus states, or glowing status beacons. Resting neutral components remain clean and shadowless.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do use the 5-tier semantic color tokens strictly according to evaluated threat severity.",
+      "Do render all technical indicators in Geist Mono.",
+      "Do place emergency helpline (1930) and cybercrime.gov.in links in high-visibility alert containers.",
+      "Do maintain a minimum touch target of 44px on all mobile interactive elements.",
+      "Do preserve the 3 core directives on money-mule screens (DO NOT SEND, DO NOT TOUCH, REFUSE & BLOCK)."
+    ],
+    "donts": [
+      "Don't use red or crimson accents for decorative, non-threat UI elements.",
+      "Don't use low-contrast text that fails WCAG AA (< 4.5:1).",
+      "Don't display unverified community reports with verified authority badges.",
+      "Don't use heavy drop shadows on resting cards; rely on clean border strokes and tonal layering.",
+      "Don't create competing or manipulative primary CTAs on public landing pages."
+    ]
+  }
+}

@@ -43,3 +43,6 @@ Thumbs.db
 next-env.d.ts
 .agents/
 .gemini/
+.claude/
+.codex/
+agent/
