@@ -220,7 +220,7 @@ export function ScamCheckForm({
             type="submit"
             size="lg"
             isLoading={isLoading}
-            disabled={isLoading}
+            disabled={isLoading || !text.trim()}
             leftIcon={<ShieldCheck className="h-4 w-4" />}
             rightIcon={<CornerDownLeft className="h-3.5 w-3.5 opacity-60 hidden sm:inline-block" />}
             className="w-full sm:w-auto font-bold px-7 shadow-md transition-all active:scale-[0.99]"

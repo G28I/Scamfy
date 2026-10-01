@@ -60,6 +60,20 @@ describe("ScamCheckForm component", () => {
     expect(screen.getByText(/Cashback QR Collect Trap/i)).toBeDefined();
   });
 
+  it("disables submit button when input is empty or only whitespace", () => {
+    render(<ScamCheckForm onAnalyze={vi.fn()} />);
+
+    const submitBtn = screen.getByRole("button", { name: "Analyze Message" }) as HTMLButtonElement;
+    expect(submitBtn.disabled).toBe(true);
+
+    const textarea = screen.getByLabelText(/Suspicious message text/i);
+    fireEvent.change(textarea, { target: { value: "   " } });
+    expect(submitBtn.disabled).toBe(true);
+
+    fireEvent.change(textarea, { target: { value: "suspicious message" } });
+    expect(submitBtn.disabled).toBe(false);
+  });
+
   it("populates textarea when a preset chip is clicked", () => {
     render(<ScamCheckForm onAnalyze={vi.fn()} />);
 
