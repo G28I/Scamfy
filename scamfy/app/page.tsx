@@ -300,7 +300,7 @@ export default function HomePage() {
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <Card className="hover:border-primary/40 transition-colors shadow-xs">
+              <Card className="border-l-4 border-l-amber-500 hover:border-primary/40 transition-colors shadow-xs">
                 <CardHeader className="p-5 pb-2">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2.5">
@@ -321,7 +321,7 @@ export default function HomePage() {
                 </CardContent>
               </Card>
 
-              <Card className="hover:border-primary/40 transition-colors shadow-xs">
+              <Card className="border-l-4 border-l-emerald-500 hover:border-primary/40 transition-colors shadow-xs">
                 <CardHeader className="p-5 pb-2">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2.5">
@@ -342,7 +342,7 @@ export default function HomePage() {
                 </CardContent>
               </Card>
 
-              <Card className="hover:border-primary/40 transition-colors shadow-xs">
+              <Card className="border-l-4 border-l-blue-500 hover:border-primary/40 transition-colors shadow-xs">
                 <CardHeader className="p-5 pb-2">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2.5">
@@ -363,12 +363,12 @@ export default function HomePage() {
                 </CardContent>
               </Card>
 
-              <Card className="hover:border-primary/40 transition-colors shadow-xs">
+              <Card className="border-l-4 border-l-rose-500 hover:border-primary/40 transition-colors shadow-xs">
                 <CardHeader className="p-5 pb-2">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2.5">
                       <div className="flex size-8 items-center justify-center rounded-lg border border-border/80 bg-muted/50 text-foreground">
-                        <Building2 className="size-4 text-red-600 dark:text-red-400" />
+                        <Building2 className="size-4 text-rose-600 dark:text-rose-400" />
                       </div>
                       <CardTitle className="text-sm font-bold">Digital Arrest Extortion</CardTitle>
                     </div>
@@ -440,7 +440,7 @@ export default function HomePage() {
                   How does Scamfy protect my privacy when I check a message?
                 </AccordionTrigger>
                 <AccordionContent className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
-                  Scamfy is engineered with privacy-by-design (SEC-01). Messages are triaged ephemerally in memory to extract indicators and evaluate threat heuristics. Raw message text is never indexed publicly, sold, or shared with third parties.
+                  Scamfy is engineered with strict privacy-by-design principles. Messages are triaged ephemerally in memory to extract indicators and evaluate threat heuristics. Raw message text is never indexed publicly, sold, or shared with third parties.
                 </AccordionContent>
               </AccordionItem>
             </Accordion>
@@ -452,27 +452,27 @@ export default function HomePage() {
         {/* 6. Emergency 1930 & Official Reporting Banner (Shadcn Alert) */}
         <section className="py-12 bg-muted/10">
           <div className="container mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
-            <Alert variant="destructive" className="p-6 sm:p-8 flex flex-col sm:flex-row items-center justify-between gap-6">
+            <Alert variant="destructive" className="border border-red-500/40 bg-red-500/10 dark:bg-red-950/30 p-6 sm:p-8 flex flex-col sm:flex-row items-center justify-between gap-6 shadow-md rounded-2xl">
               <div className="space-y-2 text-center sm:text-left">
                 <div className="flex items-center justify-center sm:justify-start gap-2">
-                  <PhoneCall className="h-5 w-5 text-destructive shrink-0" />
+                  <PhoneCall className="h-5 w-5 text-red-600 dark:text-red-400 shrink-0" />
                   <AlertTitle className="text-lg font-extrabold text-foreground">
                     Active Financial Loss Emergency?
                   </AlertTitle>
                 </div>
-                <AlertDescription className="text-xs sm:text-sm text-muted-foreground max-w-xl">
-                  If you have already sent money or shared banking credentials in a scam, immediately call the <strong>National Cyber Crime Helpline at 1930</strong> or register a complaint on the official portal.
+                <AlertDescription className="text-xs sm:text-sm text-muted-foreground max-w-xl leading-relaxed">
+                  If you have already sent money or shared banking credentials in a scam, immediately call the <strong>National Cyber Crime Helpline at 1930</strong> (within the 2-hour golden period) or register a complaint on the official portal.
                 </AlertDescription>
               </div>
 
               <div className="flex flex-col sm:flex-row items-center gap-3 shrink-0 w-full sm:w-auto">
-                <Button asChild variant="destructive" size="lg" className="font-bold w-full sm:w-auto shadow-md">
+                <Button asChild variant="destructive" size="lg" className="font-bold w-full sm:w-auto shadow-md bg-red-600 hover:bg-red-700 text-white">
                   <a href="tel:1930">
                     <PhoneCall className="h-4 w-4" />
                     <span>Call 1930 Now</span>
                   </a>
                 </Button>
-                <Button asChild variant="outline" size="lg" className="font-bold w-full sm:w-auto">
+                <Button asChild variant="outline" size="lg" className="font-bold w-full sm:w-auto border-red-500/30 hover:bg-red-500/10">
                   <a href="https://cybercrime.gov.in" target="_blank" rel="noopener noreferrer">
                     <span>cybercrime.gov.in</span>
                     <ExternalLink className="h-3.5 w-3.5" />
