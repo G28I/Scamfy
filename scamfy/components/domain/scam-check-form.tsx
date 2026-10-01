@@ -58,7 +58,17 @@ export function ScamCheckForm({
 }: ScamCheckFormProps) {
   const [text, setText] = React.useState(initialText);
   const [inputError, setInputError] = React.useState<string | null>(null);
+  const [isPopulatedHighlight, setIsPopulatedHighlight] = React.useState(false);
   const textareaRef = React.useRef<HTMLTextAreaElement>(null);
+  const highlightTimeoutRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  React.useEffect(() => {
+    return () => {
+      if (highlightTimeoutRef.current) {
+        clearTimeout(highlightTimeoutRef.current);
+      }
+    };
+  }, []);
 
   const handleSubmit = (e?: React.FormEvent) => {
     e?.preventDefault();
@@ -88,12 +98,25 @@ export function ScamCheckForm({
   const handleSelectPreset = (presetText: string) => {
     setText(presetText);
     setInputError(null);
+    setIsPopulatedHighlight(true);
     textareaRef.current?.focus();
+
+    if (typeof window !== "undefined" && window.innerWidth < 768) {
+      textareaRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+
+    if (highlightTimeoutRef.current) {
+      clearTimeout(highlightTimeoutRef.current);
+    }
+    highlightTimeoutRef.current = setTimeout(() => {
+      setIsPopulatedHighlight(false);
+    }, 800);
   };
 
   const handleClear = () => {
     setText("");
     setInputError(null);
+    setIsPopulatedHighlight(false);
     textareaRef.current?.focus();
   };
 
@@ -104,7 +127,15 @@ export function ScamCheckForm({
         if (clipText) {
           setText(clipText);
           setInputError(null);
+          setIsPopulatedHighlight(true);
           textareaRef.current?.focus();
+
+          if (highlightTimeoutRef.current) {
+            clearTimeout(highlightTimeoutRef.current);
+          }
+          highlightTimeoutRef.current = setTimeout(() => {
+            setIsPopulatedHighlight(false);
+          }, 800);
         }
       }
     } catch {
@@ -169,10 +200,26 @@ export function ScamCheckForm({
       </div>
 
       {/* 2. Main Input Canvas */}
-      <div className="relative rounded-xl border border-border bg-background shadow-inner transition-focus">
+      <div
+        className={cn(
+          "relative rounded-xl border bg-background shadow-inner transition-all duration-300",
+          isPopulatedHighlight
+            ? "border-primary/60 ring-2 ring-primary/20"
+            : "border-border"
+        )}
+      >
+        <div className="sr-only" aria-live="polite" aria-atomic="true">
+          {isPopulatedHighlight ? "Preset message loaded into input canvas." : ""}
+        </div>
+
         <div className="flex items-center justify-between border-b border-border/50 bg-muted/20 px-3.5 py-2 text-xs text-muted-foreground">
           <span className="font-mono font-semibold text-foreground text-[11px] uppercase tracking-wider flex items-center gap-1.5">
-            <span className="inline-block h-1.5 w-1.5 rounded-full bg-primary" />
+            <span
+              className={cn(
+                "inline-block h-1.5 w-1.5 rounded-full bg-primary transition-transform duration-300",
+                isPopulatedHighlight && "scale-125"
+              )}
+            />
             <span>Message Content Canvas</span>
           </span>
 

@@ -74,7 +74,7 @@ describe("ScamCheckForm component", () => {
     expect(submitBtn.disabled).toBe(false);
   });
 
-  it("populates textarea when a preset chip is clicked", () => {
+  it("populates textarea and triggers accessible cue when a preset chip is clicked", () => {
     render(<ScamCheckForm onAnalyze={vi.fn()} />);
 
     const textarea = screen.getByLabelText(/Suspicious message text/i) as HTMLTextAreaElement;
@@ -84,6 +84,7 @@ describe("ScamCheckForm component", () => {
     fireEvent.click(electricityBtn);
 
     expect(textarea.value).toBe(SAMPLE_PRESETS[0]!.text);
+    expect(screen.getByText(/Preset message loaded into input canvas/i)).toBeDefined();
   });
 
   it("triggers validation error when submitted with empty or too short input", () => {
