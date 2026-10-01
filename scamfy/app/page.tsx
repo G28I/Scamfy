@@ -300,16 +300,16 @@ export default function HomePage() {
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <Card className="border-l-4 border-l-amber-500 hover:border-primary/40 transition-colors shadow-xs">
+              <Card className="hover:border-amber-500/40 transition-colors shadow-xs">
                 <CardHeader className="p-5 pb-2">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2.5">
-                      <div className="flex size-8 items-center justify-center rounded-lg border border-border/80 bg-muted/50 text-foreground">
-                        <Zap className="size-4 text-amber-600 dark:text-amber-400" />
+                      <div className="flex size-8 items-center justify-center rounded-lg border border-amber-500/20 bg-amber-500/10 text-amber-600 dark:text-amber-400">
+                        <Zap className="size-4" />
                       </div>
                       <CardTitle className="text-sm font-bold">Electricity Bill Disconnection</CardTitle>
                     </div>
-                    <Badge variant="secondary" className="font-mono text-[10px] uppercase">
+                    <Badge variant="outline" className="border-amber-500/30 bg-amber-500/10 text-amber-700 dark:text-amber-300 font-mono text-[10px] uppercase">
                       Urgency Trap
                     </Badge>
                   </div>
@@ -321,16 +321,16 @@ export default function HomePage() {
                 </CardContent>
               </Card>
 
-              <Card className="border-l-4 border-l-emerald-500 hover:border-primary/40 transition-colors shadow-xs">
+              <Card className="hover:border-emerald-500/40 transition-colors shadow-xs">
                 <CardHeader className="p-5 pb-2">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2.5">
-                      <div className="flex size-8 items-center justify-center rounded-lg border border-border/80 bg-muted/50 text-foreground">
-                        <CreditCard className="size-4 text-emerald-600 dark:text-emerald-400" />
+                      <div className="flex size-8 items-center justify-center rounded-lg border border-emerald-500/20 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+                        <CreditCard className="size-4" />
                       </div>
                       <CardTitle className="text-sm font-bold">UPI PIN Reverse Collect</CardTitle>
                     </div>
-                    <Badge variant="secondary" className="font-mono text-[10px] uppercase">
+                    <Badge variant="outline" className="border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 font-mono text-[10px] uppercase">
                       UPI Fraud
                     </Badge>
                   </div>
@@ -342,16 +342,16 @@ export default function HomePage() {
                 </CardContent>
               </Card>
 
-              <Card className="border-l-4 border-l-blue-500 hover:border-primary/40 transition-colors shadow-xs">
+              <Card className="hover:border-blue-500/40 transition-colors shadow-xs">
                 <CardHeader className="p-5 pb-2">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2.5">
-                      <div className="flex size-8 items-center justify-center rounded-lg border border-border/80 bg-muted/50 text-foreground">
-                        <Briefcase className="size-4 text-blue-600 dark:text-blue-400" />
+                      <div className="flex size-8 items-center justify-center rounded-lg border border-blue-500/20 bg-blue-500/10 text-blue-600 dark:text-blue-400">
+                        <Briefcase className="size-4" />
                       </div>
                       <CardTitle className="text-sm font-bold">Part-Time Task &amp; Review Scam</CardTitle>
                     </div>
-                    <Badge variant="secondary" className="font-mono text-[10px] uppercase">
+                    <Badge variant="outline" className="border-blue-500/30 bg-blue-500/10 text-blue-700 dark:text-blue-300 font-mono text-[10px] uppercase">
                       Prepaid Trap
                     </Badge>
                   </div>
@@ -363,16 +363,16 @@ export default function HomePage() {
                 </CardContent>
               </Card>
 
-              <Card className="border-l-4 border-l-rose-500 hover:border-primary/40 transition-colors shadow-xs">
+              <Card className="hover:border-rose-500/40 transition-colors shadow-xs">
                 <CardHeader className="p-5 pb-2">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2.5">
-                      <div className="flex size-8 items-center justify-center rounded-lg border border-border/80 bg-muted/50 text-foreground">
-                        <Building2 className="size-4 text-rose-600 dark:text-rose-400" />
+                      <div className="flex size-8 items-center justify-center rounded-lg border border-rose-500/20 bg-rose-500/10 text-rose-600 dark:text-rose-400">
+                        <Building2 className="size-4" />
                       </div>
                       <CardTitle className="text-sm font-bold">Digital Arrest Extortion</CardTitle>
                     </div>
-                    <Badge variant="secondary" className="font-mono text-[10px] uppercase">
+                    <Badge variant="outline" className="border-rose-500/30 bg-rose-500/10 text-rose-700 dark:text-rose-300 font-mono text-[10px] uppercase">
                       Impersonation
                     </Badge>
                   </div>
