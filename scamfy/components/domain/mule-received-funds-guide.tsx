@@ -8,6 +8,8 @@ import {
   ClipboardList,
   PhoneCall,
   Copy,
+  Download,
+  Sparkles,
   Check,
   CheckCircle2,
   ChevronRight,
@@ -86,6 +88,35 @@ export function MuleReceivedFundsGuide({
     } catch {
       setCopiedNotice(false);
     }
+  };
+
+  const handleDownloadNotice = () => {
+    try {
+      const blob = new Blob([generatedNoticeText], { type: "text/plain;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `Bank_Notice_Voluntary_Debit_Hold_${formData.transactionRefOrUtr || "dispute"}.txt`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    } catch {
+      // Fallback
+    }
+  };
+
+  const handleFillSample = () => {
+    setFormData({
+      accountHolderName: "Rahul Sharma",
+      bankName: "State Bank of India",
+      accountNumber: "30012345678",
+      transactionRefOrUtr: "UPI/429183928193",
+      transactionDate: new Date().toISOString().split("T")[0] || "2026-10-01",
+      amount: "45,000",
+      senderIdentifier: "unknown_payer@okhdfcbank",
+      communicationChannel: "Telegram Job Group",
+    });
   };
 
   const steps = [
@@ -198,9 +229,21 @@ export function MuleReceivedFundsGuide({
         {/* STEP 2: BANK NOTICE GENERATOR */}
         {currentStep === 2 && (
           <div className="space-y-4">
-            <div className="flex items-center gap-2 text-primary font-bold text-base">
-              <FileText className="h-5 w-5" />
-              <h3>Step 2: Formal Bank Notification & Voluntary Debit Hold Generator</h3>
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <div className="flex items-center gap-2 text-primary font-bold text-base">
+                <FileText className="h-5 w-5" />
+                <h3>Step 2: Formal Bank Notification & Voluntary Debit Hold Generator</h3>
+              </div>
+              <Button
+                type="button"
+                size="sm"
+                variant="ghost"
+                onClick={handleFillSample}
+                className="h-7 text-xs text-muted-foreground hover:text-foreground flex items-center gap-1"
+              >
+                <Sparkles className="h-3.5 w-3.5 text-amber-500" />
+                <span>Fill Sample Details</span>
+              </Button>
             </div>
 
             <p className="text-xs text-muted-foreground">
@@ -295,29 +338,41 @@ export function MuleReceivedFundsGuide({
 
             {/* Live Generated Letter Box */}
             <div className="space-y-2 pt-2">
-              <div className="flex items-center justify-between">
+              <div className="flex flex-wrap items-center justify-between gap-2">
                 <span className="text-xs font-semibold text-foreground">
                   Generated Written Notice Template
                 </span>
-                <Button
-                  type="button"
-                  size="sm"
-                  variant="outline"
-                  onClick={handleCopyNotice}
-                  className="h-7 text-xs flex items-center gap-1"
-                >
-                  {copiedNotice ? (
-                    <>
-                      <Check className="h-3.5 w-3.5 text-emerald-500" />
-                      <span>Copied to Clipboard</span>
-                    </>
-                  ) : (
-                    <>
-                      <Copy className="h-3.5 w-3.5" />
-                      <span>Copy Letter</span>
-                    </>
-                  )}
-                </Button>
+                <div className="flex items-center gap-2">
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    onClick={handleDownloadNotice}
+                    className="h-7 text-xs flex items-center gap-1"
+                  >
+                    <Download className="h-3.5 w-3.5" />
+                    <span>Download .txt</span>
+                  </Button>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    onClick={handleCopyNotice}
+                    className="h-7 text-xs flex items-center gap-1"
+                  >
+                    {copiedNotice ? (
+                      <>
+                        <Check className="h-3.5 w-3.5 text-emerald-500" />
+                        <span>Copied</span>
+                      </>
+                    ) : (
+                      <>
+                        <Copy className="h-3.5 w-3.5" />
+                        <span>Copy Letter</span>
+                      </>
+                    )}
+                  </Button>
+                </div>
               </div>
 
               <pre className="p-3.5 rounded-lg border border-border bg-muted/40 font-mono text-xs text-foreground whitespace-pre-wrap leading-relaxed max-h-56 overflow-y-auto">

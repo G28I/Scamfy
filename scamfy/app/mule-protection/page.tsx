@@ -42,7 +42,7 @@ export default function MuleProtectionPage() {
 
           {/* Educational Threat Cards */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-            <div className="rounded-xl border border-border bg-card p-5 space-y-2.5 shadow-sm">
+            <div className="rounded-xl border border-border border-t-2 border-t-rose-500 bg-card p-5 space-y-2.5 shadow-sm">
               <div className="flex items-center gap-2 text-rose-500 font-bold text-sm">
                 <AlertTriangle className="h-4 w-4" />
                 <h3>The Forwarding Trap</h3>
@@ -53,7 +53,7 @@ export default function MuleProtectionPage() {
               </p>
             </div>
 
-            <div className="rounded-xl border border-border bg-card p-5 space-y-2.5 shadow-sm">
+            <div className="rounded-xl border border-border border-t-2 border-t-amber-500 bg-card p-5 space-y-2.5 shadow-sm">
               <div className="flex items-center gap-2 text-amber-500 font-bold text-sm">
                 <Lock className="h-4 w-4" />
                 <h3>Account Rental Schemes</h3>
@@ -64,7 +64,7 @@ export default function MuleProtectionPage() {
               </p>
             </div>
 
-            <div className="rounded-xl border border-border bg-card p-5 space-y-2.5 shadow-sm">
+            <div className="rounded-xl border border-border border-t-2 border-t-blue-500 bg-card p-5 space-y-2.5 shadow-sm">
               <div className="flex items-center gap-2 text-blue-500 font-bold text-sm">
                 <Scale className="h-4 w-4" />
                 <h3>Legal Accountability</h3>
