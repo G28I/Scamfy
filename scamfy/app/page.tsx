@@ -19,7 +19,7 @@ import { SiteFooter } from "@/components/shared/site-footer";
 import { ScamCheckForm } from "@/components/domain/scam-check-form";
 import { ScamCheckResult } from "@/components/domain/scam-check-result";
 import { StateFeedback } from "@/components/domain/state-feedback";
-import { TacticalHeroMatrix } from "@/components/domain/tactical-hero-matrix";
+import { ScamfyThreeHero, ScamfyDepthCard } from "@/components/three";
 import {
   Card,
   CardHeader,
@@ -108,7 +108,7 @@ export default function HomePage() {
       <main className="flex-1">
         {/* 1. Hero & Triage Section */}
         <section className="relative overflow-hidden bg-gradient-to-b from-muted/30 to-background py-10 sm:py-16">
-          <TacticalHeroMatrix opacity={0.14} />
+          <ScamfyThreeHero opacity={0.14} />
 
           <div className="container relative z-10 mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 space-y-8">
             {/* Hero Text */}
@@ -154,7 +154,7 @@ export default function HomePage() {
 
         <Separator />
 
-        {/* 2. What Scamfy Inspects (4 Key Pillars with Shadcn Cards) */}
+        {/* 2. What Scamfy Inspects (4 Key Pillars with Shadcn Cards + Depth Tilt) */}
         <section className="py-14 sm:py-18 bg-muted/10">
           <div className="container mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 space-y-10">
             <div className="text-center space-y-2">
@@ -167,61 +167,69 @@ export default function HomePage() {
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              <Card className="hover:border-primary/40 transition-colors shadow-xs">
-                <CardHeader className="p-5 space-y-3 pb-0">
-                  <div className="flex size-10 items-center justify-center rounded-lg border border-border/80 bg-muted/50 text-foreground">
-                    <CreditCard className="size-5 text-primary" />
-                  </div>
-                  <CardTitle className="text-sm font-bold">Payment &amp; UPI Signals</CardTitle>
-                </CardHeader>
-                <CardContent className="p-5 pt-2">
-                  <CardDescription className="text-xs leading-relaxed">
-                    Extracts UPI VPAs, bank account numbers, and detects deceptive QR &ldquo;receive PIN&rdquo; payment collect traps.
-                  </CardDescription>
-                </CardContent>
-              </Card>
+              <ScamfyDepthCard maxTilt={2.5}>
+                <Card className="h-full hover:border-primary/40 transition-colors shadow-xs">
+                  <CardHeader className="p-5 space-y-3 pb-0">
+                    <div className="flex size-10 items-center justify-center rounded-lg border border-border/80 bg-muted/50 text-foreground">
+                      <CreditCard className="size-5 text-primary" />
+                    </div>
+                    <CardTitle className="text-sm font-bold">Payment &amp; UPI Signals</CardTitle>
+                  </CardHeader>
+                  <CardContent className="p-5 pt-2">
+                    <CardDescription className="text-xs leading-relaxed">
+                      Extracts UPI VPAs, bank account numbers, and detects deceptive QR &ldquo;receive PIN&rdquo; payment collect traps.
+                    </CardDescription>
+                  </CardContent>
+                </Card>
+              </ScamfyDepthCard>
 
-              <Card className="hover:border-primary/40 transition-colors shadow-xs">
-                <CardHeader className="p-5 space-y-3 pb-0">
-                  <div className="flex size-10 items-center justify-center rounded-lg border border-border/80 bg-muted/50 text-foreground">
-                    <Zap className="size-5 text-amber-600 dark:text-amber-400" />
-                  </div>
-                  <CardTitle className="text-sm font-bold">Pressure &amp; Extortion</CardTitle>
-                </CardHeader>
-                <CardContent className="p-5 pt-2">
-                  <CardDescription className="text-xs leading-relaxed">
-                    Identifies artificial deadlines, power disconnection threats, and digital arrest police impersonation.
-                  </CardDescription>
-                </CardContent>
-              </Card>
+              <ScamfyDepthCard maxTilt={2.5}>
+                <Card className="h-full hover:border-primary/40 transition-colors shadow-xs">
+                  <CardHeader className="p-5 space-y-3 pb-0">
+                    <div className="flex size-10 items-center justify-center rounded-lg border border-border/80 bg-muted/50 text-foreground">
+                      <Zap className="size-5 text-amber-600 dark:text-amber-400" />
+                    </div>
+                    <CardTitle className="text-sm font-bold">Pressure &amp; Extortion</CardTitle>
+                  </CardHeader>
+                  <CardContent className="p-5 pt-2">
+                    <CardDescription className="text-xs leading-relaxed">
+                      Identifies artificial deadlines, power disconnection threats, and digital arrest police impersonation.
+                    </CardDescription>
+                  </CardContent>
+                </Card>
+              </ScamfyDepthCard>
 
-              <Card className="hover:border-primary/40 transition-colors shadow-xs">
-                <CardHeader className="p-5 space-y-3 pb-0">
-                  <div className="flex size-10 items-center justify-center rounded-lg border border-border/80 bg-muted/50 text-foreground">
-                    <FileSearch className="size-5 text-blue-600 dark:text-blue-400" />
-                  </div>
-                  <CardTitle className="text-sm font-bold">Phishing URLs &amp; APKs</CardTitle>
-                </CardHeader>
-                <CardContent className="p-5 pt-2">
-                  <CardDescription className="text-xs leading-relaxed">
-                    Evaluates obfuscated domain links, fake bank KYC forms, and predatory instant-loan APK install links.
-                  </CardDescription>
-                </CardContent>
-              </Card>
+              <ScamfyDepthCard maxTilt={2.5}>
+                <Card className="h-full hover:border-primary/40 transition-colors shadow-xs">
+                  <CardHeader className="p-5 space-y-3 pb-0">
+                    <div className="flex size-10 items-center justify-center rounded-lg border border-border/80 bg-muted/50 text-foreground">
+                      <FileSearch className="size-5 text-blue-600 dark:text-blue-400" />
+                    </div>
+                    <CardTitle className="text-sm font-bold">Phishing URLs &amp; APKs</CardTitle>
+                  </CardHeader>
+                  <CardContent className="p-5 pt-2">
+                    <CardDescription className="text-xs leading-relaxed">
+                      Evaluates obfuscated domain links, fake bank KYC forms, and predatory instant-loan APK install links.
+                    </CardDescription>
+                  </CardContent>
+                </Card>
+              </ScamfyDepthCard>
 
-              <Card className="hover:border-primary/40 transition-colors shadow-xs">
-                <CardHeader className="p-5 space-y-3 pb-0">
-                  <div className="flex size-10 items-center justify-center rounded-lg border border-border/80 bg-muted/50 text-foreground">
-                    <Briefcase className="size-5 text-purple-600 dark:text-purple-400" />
-                  </div>
-                  <CardTitle className="text-sm font-bold">Task &amp; Job Fraud</CardTitle>
-                </CardHeader>
-                <CardContent className="p-5 pt-2">
-                  <CardDescription className="text-xs leading-relaxed">
-                    Catches Telegram prepaid investment schemes, fake YouTube video rating jobs, and recruitment advances.
-                  </CardDescription>
-                </CardContent>
-              </Card>
+              <ScamfyDepthCard maxTilt={2.5}>
+                <Card className="h-full hover:border-primary/40 transition-colors shadow-xs">
+                  <CardHeader className="p-5 space-y-3 pb-0">
+                    <div className="flex size-10 items-center justify-center rounded-lg border border-border/80 bg-muted/50 text-foreground">
+                      <Briefcase className="size-5 text-purple-600 dark:text-purple-400" />
+                    </div>
+                    <CardTitle className="text-sm font-bold">Task &amp; Job Fraud</CardTitle>
+                  </CardHeader>
+                  <CardContent className="p-5 pt-2">
+                    <CardDescription className="text-xs leading-relaxed">
+                      Catches Telegram prepaid investment schemes, fake YouTube video rating jobs, and recruitment advances.
+                    </CardDescription>
+                  </CardContent>
+                </Card>
+              </ScamfyDepthCard>
             </div>
           </div>
         </section>
@@ -303,89 +311,97 @@ export default function HomePage() {
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <Card className="hover:border-amber-500/40 transition-colors shadow-xs">
-                <CardHeader className="p-5 pb-2">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2.5">
-                      <div className="flex size-8 items-center justify-center rounded-lg border border-amber-500/20 bg-amber-500/10 text-amber-600 dark:text-amber-400">
-                        <Zap className="size-4" />
+              <ScamfyDepthCard maxTilt={2.5}>
+                <Card className="h-full hover:border-amber-500/40 transition-colors shadow-xs">
+                  <CardHeader className="p-5 pb-2">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2.5">
+                        <div className="flex size-8 items-center justify-center rounded-lg border border-amber-500/20 bg-amber-500/10 text-amber-600 dark:text-amber-400">
+                          <Zap className="size-4" />
+                        </div>
+                        <CardTitle className="text-sm font-bold">Electricity Bill Disconnection</CardTitle>
                       </div>
-                      <CardTitle className="text-sm font-bold">Electricity Bill Disconnection</CardTitle>
+                      <Badge variant="outline" className="border-amber-500/30 bg-amber-500/10 text-amber-700 dark:text-amber-300 font-mono text-[10px] uppercase">
+                        Urgency Trap
+                      </Badge>
                     </div>
-                    <Badge variant="outline" className="border-amber-500/30 bg-amber-500/10 text-amber-700 dark:text-amber-300 font-mono text-[10px] uppercase">
-                      Urgency Trap
-                    </Badge>
-                  </div>
-                </CardHeader>
-                <CardContent className="p-5 pt-1">
-                  <CardDescription className="text-xs leading-relaxed text-muted-foreground">
-                    Fake SMS alerts claiming your electricity supply will be cut at 9:30 PM due to unpaid dues. Demands calling an unofficial personal mobile number or installing remote-screen-share APKs.
-                  </CardDescription>
-                </CardContent>
-              </Card>
+                  </CardHeader>
+                  <CardContent className="p-5 pt-1">
+                    <CardDescription className="text-xs leading-relaxed text-muted-foreground">
+                      Fake SMS alerts claiming your electricity supply will be cut at 9:30 PM due to unpaid dues. Demands calling an unofficial personal mobile number or installing remote-screen-share APKs.
+                    </CardDescription>
+                  </CardContent>
+                </Card>
+              </ScamfyDepthCard>
 
-              <Card className="hover:border-emerald-500/40 transition-colors shadow-xs">
-                <CardHeader className="p-5 pb-2">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2.5">
-                      <div className="flex size-8 items-center justify-center rounded-lg border border-emerald-500/20 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
-                        <CreditCard className="size-4" />
+              <ScamfyDepthCard maxTilt={2.5}>
+                <Card className="h-full hover:border-emerald-500/40 transition-colors shadow-xs">
+                  <CardHeader className="p-5 pb-2">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2.5">
+                        <div className="flex size-8 items-center justify-center rounded-lg border border-emerald-500/20 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+                          <CreditCard className="size-4" />
+                        </div>
+                        <CardTitle className="text-sm font-bold">UPI PIN Reverse Collect</CardTitle>
                       </div>
-                      <CardTitle className="text-sm font-bold">UPI PIN Reverse Collect</CardTitle>
+                      <Badge variant="outline" className="border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 font-mono text-[10px] uppercase">
+                        UPI Fraud
+                      </Badge>
                     </div>
-                    <Badge variant="outline" className="border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 font-mono text-[10px] uppercase">
-                      UPI Fraud
-                    </Badge>
-                  </div>
-                </CardHeader>
-                <CardContent className="p-5 pt-1">
-                  <CardDescription className="text-xs leading-relaxed text-muted-foreground">
-                    Fraudsters promise festival cashbacks or refunds, sending a QR code and instructing you to enter your UPI PIN. Crucial rule: <strong>UPI PIN is required ONLY to SEND money, never to receive it.</strong>
-                  </CardDescription>
-                </CardContent>
-              </Card>
+                  </CardHeader>
+                  <CardContent className="p-5 pt-1">
+                    <CardDescription className="text-xs leading-relaxed text-muted-foreground">
+                      Fraudsters promise festival cashbacks or refunds, sending a QR code and instructing you to enter your UPI PIN. Crucial rule: <strong>UPI PIN is required ONLY to SEND money, never to receive it.</strong>
+                    </CardDescription>
+                  </CardContent>
+                </Card>
+              </ScamfyDepthCard>
 
-              <Card className="hover:border-blue-500/40 transition-colors shadow-xs">
-                <CardHeader className="p-5 pb-2">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2.5">
-                      <div className="flex size-8 items-center justify-center rounded-lg border border-blue-500/20 bg-blue-500/10 text-blue-600 dark:text-blue-400">
-                        <Briefcase className="size-4" />
+              <ScamfyDepthCard maxTilt={2.5}>
+                <Card className="h-full hover:border-blue-500/40 transition-colors shadow-xs">
+                  <CardHeader className="p-5 pb-2">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2.5">
+                        <div className="flex size-8 items-center justify-center rounded-lg border border-blue-500/20 bg-blue-500/10 text-blue-600 dark:text-blue-400">
+                          <Briefcase className="size-4" />
+                        </div>
+                        <CardTitle className="text-sm font-bold">Part-Time Task &amp; Review Scam</CardTitle>
                       </div>
-                      <CardTitle className="text-sm font-bold">Part-Time Task &amp; Review Scam</CardTitle>
+                      <Badge variant="outline" className="border-blue-500/30 bg-blue-500/10 text-blue-700 dark:text-blue-300 font-mono text-[10px] uppercase">
+                        Prepaid Trap
+                      </Badge>
                     </div>
-                    <Badge variant="outline" className="border-blue-500/30 bg-blue-500/10 text-blue-700 dark:text-blue-300 font-mono text-[10px] uppercase">
-                      Prepaid Trap
-                    </Badge>
-                  </div>
-                </CardHeader>
-                <CardContent className="p-5 pt-1">
-                  <CardDescription className="text-xs leading-relaxed text-muted-foreground">
-                    Offers ₹3,000–₹5,000 daily for liking YouTube videos or rating Google maps. Early small payouts build trust before demanding large prepaid deposit tiers that cannot be withdrawn.
-                  </CardDescription>
-                </CardContent>
-              </Card>
+                  </CardHeader>
+                  <CardContent className="p-5 pt-1">
+                    <CardDescription className="text-xs leading-relaxed text-muted-foreground">
+                      Offers ₹3,000–₹5,000 daily for liking YouTube videos or rating Google maps. Early small payouts build trust before demanding large prepaid deposit tiers that cannot be withdrawn.
+                    </CardDescription>
+                  </CardContent>
+                </Card>
+              </ScamfyDepthCard>
 
-              <Card className="hover:border-rose-500/40 transition-colors shadow-xs">
-                <CardHeader className="p-5 pb-2">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2.5">
-                      <div className="flex size-8 items-center justify-center rounded-lg border border-rose-500/20 bg-rose-500/10 text-rose-600 dark:text-rose-400">
-                        <Building2 className="size-4" />
+              <ScamfyDepthCard maxTilt={2.5}>
+                <Card className="h-full hover:border-rose-500/40 transition-colors shadow-xs">
+                  <CardHeader className="p-5 pb-2">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2.5">
+                        <div className="flex size-8 items-center justify-center rounded-lg border border-rose-500/20 bg-rose-500/10 text-rose-600 dark:text-rose-400">
+                          <Building2 className="size-4" />
+                        </div>
+                        <CardTitle className="text-sm font-bold">Digital Arrest Extortion</CardTitle>
                       </div>
-                      <CardTitle className="text-sm font-bold">Digital Arrest Extortion</CardTitle>
+                      <Badge variant="outline" className="border-rose-500/30 bg-rose-500/10 text-rose-700 dark:text-rose-300 font-mono text-[10px] uppercase">
+                        Impersonation
+                      </Badge>
                     </div>
-                    <Badge variant="outline" className="border-rose-500/30 bg-rose-500/10 text-rose-700 dark:text-rose-300 font-mono text-[10px] uppercase">
-                      Impersonation
-                    </Badge>
-                  </div>
-                </CardHeader>
-                <CardContent className="p-5 pt-1">
-                  <CardDescription className="text-xs leading-relaxed text-muted-foreground">
-                    Fraudsters impersonate CBI, Police, or Customs officers claiming illegal parcels or drug trafficking linked to your Aadhaar. They demand video interrogation and fund transfers to &ldquo;safety accounts&rdquo;.
-                  </CardDescription>
-                </CardContent>
-              </Card>
+                  </CardHeader>
+                  <CardContent className="p-5 pt-1">
+                    <CardDescription className="text-xs leading-relaxed text-muted-foreground">
+                      Fraudsters impersonate CBI, Police, or Customs officers claiming illegal parcels or drug trafficking linked to your Aadhaar. They demand video interrogation and fund transfers to &ldquo;safety accounts&rdquo;.
+                    </CardDescription>
+                  </CardContent>
+                </Card>
+              </ScamfyDepthCard>
             </div>
           </div>
         </section>

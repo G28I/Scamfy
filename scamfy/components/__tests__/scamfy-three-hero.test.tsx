@@ -2,21 +2,37 @@
 import React from "react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen } from "@testing-library/react";
-import { TacticalHeroMatrix } from "@/components/domain/tactical-hero-matrix";
+import { ScamfyThreeHero } from "@/components/three/scamfy-three-hero";
 
 vi.mock("@designcodeio/threeui/components/DotMatrixBackground", () => ({
-  DotMatrixBackground: ({ className, opacity, speed, pulseSpeed }: { className?: string; opacity?: number; speed?: number; pulseSpeed?: number }) => (
+  DotMatrixBackground: ({
+    className,
+    opacity,
+    speed,
+    pulseSpeed,
+    gridScale,
+    mouseAmount,
+  }: {
+    className?: string;
+    opacity?: number;
+    speed?: number;
+    pulseSpeed?: number;
+    gridScale?: number;
+    mouseAmount?: number;
+  }) => (
     <div
       data-testid="dot-matrix-mock"
       data-speed={speed}
       data-pulse-speed={pulseSpeed}
+      data-grid-scale={gridScale}
+      data-mouse-amount={mouseAmount}
       data-opacity={opacity}
       className={className}
     />
   ),
 }));
 
-describe("TacticalHeroMatrix component", () => {
+describe("ScamfyThreeHero component", () => {
   beforeEach(() => {
     Object.defineProperty(window, "matchMedia", {
       writable: true,
@@ -33,8 +49,8 @@ describe("TacticalHeroMatrix component", () => {
     });
   });
 
-  it("renders with aria-hidden, pointer-events-none, and default styling", async () => {
-    const { container } = render(<TacticalHeroMatrix opacity={0.14} />);
+  it("renders with aria-hidden, pointer-events-none, and correct defaults on desktop", async () => {
+    const { container } = render(<ScamfyThreeHero opacity={0.14} />);
     const root = container.firstElementChild as HTMLElement;
 
     expect(root).toBeDefined();
@@ -47,9 +63,11 @@ describe("TacticalHeroMatrix component", () => {
     expect(matrix).toBeDefined();
     expect(matrix.getAttribute("data-opacity")).toBe("0.14");
     expect(matrix.getAttribute("data-speed")).toBe("0.35");
+    expect(matrix.getAttribute("data-grid-scale")).toBe("50");
+    expect(matrix.getAttribute("data-mouse-amount")).toBe("0.02");
   });
 
-  it("detects prefers-reduced-motion and reduces speed to 0", async () => {
+  it("freezes motion when prefers-reduced-motion is active", async () => {
     window.matchMedia = vi.fn().mockImplementation((query: string) => ({
       matches: query.includes("prefers-reduced-motion: reduce"),
       media: query,
@@ -61,10 +79,31 @@ describe("TacticalHeroMatrix component", () => {
       dispatchEvent: vi.fn(),
     }));
 
-    render(<TacticalHeroMatrix opacity={0.2} />);
+    render(<ScamfyThreeHero opacity={0.2} />);
     const matrix = await screen.findByTestId("dot-matrix-mock");
     expect(matrix).toBeDefined();
     expect(matrix.getAttribute("data-speed")).toBe("0");
     expect(matrix.getAttribute("data-pulse-speed")).toBe("0");
+    expect(matrix.getAttribute("data-mouse-amount")).toBe("0");
+  });
+
+  it("scales down quality and disables mouse parallax on mobile viewport", async () => {
+    window.matchMedia = vi.fn().mockImplementation((query: string) => ({
+      matches: query.includes("max-width: 640px"),
+      media: query,
+      onchange: null,
+      addListener: vi.fn(),
+      removeListener: vi.fn(),
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+      dispatchEvent: vi.fn(),
+    }));
+
+    render(<ScamfyThreeHero opacity={0.15} />);
+    const matrix = await screen.findByTestId("dot-matrix-mock");
+    expect(matrix).toBeDefined();
+    expect(matrix.getAttribute("data-grid-scale")).toBe("36");
+    expect(matrix.getAttribute("data-mouse-amount")).toBe("0");
+    expect(matrix.getAttribute("data-speed")).toBe("0.2");
   });
 });
