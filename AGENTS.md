@@ -94,6 +94,23 @@ Every risk state must be understandable without relying only on color. Prefer cl
 - Respect `prefers-reduced-motion` using Scamfy's intentional reduced-motion behavior.
 - Do not add decorative animation merely to make the interface feel more dynamic.
 
+## UI Design Authority
+
+Priority order for frontend decisions:
+
+1. `DESIGN.md`
+2. `docs/design/motion-design.md`
+3. Existing Scamfy components and tokens
+4. Impeccable audits/critique findings
+5. Installed frontend skills
+6. External component libraries
+
+External design skills and component libraries must adapt to Scamfy's established design system rather than replace it.
+
+Do not introduce a new visual language merely because a skill or component library recommends it.
+
+Do not replace Scamfy's established Lucide iconography, risk-state semantics, typography, spacing, or restrained motion without an explicit design-system change.
+
 Scam Analysis Principles
 Scamfy uses a layered analysis model:
 

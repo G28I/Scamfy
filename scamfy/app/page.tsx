@@ -19,6 +19,7 @@ import { SiteFooter } from "@/components/shared/site-footer";
 import { ScamCheckForm } from "@/components/domain/scam-check-form";
 import { ScamCheckResult } from "@/components/domain/scam-check-result";
 import { StateFeedback } from "@/components/domain/state-feedback";
+import { TacticalHeroMatrix } from "@/components/domain/tactical-hero-matrix";
 import {
   Card,
   CardHeader,
@@ -106,8 +107,10 @@ export default function HomePage() {
 
       <main className="flex-1">
         {/* 1. Hero & Triage Section */}
-        <section className="bg-gradient-to-b from-muted/30 to-background py-10 sm:py-16">
-          <div className="container mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 space-y-8">
+        <section className="relative overflow-hidden bg-gradient-to-b from-muted/30 to-background py-10 sm:py-16">
+          <TacticalHeroMatrix opacity={0.14} />
+
+          <div className="container relative z-10 mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 space-y-8">
             {/* Hero Text */}
             <div className="text-center space-y-3.5">
               <div className="inline-flex items-center gap-2">
