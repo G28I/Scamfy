@@ -1,7 +1,6 @@
 
 
 
-
 Scamfy
 What this is
 Scamfy is a fraud-prevention and victim-support platform focused initially on students. It helps people recognize suspicious jobs, investment offers, loans, payment requests, money-mule recruitment, and other financial scam patterns before they cause harm. When a user is already affected, Scamfy helps them preserve evidence, organize a case timeline, prepare information for the appropriate official reporting channel, and understand what action to take next.
