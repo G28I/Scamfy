@@ -52,6 +52,11 @@ export function SiteFooter() {
                 </Link>
               </li>
               <li>
+                <Link href="/mule-protection" className="hover:text-foreground transition-colors">
+                  Money-Mule Shield
+                </Link>
+              </li>
+              <li>
                 <Link href="/cases" className="hover:text-foreground transition-colors">
                   Victim Assistance Cases
                 </Link>
@@ -78,6 +83,11 @@ export function SiteFooter() {
                   <PhoneCall className="h-3 w-3" />
                   <span>National Cyber Helpline: 1930</span>
                 </a>
+              </li>
+              <li>
+                <Link href="/report" className="hover:text-foreground transition-colors">
+                  Official Reporting Guide
+                </Link>
               </li>
               <li>
                 <a

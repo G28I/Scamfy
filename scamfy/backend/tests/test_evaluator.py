@@ -5,8 +5,8 @@ from backend.app.core.extractors import extract_all_entities
 
 def test_rules_count_and_uniqueness():
     rule_ids = [r["id"] for r in RULES]
-    assert len(rule_ids) == 10
-    assert len(set(rule_ids)) == 10
+    assert len(rule_ids) == 13
+    assert len(set(rule_ids)) == 13
 
 
 def test_rule_upi_pin_reverse():
