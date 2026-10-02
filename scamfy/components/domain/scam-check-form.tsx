@@ -1,5 +1,5 @@
 import * as React from "react";
-import { ShieldCheck, Zap, CreditCard, Briefcase, ShieldAlert, Trash2, Clipboard, CornerDownLeft, Flame, Lock } from "lucide-react";
+import { ShieldCheck, Zap, CreditCard, Briefcase, ShieldAlert, Trash2, Clipboard, Flame, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
@@ -271,11 +271,19 @@ export function ScamCheckForm({
           <Button
             type="submit"
             size="lg"
+            aria-label="Analyze Message"
             isLoading={isLoading}
             disabled={isLoading || !text.trim()}
             leftIcon={<ShieldCheck className="h-4 w-4" />}
-            rightIcon={<CornerDownLeft className="h-3.5 w-3.5 opacity-60 hidden sm:inline-block" />}
-            className="w-full sm:w-auto font-bold px-7 shadow-md transition-all active:scale-[0.99]"
+            rightIcon={
+              <kbd
+                aria-hidden="true"
+                className="hidden sm:inline-flex items-center gap-0.5 rounded border border-primary-foreground/30 bg-primary-foreground/20 px-1.5 py-0.5 text-[10px] font-mono font-medium text-primary-foreground"
+              >
+                Ctrl+↵
+              </kbd>
+            }
+            className="w-full sm:w-auto font-bold px-6 shadow-md transition-all active:scale-[0.99]"
           >
             {isLoading ? "Running Threat Heuristics..." : "Analyze Message"}
           </Button>
