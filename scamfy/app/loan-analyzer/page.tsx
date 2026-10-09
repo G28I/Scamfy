@@ -7,12 +7,12 @@ import { Calculator, AlertTriangle, ShieldCheck, Scale, ExternalLink } from "luc
 export const metadata: Metadata = {
   title: "Predatory Loan & High-Yield Trap Analyzer | Scamfy",
   description:
-    "Dissect hidden upfront deductions, calculate true annualized borrowing APRs, expose mathematically impossible Ponzi yields, and verify RBI regulatory compliance under Indian digital lending directives.",
+    "Dissect hidden upfront deductions, calculate true annualized borrowing APRs, expose unsustainable high-yield Ponzi traps, and verify RBI regulatory compliance under Indian digital lending directives.",
 };
 
 /**
  * Standalone Loan & High-Return Trap Analyzer Page.
- * Provides public calculators, educational loan APR dissectors, Ponzi impossibility checks, and RBI verification checklists.
+ * Provides public calculators, educational loan APR dissectors, Ponzi anomaly checks, and RBI verification checklists.
  *
  * @returns React JSX element rendering the loan and yield analyzer page
  */
@@ -34,8 +34,8 @@ export default function LoanAnalyzerPage() {
             </h1>
             <p className="text-sm text-muted-foreground max-w-3xl leading-relaxed">
               Illegal 7-day lending apps and high-yield Ponzi syndicates trap borrowers and students with
-              obscured fee structures and false promises. Calculate true annualized costs (APR), expose
-              impossible yields, and verify RBI registration before sharing personal documents.
+              obscured fee structures and false promises. Calculate estimated simple borrowing rates (APR), expose
+              unsustainable yields, and verify RBI registration before sharing personal documents.
             </p>
           </div>
 

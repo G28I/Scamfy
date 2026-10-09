@@ -65,15 +65,17 @@ class YieldCalculationResult(BaseModel):
     flags: list[str]
 
 
-RBI_REPO_RATE = 6.5
-NIFTY_CAGR_BENCHMARK = 12.5
-BUDS_ACT_THRESHOLD = 24.0
-PREDATORY_APR_THRESHOLD = 100.0
-HIGH_COST_APR_THRESHOLD = 36.0
+RBI_REPO_RATE = 5.50  # Effective Oct 7, 2026 monetary policy decision
+NIFTY_CAGR_BENCHMARK = 12.5  # 10-year rolling CAGR benchmark
+UNREGULATED_HIGH_YIELD_ANOMALY_THRESHOLD = 24.0  # Scamfy product risk heuristic (>2x equity CAGR)
+EXTREME_YIELD_RISK_THRESHOLD = 50.0  # Scamfy product risk heuristic for Ponzi/HYIP
+HEURISTIC_PREDATORY_APR_THRESHOLD = 100.0  # Scamfy product risk heuristic for predatory credit
+HEURISTIC_HIGH_COST_APR_THRESHOLD = 36.0  # Scamfy product risk heuristic for high-cost credit
 
 
 def classify_loan_risk(apr: float, tenure_days: int, deduction_ratio: float) -> LoanRiskLevel:
     """Classify the risk level of a loan based on APR, tenure, and upfront fee ratio.
+    Note: 36% and 100% APR thresholds are Scamfy product heuristics modeling high-cost credit patterns.
 
     Args:
         apr: Annual Percentage Rate in percent.
@@ -84,13 +86,13 @@ def classify_loan_risk(apr: float, tenure_days: int, deduction_ratio: float) -> 
         Risk level category: NORMAL, HIGH_COST, or PREDATORY.
     """
     if (
-        apr >= PREDATORY_APR_THRESHOLD
+        apr >= HEURISTIC_PREDATORY_APR_THRESHOLD
         or (tenure_days <= 15 and deduction_ratio >= 0.15)
         or (tenure_days <= 30 and deduction_ratio >= 0.25)
     ):
         return "PREDATORY"
 
-    if apr >= HIGH_COST_APR_THRESHOLD or deduction_ratio >= 0.10:
+    if apr >= HEURISTIC_HIGH_COST_APR_THRESHOLD or deduction_ratio >= 0.10:
         return "HIGH_COST"
 
     return "NORMAL"
@@ -151,10 +153,10 @@ def calculate_loan_metrics(params: LoanInputParams) -> LoanCalculationResult:
 
     if annualized_simple_apr >= 1000.0:
         flags.append(f"Usurious annualized rate ({annualized_simple_apr:.0f}% APR) exceeds predatory lending thresholds")
-    elif annualized_simple_apr >= PREDATORY_APR_THRESHOLD:
-        flags.append(f"Annual Percentage Rate ({annualized_simple_apr:.1f}% APR) is significantly higher than legal microfinance caps")
+    elif annualized_simple_apr >= HEURISTIC_PREDATORY_APR_THRESHOLD:
+        flags.append(f"Annual Percentage Rate ({annualized_simple_apr:.1f}% APR) exceeds Scamfy's high-risk lending heuristic")
 
-    risk_summary = "Loan parameters appear within standard consumer lending interest bounds."
+    risk_summary = "Loan parameters appear within standard consumer lending interest bounds and standard market ranges."
     if risk_level == "PREDATORY":
         risk_summary = (
             "CRITICAL: Highly predatory loan structure matching illegal 7-day digital lending trap "
@@ -215,46 +217,64 @@ def calculate_yield_metrics(params: YieldInputParams) -> YieldCalculationResult:
             if apy_val < 1e12:
                 annualized_compounded_apy_percentage = apy_val
         except (OverflowError, ValueError):
-            annualized_compounded_apy_percentage = annualized_simple_yield_percentage * 10.0
+            pass
 
     projected_annual_return_amount = (investment_amount * annualized_simple_yield_percentage) / 100.0
 
     benchmark_excess_multiplier = (
-        round(annualized_simple_yield_percentage / RBI_REPO_RATE, 1) if RBI_REPO_RATE > 0 else 1.0
+        round(annualized_simple_yield_percentage / RBI_REPO_RATE, 1)
+        if RBI_REPO_RATE > 0 and promised_return_percentage > 0
+        else 1.0
     )
 
     risk_level: YieldRiskLevel = "REASONABLE"
     if (
-        annualized_simple_yield_percentage >= 50.0
-        or frequency == "daily"
-        or (frequency == "weekly" and promised_return_percentage >= 2.0)
+        promised_return_percentage > 0
+        and (
+            annualized_simple_yield_percentage >= EXTREME_YIELD_RISK_THRESHOLD
+            or (frequency == "daily" and promised_return_percentage > 0.1)
+            or (
+                frequency == "weekly"
+                and promised_return_percentage >= 2.0
+                and annualized_simple_yield_percentage >= EXTREME_YIELD_RISK_THRESHOLD
+            )
+        )
     ):
         risk_level = "PONZI_TRAP"
-    elif annualized_simple_yield_percentage >= BUDS_ACT_THRESHOLD:
+    elif (
+        promised_return_percentage > 0
+        and annualized_simple_yield_percentage >= UNREGULATED_HIGH_YIELD_ANOMALY_THRESHOLD
+    ):
         risk_level = "HIGH_RISK"
 
     flags: list[str] = []
-    if frequency == "daily":
-        flags.append(f"Daily return promises ({promised_return_percentage}%/day) are classic indicators of unsustainable Ponzi / HYIP fraud")
-    if annualized_simple_yield_percentage >= BUDS_ACT_THRESHOLD:
+    if frequency == "daily" and promised_return_percentage > 0.1:
         flags.append(
-            f"Promised yield ({annualized_simple_yield_percentage:.1f}% p.a.) exceeds the 24% threshold regulated under the BUDS Act, 2019"
+            f"Daily return promises ({promised_return_percentage}%/day) are classic indicators of unsustainable high-yield / Ponzi schemes"
         )
-    if benchmark_excess_multiplier >= 5.0:
+    if (
+        promised_return_percentage > 0
+        and annualized_simple_yield_percentage >= UNREGULATED_HIGH_YIELD_ANOMALY_THRESHOLD
+    ):
+        flags.append(
+            f"Promised yield ({annualized_simple_yield_percentage:.1f}% p.a.) significantly exceeds regulated market benchmarks. "
+            "Operating unregulated deposit schemes promising returns violates the BUDS Act, 2019."
+        )
+    if promised_return_percentage > 0 and benchmark_excess_multiplier >= 5.0:
         flags.append(
             f"Promised return is {benchmark_excess_multiplier}x higher than standard RBI repo rate and bank deposits"
         )
 
-    risk_summary = "Promised yield is within normal regulated capital market expectations."
+    risk_summary = "Promised yield is within standard regulated capital market expectations."
     if risk_level == "PONZI_TRAP":
         risk_summary = (
-            "CRITICAL: Mathematically unsustainable guaranteed return. Matches high-yield Ponzi / "
-            "unregulated deposit scheme patterns."
+            "CRITICAL: Unsustainable high-yield promise. Unregulated deposit or Ponzi-style schemes often "
+            "promise high or daily returns without a legitimate underlying business model."
         )
     elif risk_level == "HIGH_RISK":
         risk_summary = (
-            "CAUTION: Unusually high return promise exceeding market benchmarks. Requires verifying "
-            "SEBI/RBI regulatory registration."
+            "CAUTION: Unusually high return promise exceeding market benchmarks. Verify whether the offering "
+            "entity is officially registered with statutory regulators."
         )
 
     return YieldCalculationResult(

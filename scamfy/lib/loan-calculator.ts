@@ -55,18 +55,28 @@ export interface YieldCalculationResult {
 }
 
 export const OFFICIAL_BENCHMARKS = {
-  rbiRepoRatePercentage: 6.5,
+  /** Current RBI policy repo rate benchmark as of Oct 7, 2026 monetary policy decision. */
+  rbiRepoRatePercentage: 5.50,
+  rbiRepoRateAsOfDate: "2026-10-07",
+  /** Standard commercial bank 1-year fixed deposit average rate. */
   bankFixedDepositPercentage: 7.0,
+  /** Nifty 50 historic 10-year rolling CAGR benchmark. */
   niftyHistoricalCagrPercentage: 12.5,
+  /** Top-tier equity mutual fund 10-year CAGR range. */
   topMutualFundEquityPercentage: 15.0,
-  budsActSuspiciousThresholdPercentage: 24.0,
-  mathematicallyImpossibleApyPercentage: 50.0,
-  rbiPredatoryAprThresholdPercentage: 100.0,
-  rbiHighCostAprThresholdPercentage: 36.0,
+  /** Scamfy product heuristic: Promised returns exceeding 24% p.a. are flagged as anomalous high-yield risks. */
+  unregulatedHighYieldAnomalyThresholdPercentage: 24.0,
+  /** Scamfy product heuristic: Promised returns exceeding 50% p.a. are flagged as extreme Ponzi/HYIP risks. */
+  extremeYieldRiskThresholdPercentage: 50.0,
+  /** Scamfy product heuristic: Microloan simple borrowing cost exceeding 100% APR indicates predatory terms. */
+  heuristicPredatoryAprThresholdPercentage: 100.0,
+  /** Scamfy product heuristic: Microloan simple borrowing cost exceeding 36% APR indicates high-cost credit. */
+  heuristicHighCostAprThresholdPercentage: 36.0,
 } as const;
 
 /**
  * Classifies the risk level of a loan offer based on APR, tenure, and upfront fee ratio.
+ * Note: 36% and 100% APR thresholds are Scamfy product heuristics modeling high-cost and predatory credit patterns.
  *
  * @param apr - Annual Percentage Rate in percent
  * @param tenureDays - Loan duration in days
@@ -79,7 +89,7 @@ export function classifyLoanRisk(
   deductionRatio: number
 ): LoanRiskLevel {
   if (
-    apr >= OFFICIAL_BENCHMARKS.rbiPredatoryAprThresholdPercentage ||
+    apr >= OFFICIAL_BENCHMARKS.heuristicPredatoryAprThresholdPercentage ||
     (tenureDays <= 15 && deductionRatio >= 0.15) ||
     (tenureDays <= 30 && deductionRatio >= 0.25)
   ) {
@@ -87,7 +97,7 @@ export function classifyLoanRisk(
   }
 
   if (
-    apr >= OFFICIAL_BENCHMARKS.rbiHighCostAprThresholdPercentage ||
+    apr >= OFFICIAL_BENCHMARKS.heuristicHighCostAprThresholdPercentage ||
     deductionRatio >= 0.1
   ) {
     return "HIGH_COST";
@@ -157,13 +167,14 @@ export function calculateLoanMetrics(params: LoanInputParams): LoanCalculationRe
     flags.push(
       `Usurious annualized rate (${annualizedSimpleApr.toFixed(0)}% APR) exceeds predatory lending thresholds`
     );
-  } else if (annualizedSimpleApr >= OFFICIAL_BENCHMARKS.rbiPredatoryAprThresholdPercentage) {
+  } else if (annualizedSimpleApr >= OFFICIAL_BENCHMARKS.heuristicPredatoryAprThresholdPercentage) {
     flags.push(
-      `Annual Percentage Rate (${annualizedSimpleApr.toFixed(1)}% APR) is significantly higher than legal microfinance caps`
+      `Annual Percentage Rate (${annualizedSimpleApr.toFixed(1)}% APR) exceeds Scamfy's high-risk lending heuristic`
     );
   }
 
-  let riskSummary = "Loan parameters appear within standard consumer lending interest bounds.";
+  let riskSummary =
+    "Loan parameters appear within standard consumer lending interest bounds and standard market ranges.";
   if (riskLevel === "PREDATORY") {
     riskSummary =
       "CRITICAL: Highly predatory loan structure matching illegal 7-day digital lending trap patterns with excessive fees and hyper-inflated APR.";
@@ -212,20 +223,16 @@ export function calculateYieldMetrics(params: YieldInputParams): YieldCalculatio
   let annualizedCompoundedApyPercentage = annualizedSimpleYieldPercentage;
 
   if (rateFraction > 0 && rateFraction < 50) {
-    try {
-      const apyVal = (Math.pow(1 + rateFraction, multiplierPerYear) - 1) * 100;
-      annualizedCompoundedApyPercentage = Number.isFinite(apyVal)
-        ? apyVal
-        : annualizedSimpleYieldPercentage * 10;
-    } catch {
-      annualizedCompoundedApyPercentage = annualizedSimpleYieldPercentage * 10;
+    const apyVal = (Math.pow(1 + rateFraction, multiplierPerYear) - 1) * 100;
+    if (Number.isFinite(apyVal) && apyVal < 1e12) {
+      annualizedCompoundedApyPercentage = apyVal;
     }
   }
 
   const projectedAnnualReturnAmount = (investmentAmount * annualizedSimpleYieldPercentage) / 100;
 
   const benchmarkExcessMultiplier =
-    OFFICIAL_BENCHMARKS.rbiRepoRatePercentage > 0
+    OFFICIAL_BENCHMARKS.rbiRepoRatePercentage > 0 && promisedReturnPercentage > 0
       ? Number(
           (annualizedSimpleYieldPercentage / OFFICIAL_BENCHMARKS.rbiRepoRatePercentage).toFixed(1)
         )
@@ -233,41 +240,46 @@ export function calculateYieldMetrics(params: YieldInputParams): YieldCalculatio
 
   let riskLevel: YieldRiskLevel = "REASONABLE";
   if (
-    annualizedSimpleYieldPercentage >= OFFICIAL_BENCHMARKS.mathematicallyImpossibleApyPercentage ||
-    frequency === "daily" ||
-    (frequency === "weekly" && promisedReturnPercentage >= 2)
+    promisedReturnPercentage > 0 &&
+    (annualizedSimpleYieldPercentage >= OFFICIAL_BENCHMARKS.extremeYieldRiskThresholdPercentage ||
+      (frequency === "daily" && promisedReturnPercentage > 0.1) ||
+      (frequency === "weekly" && promisedReturnPercentage >= 2.0 && annualizedSimpleYieldPercentage >= OFFICIAL_BENCHMARKS.extremeYieldRiskThresholdPercentage))
   ) {
     riskLevel = "PONZI_TRAP";
   } else if (
-    annualizedSimpleYieldPercentage >= OFFICIAL_BENCHMARKS.budsActSuspiciousThresholdPercentage
+    promisedReturnPercentage > 0 &&
+    annualizedSimpleYieldPercentage >= OFFICIAL_BENCHMARKS.unregulatedHighYieldAnomalyThresholdPercentage
   ) {
     riskLevel = "HIGH_RISK";
   }
 
   const flags: string[] = [];
-  if (frequency === "daily") {
+  if (frequency === "daily" && promisedReturnPercentage > 0.1) {
     flags.push(
-      `Daily return promises (${promisedReturnPercentage}%/day) are classic indicators of unsustainable Ponzi / HYIP fraud`
+      `Daily return promises (${promisedReturnPercentage}%/day) are classic indicators of unsustainable high-yield / Ponzi schemes`
     );
   }
-  if (annualizedSimpleYieldPercentage >= OFFICIAL_BENCHMARKS.budsActSuspiciousThresholdPercentage) {
+  if (
+    promisedReturnPercentage > 0 &&
+    annualizedSimpleYieldPercentage >= OFFICIAL_BENCHMARKS.unregulatedHighYieldAnomalyThresholdPercentage
+  ) {
     flags.push(
-      `Promised yield (${annualizedSimpleYieldPercentage.toFixed(1)}% p.a.) exceeds the 24% threshold regulated under the BUDS Act, 2019`
+      `Promised yield (${annualizedSimpleYieldPercentage.toFixed(1)}% p.a.) significantly exceeds regulated market benchmarks. Operating unregulated deposit schemes promising returns violates the BUDS Act, 2019.`
     );
   }
-  if (benchmarkExcessMultiplier >= 5) {
+  if (promisedReturnPercentage > 0 && benchmarkExcessMultiplier >= 5) {
     flags.push(
       `Promised return is ${benchmarkExcessMultiplier}x higher than standard RBI repo rate and bank deposits`
     );
   }
 
-  let riskSummary = "Promised yield is within normal regulated capital market expectations.";
+  let riskSummary = "Promised yield is within standard regulated capital market expectations.";
   if (riskLevel === "PONZI_TRAP") {
     riskSummary =
-      "CRITICAL: Mathematically unsustainable guaranteed return. Matches high-yield Ponzi / unregulated deposit scheme patterns.";
+      "CRITICAL: Unsustainable high-yield promise. Unregulated deposit or Ponzi-style schemes often promise high or daily returns without a legitimate underlying business model.";
   } else if (riskLevel === "HIGH_RISK") {
     riskSummary =
-      "CAUTION: Unusually high return promise exceeding market benchmarks. Requires verifying SEBI/RBI regulatory registration.";
+      "CAUTION: Unusually high return promise exceeding market benchmarks. Verify whether the offering entity is officially registered with statutory regulators.";
   }
 
   return {

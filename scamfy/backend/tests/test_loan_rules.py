@@ -75,8 +75,7 @@ def test_rule_yield_guaranteed_daily_return_positive():
     assert res.overall_risk == RiskLevel.CRITICAL
     assert res.primary_category == "INVESTMENT_PONZI_FRAUD"
     assert any(s.id == "RULE-YIELD-GUARANTEED-DAILY-RETURN" for s in res.signals)
-    assert "Unrealistic Greed Lure" in res.psychological_tactics
-    assert any("BUDS Act" in m for m in res.missing_evidence)
+    assert any("statutory regulatory registration" in m or "fund prospectus" in m for m in res.missing_evidence)
 
 
 def test_negative_controls_legitimate_financial_communications():
@@ -110,3 +109,27 @@ def test_negative_controls_legitimate_financial_communications():
     fd_res = evaluate_message(fd_text, fd_entities)
     assert not any(s.id.startswith("RULE-LOAN-") for s in fd_res.signals)
     assert not any(s.id.startswith("RULE-YIELD-") for s in fd_res.signals)
+
+    # 4. Benign casual 7-day loan mention without predatory app / urgent disbursement context
+    casual_text = "I repaid my friend's 7-day loan yesterday over UPI."
+    casual_entities = extract_all_entities(casual_text)
+    casual_res = evaluate_message(casual_text, casual_entities)
+    assert not any(s.id == "RULE-LOAN-7DAY-TENURE" for s in casual_res.signals)
+
+    # 5. Standard bank processing fee disclosure (1.5% - 2%)
+    fee_text = (
+        "SBI Car Loan sanctioned for Rs 8,00,000. A standard processing fee of 1.5% + GST "
+        "will be deducted from the disbursement amount as per schedule."
+    )
+    fee_entities = extract_all_entities(fee_text)
+    fee_res = evaluate_message(fee_text, fee_entities)
+    assert not any(s.id == "RULE-LOAN-UPFRONT-DEDUCTION" for s in fee_res.signals)
+
+    # 6. Zero return and modest daily return updates without Ponzi/guaranteed trap
+    daily_update_text = (
+        "Daily liquid mutual fund performance report: NAV moved +0.015% today. Past performance does not guarantee future returns."
+    )
+    daily_entities = extract_all_entities(daily_update_text)
+    daily_res = evaluate_message(daily_update_text, daily_entities)
+    assert not any(s.id == "RULE-YIELD-GUARANTEED-DAILY-RETURN" for s in daily_res.signals)
+    assert daily_res.overall_risk != RiskLevel.CRITICAL

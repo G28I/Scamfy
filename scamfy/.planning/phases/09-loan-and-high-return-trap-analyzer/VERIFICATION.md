@@ -33,17 +33,19 @@
 - **Tests**: `scamfy/lib/__tests__/loan-calculator.test.ts`, `scamfy/backend/tests/test_financial.py`
 - **Verification Details**:
   - Validates net cash disbursed calculation: `Net = Principal - UpfrontDeduction`.
-  - Calculates true simple APR: `(Fee + Interest) / NetCash * (365 / TenureDays) * 100` and compounded EAR with a 1e12 cap.
+  - Calculates simple annualized borrowing cost rate (estimated simple APR): `(Fee + Interest) / NetCash * (365 / TenureDays) * 100` and compounded EAR with a 1e12 cap. Explains that periodic amortizations may produce different effective APRs.
   - Classifies 7-day loan apps (₹5,000 principal, ₹1,500 deduction, ₹5,000 repayment, 7 days) as `PREDATORY` with 2,238.78% APR.
-  - Generates transparent, auditable flags for short tenures (<30 days), upfront deductions (>10%), and implied APRs (>100%).
+  - Generates transparent, auditable flags for short tenures (<30 days), upfront deductions (>10%), and implied APRs (>100% heuristic threshold).
+  - Explicitly documents 36% and 100% APR thresholds as Scamfy product risk heuristics.
 
 ### 2. LOAN-02: High-Yield & Ponzi APY Reality Check
 - **Files**: `scamfy/lib/loan-calculator.ts`, `scamfy/backend/app/core/financial.py`
 - **Tests**: `scamfy/lib/__tests__/loan-calculator.test.ts`, `scamfy/backend/tests/test_financial.py`
 - **Verification Details**:
   - Annualizes yields for daily (365x), weekly (52x), monthly (12x), and annual intervals.
-  - Compares against official Indian benchmarks: RBI Repo Rate (6.5%), Bank FD (7.0%), Nifty 50 CAGR (12.5%), and BUDS Act Ceiling (24.0%).
-  - Correctly flags daily 2% return offers (730% simple APY) as `PONZI_TRAP`.
+  - Compares against official Indian benchmarks: RBI Policy Repo Rate (5.50% effective Oct 7, 2026), Bank FD (~7.0%), Nifty 50 Historical CAGR (~12.5%), and BUDS Act 2019 Unregulated Scheme Anomaly Indicator (24.0% product risk heuristic).
+  - Correctly flags daily 2% return offers (730% simple APY) as `PONZI_TRAP` / Extreme Yield Risk, avoiding "mathematically impossible" terminology.
+  - Symmetrical zero/low return false-positive prevention across TypeScript and Python.
 
 ### 3. LOAN-03: RBI Regulatory Compliance Checklist & Deep Links
 - **Files**: `scamfy/components/domain/loan-trap-analyzer.tsx`, `scamfy/app/loan-analyzer/page.tsx`

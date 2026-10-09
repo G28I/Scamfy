@@ -373,7 +373,7 @@ export function LoanTrapAnalyzer({
               <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border/60 pb-3">
                 <div className="space-y-0.5">
                   <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                    Implied Annualized Borrowing Rate (APR)
+                    Simple Annualized Borrowing Cost Rate (Estimated Simple APR)
                   </div>
                   <div className="text-2xl sm:text-3xl font-extrabold text-foreground font-mono">
                     {loanMetrics.annualizedSimpleApr.toLocaleString()}%{" "}
@@ -455,6 +455,9 @@ export function LoanTrapAnalyzer({
 
               <p className="text-xs text-muted-foreground leading-relaxed pt-1 border-t border-border/50">
                 <strong>Analysis Summary:</strong> {loanMetrics.riskSummary}
+                <span className="block text-[11px] text-muted-foreground/80 mt-1">
+                  * Note: Calculated as simple annualized borrowing cost for single-repayment loans (net disbursed vs total repayment). Installment-based loans with periodic amortizations can produce a different effective APR.
+                </span>
               </p>
             </div>
           </TabsContent>
@@ -594,7 +597,7 @@ export function LoanTrapAnalyzer({
                   )}
                 >
                   {yieldMetrics.riskLevel === "PONZI_TRAP"
-                    ? "🚨 MATHEMATICALLY IMPOSSIBLE PONZI"
+                    ? "🚨 EXTREME YIELD RISK (PONZI / HYIP INDICATOR)"
                     : yieldMetrics.riskLevel === "HIGH_RISK"
                     ? "⚠️ UNREGULATED YIELD WARNING"
                     : "✓ STANDARD CAPITAL MARKET YIELD"}
@@ -608,28 +611,32 @@ export function LoanTrapAnalyzer({
                 </div>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-xs">
                   <div className="p-2.5 rounded-lg border border-border/70 bg-background space-y-0.5">
-                    <span className="text-muted-foreground block text-[11px]">RBI Repo Benchmark</span>
+                    <span className="text-muted-foreground block text-[11px]">RBI Policy Repo Rate</span>
                     <span className="font-mono font-bold text-foreground">
                       {OFFICIAL_BENCHMARKS.rbiRepoRatePercentage}% p.a.
                     </span>
+                    <span className="text-[10px] text-muted-foreground block">Oct 2026 Policy</span>
                   </div>
                   <div className="p-2.5 rounded-lg border border-border/70 bg-background space-y-0.5">
                     <span className="text-muted-foreground block text-[11px]">Bank Fixed Deposit</span>
                     <span className="font-mono font-bold text-foreground">
                       ~{OFFICIAL_BENCHMARKS.bankFixedDepositPercentage}% p.a.
                     </span>
+                    <span className="text-[10px] text-muted-foreground block">1-Year Term Average</span>
                   </div>
                   <div className="p-2.5 rounded-lg border border-border/70 bg-background space-y-0.5">
                     <span className="text-muted-foreground block text-[11px]">Nifty 50 Historic CAGR</span>
                     <span className="font-mono font-bold text-foreground">
                       ~{OFFICIAL_BENCHMARKS.niftyHistoricalCagrPercentage}% p.a.
                     </span>
+                    <span className="text-[10px] text-muted-foreground block">10-Yr Equity Rolling</span>
                   </div>
                   <div className="p-2.5 rounded-lg border border-border/70 bg-background space-y-0.5">
-                    <span className="text-muted-foreground block text-[11px]">BUDS Act Alert Ceiling</span>
+                    <span className="text-muted-foreground block text-[11px]">High-Yield Anomaly</span>
                     <span className="font-mono font-bold text-rose-500">
-                      &gt;{OFFICIAL_BENCHMARKS.budsActSuspiciousThresholdPercentage}% p.a.
+                      &gt;{OFFICIAL_BENCHMARKS.unregulatedHighYieldAnomalyThresholdPercentage}% p.a.
                     </span>
+                    <span className="text-[10px] text-muted-foreground block">Product Risk Heuristic</span>
                   </div>
                 </div>
               </div>
@@ -648,7 +655,7 @@ export function LoanTrapAnalyzer({
               )}
 
               <p className="text-xs text-muted-foreground leading-relaxed pt-1 border-t border-border/50">
-                <strong>Regulatory Notice (BUDS Act, 2019):</strong> {yieldMetrics.riskSummary}
+                <strong>Regulatory &amp; Market Notice:</strong> {yieldMetrics.riskSummary}
               </p>
             </div>
           </TabsContent>

@@ -42,7 +42,7 @@ describe("Deterministic Loan & Yield Calculator Engine (LOAN-01, LOAN-02)", () =
       expect(result.upfrontDeductionPercentage).toBe(1.5);
       expect(result.annualizedSimpleApr).toBeLessThan(20);
       expect(result.riskLevel).toBe("NORMAL");
-      expect(result.riskSummary).toContain("standard consumer lending");
+      expect(result.riskSummary).toContain("standard market ranges");
     });
 
     it("evaluates a high-cost NBFC micro-loan as HIGH_COST risk", () => {
@@ -130,10 +130,10 @@ describe("Deterministic Loan & Yield Calculator Engine (LOAN-01, LOAN-02)", () =
 
       expect(result.annualizedSimpleYieldPercentage).toBe(12);
       expect(result.riskLevel).toBe("REASONABLE");
-      expect(result.riskSummary).toContain("normal regulated capital market");
+      expect(result.riskSummary).toContain("standard regulated capital market");
     });
 
-    it("evaluates a suspicious 30% p.a. guaranteed scheme as HIGH_RISK under BUDS Act", () => {
+    it("evaluates a suspicious 30% p.a. guaranteed scheme as HIGH_RISK under BUDS Act warning", () => {
       // 2.5% monthly return = 30% annual
       const result = calculateYieldMetrics({
         investmentAmount: 25000,
@@ -144,6 +144,31 @@ describe("Deterministic Loan & Yield Calculator Engine (LOAN-01, LOAN-02)", () =
       expect(result.annualizedSimpleYieldPercentage).toBe(30);
       expect(result.riskLevel).toBe("HIGH_RISK");
       expect(result.flags.some((f) => f.includes("BUDS Act"))).toBe(true);
+    });
+
+    it("does not flag daily frequency as Ponzi when promised return is zero", () => {
+      const result = calculateYieldMetrics({
+        investmentAmount: 10000,
+        promisedReturnPercentage: 0,
+        frequency: "daily",
+      });
+
+      expect(result.annualizedSimpleYieldPercentage).toBe(0);
+      expect(result.riskLevel).toBe("REASONABLE");
+      expect(result.flags.length).toBe(0);
+    });
+
+    it("evaluates low borderline daily return (<0.1%/day) without Ponzi false positive", () => {
+      // 0.05% daily return = 18.25% p.a. (below 24% threshold)
+      const result = calculateYieldMetrics({
+        investmentAmount: 10000,
+        promisedReturnPercentage: 0.05,
+        frequency: "daily",
+      });
+
+      expect(result.annualizedSimpleYieldPercentage).toBe(18.25);
+      expect(result.riskLevel).toBe("REASONABLE");
+      expect(result.flags.length).toBe(0);
     });
 
     it("handles zero investment parameters safely", () => {
@@ -160,9 +185,10 @@ describe("Deterministic Loan & Yield Calculator Engine (LOAN-01, LOAN-02)", () =
 
   describe("Regulatory Benchmarks", () => {
     it("contains authoritative official Indian benchmarks", () => {
-      expect(OFFICIAL_BENCHMARKS.rbiRepoRatePercentage).toBe(6.5);
-      expect(OFFICIAL_BENCHMARKS.budsActSuspiciousThresholdPercentage).toBe(24.0);
-      expect(OFFICIAL_BENCHMARKS.rbiPredatoryAprThresholdPercentage).toBe(100.0);
+      expect(OFFICIAL_BENCHMARKS.rbiRepoRatePercentage).toBe(5.50);
+      expect(OFFICIAL_BENCHMARKS.rbiRepoRateAsOfDate).toBe("2026-10-07");
+      expect(OFFICIAL_BENCHMARKS.unregulatedHighYieldAnomalyThresholdPercentage).toBe(24.0);
+      expect(OFFICIAL_BENCHMARKS.heuristicPredatoryAprThresholdPercentage).toBe(100.0);
     });
   });
 });

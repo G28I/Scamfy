@@ -365,9 +365,10 @@ RULES = [
         "name": "7-Day / Hyper-Short Predatory Loan Trap",
         "description": "Offers instant micro-loans with predatory 6-day, 7-day, or weekly repayment deadlines characteristic of illegal digital lending apps.",
         "patterns": [
-            r"(?:loan|credit|cash)\b.{0,60}?(?:repay\s*in|tenure\s*(?:of|is)?|due\s*in|repayment\s*within)\s*(?:[67]|seven)\s*days",
-            r"(?:[67]|seven)\s*day[s]?\s*(?:loan|tenure|repayment|micro\s*loan|repayment\s*period)",
-            r"(?:weekly\s*repayment|repay\s*every\s*week)\b.{0,60}?(?:instant|urgent|emergency)\s*loan",
+            r"(?:instant|urgent|emergency|quick|online|micro|pancard|aadhaar|dla|app)\s*(?:loan|credit|cash)\b.{0,60}?(?:repay\s*in|tenure\s*(?:of|is)?|due\s*in|repayment\s*within|period\s*(?:of|is)?)\s*(?:[67]|seven)\s*days",
+            r"(?:apply|approved|sanctioned|get|download|install|apk|disburse)\b.{0,60}?(?:[67]|seven)\s*day[s]?\s*(?:micro\s*loan|instant\s*loan|loan\s*app|cash\s*loan|tenure)",
+            r"(?:weekly\s*repayment|repay\s*every\s*week|repay\s*in\s*[67]\s*days)\b.{0,60}?(?:instant|urgent|emergency|micro)\s*loan",
+            r"(?:[67]|seven)\s*days?\s*loan\s*app\b",
         ],
         "tactics": ["Predatory Tenures", "Artificial Debt Cycle Trap"],
         "recommendations": [
@@ -381,15 +382,15 @@ RULES = [
         "category": "PREDATORY_LOAN_FRAUD",
         "severity": RiskLevel.CRITICAL,
         "name": "Excessive Upfront Loan Fee Deduction Trick",
-        "description": "Deducts 25%–50% of the stated principal upfront as processing fees, platform service charges, or GST before disbursing net funds.",
+        "description": "Deducts 20%–50% of the stated principal upfront as processing fees, platform service charges, or GST before disbursing net funds.",
         "patterns": [
             r"(?:deduct|cut|minus)\s*(?:rs\.?|₹|inr)?\s*[\d,]+\s*(?:processing\s*fee|service\s*charge|platform\s*fee|gst|upfront)\b.{0,60}?(?:disburse|receive|credit|in\s*hand)",
             r"(?:apply|approved\s*for)\s*(?:rs\.?|₹|inr)?\s*[\d,]+\b.{0,60}?(?:receive|disbursed|get)\s*(?:only|just)?\s*(?:rs\.?|₹|inr)?\s*[\d,]+\b.{0,60}?(?:deduct|processing\s*fee)",
-            r"(?:2[5-9]|[3-9]\d)%\s*(?:upfront|processing|platform)\s*(?:fee|charge|deduction)\b.{0,60}?(?:loan|disburs)",
+            r"(?:2[0-9]|[3-9]\d)%\s*(?:upfront|processing|platform)\s*(?:fee|charge|deduction)\b.{0,60}?(?:loan|disburs)",
         ],
         "tactics": ["Hidden Fee Deception", "Disbursement Shrinkage"],
         "recommendations": [
-            "CRITICAL: RBI Digital Lending Guidelines prohibit lenders from deducting predatory 25%–50% upfront fees from loan principal.",
+            "CRITICAL: RBI Digital Lending Guidelines prohibit lenders from deducting predatory 20%–50% upfront fees from loan principal.",
             "Demand an official Key Fact Statement (KFS) showing the transparent Annual Percentage Rate (APR) before accepting any loan.",
             "Refuse loans where net disbursed amount is substantially lower than stated principal.",
         ],
@@ -528,11 +529,11 @@ def detect_missing_evidence(
             )
         if any(r["category"] == "PREDATORY_LOAN_FRAUD" for r in matched_rules):
             missing.append(
-                "No standardized RBI Key Fact Statement (KFS), APR disclosure, or registered NBFC partner credentials."
+                "No Key Fact Statement (KFS), transparent APR disclosure, or registered NBFC partner details were found in the submitted evidence. Verify whether the lender provided an official KFS prior to agreement."
             )
         if any(r["category"] == "INVESTMENT_PONZI_FRAUD" for r in matched_rules):
             missing.append(
-                "No SEBI registration number, fund prospectus, or audited financial disclosure under the BUDS Act, 2019."
+                "No statutory regulatory registration (e.g., SEBI/RBI), fund prospectus, or audited financial disclosure was found in the submitted evidence."
             )
 
     return missing

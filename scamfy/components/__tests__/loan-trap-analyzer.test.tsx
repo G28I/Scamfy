@@ -19,7 +19,7 @@ describe("LoanTrapAnalyzer Component (LOAN-01, LOAN-02, LOAN-03, UX-03, UX-04)",
     expect(screen.getByLabelText(/Total Repayment Amount in Rupees/i)).toBeDefined();
     expect(screen.getByLabelText(/Loan Tenure in Days/i)).toBeDefined();
 
-    expect(screen.getByText(/Implied Annualized Borrowing Rate \(APR\)/i)).toBeDefined();
+    expect(screen.getByText(/Simple Annualized Borrowing Cost Rate \(Estimated Simple APR\)/i)).toBeDefined();
     expect(screen.getByText(/PREDATORY LENDING TRAP/i)).toBeDefined();
   });
 
@@ -46,9 +46,9 @@ describe("LoanTrapAnalyzer Component (LOAN-01, LOAN-02, LOAN-03, UX-03, UX-04)",
     expect(screen.getByText(/Promised Return \(%\)/i)).toBeDefined();
     expect(screen.getByText(/Payout Interval/i)).toBeDefined();
     expect(screen.getByText(/Effective Annual Yield \(Simple APY\)/i)).toBeDefined();
-    expect(screen.getByText(/🚨 MATHEMATICALLY IMPOSSIBLE PONZI/i)).toBeDefined();
-    expect(screen.getByText(/RBI Repo Benchmark/i)).toBeDefined();
-    expect(screen.getByText(/BUDS Act Alert Ceiling/i)).toBeDefined();
+    expect(screen.getByText(/🚨 EXTREME YIELD RISK/i)).toBeDefined();
+    expect(screen.getByText(/RBI Policy Repo Rate/i)).toBeDefined();
+    expect(screen.getByText(/High-Yield Anomaly/i)).toBeDefined();
   });
 
   it("switches to RBI Verification checklist tab and toggles checklist items", async () => {

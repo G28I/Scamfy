@@ -5,9 +5,10 @@ Phase 9 delivers **Slice 3: Loan & High-Return Trap Analyzer** for Scamfy, fulfi
 
 ### 1. Pure Deterministic Mathematical Engines
 - **Frontend (`scamfy/lib/loan-calculator.ts`) & Backend (`scamfy/backend/app/core/financial.py`)**:
-  - Implemented `calculateLoanMetrics`: Computes net cash disbursed, total borrowing cost, simple APR, daily interest rate, compounded EAR, and risk classifications (`NORMAL`, `HIGH_COST`, `PREDATORY`).
-  - Implemented `calculateYieldMetrics`: Computes simple and compounded APY, evaluates returns against official benchmarks (RBI Repo 6.5%, Bank FD 7%, Nifty 12.5%, BUDS Act 24% threshold), and flags `PONZI_TRAP` vs `HIGH_RISK` vs `REASONABLE`.
-  - Thoroughly tested across 13 Vitest tests and 8 Pytest tests.
+  - Implemented `calculateLoanMetrics`: Computes net cash disbursed, total borrowing cost, simple annualized borrowing cost rate (estimated simple APR), daily interest rate, compounded EAR, and Scamfy product risk heuristics (`NORMAL`, `HIGH_COST`, `PREDATORY` using 36% and 100% APR thresholds).
+  - Implemented `calculateYieldMetrics`: Computes simple and compounded APY, evaluates returns against official Indian benchmarks (RBI Repo Rate 5.50% effective Oct 7, 2026, Bank FD 7.0%, Nifty 12.5% historical CAGR, BUDS Act 2019 unregulated scheme anomaly indicator 24.0%), and flags `PONZI_TRAP` vs `HIGH_RISK` vs `REASONABLE`.
+  - False-positive prevention: Daily payout frequency alone does not trigger Ponzi classification on zero or low returns. Symmetrical classification logic across TypeScript and Python.
+  - Tested across unit test suites in both TypeScript and Python.
 
 ### 2. Backend Rule Engine Expansion
 - **Evaluator (`scamfy/backend/app/core/evaluator.py`)**:
@@ -17,14 +18,14 @@ Phase 9 delivers **Slice 3: Loan & High-Return Trap Analyzer** for Scamfy, fulfi
     - `RULE-LOAN-CONTACT-HARVEST-BLACKMAIL` (CRITICAL)
     - `RULE-LOAN-ADVANCE-FEE-APPROVAL` (CRITICAL)
     - `RULE-YIELD-GUARANTEED-DAILY-RETURN` (CRITICAL)
-  - Expanded `detect_missing_evidence` per `DET-05` to check for Key Fact Statements (KFS) and SEBI registration documents.
-  - Added 6 dedicated Pytest tests in `tests/test_loan_rules.py`.
+  - Expanded `detect_missing_evidence` per `DET-05` to check for Key Fact Statements ("No Key Fact Statement (KFS)... found in the submitted evidence. Verify whether the lender provided an official KFS prior to agreement.") and SEBI registration documents.
+  - Added dedicated Pytest unit tests in `tests/test_loan_rules.py` with negative controls for legitimate bank disclosures, casual loan mentions, and market performance reports.
 
 ### 3. Interactive UI & Standalone Route
 - **Component (`scamfy/components/domain/loan-trap-analyzer.tsx`)**:
   - Tabbed calculator supporting:
-    1. Instant Loan APR calculator with interactive inputs & one-click presets (7-Day Chinese app, Mudra Advance-fee, Regulated NBFC).
-    2. High-Yield Ponzi reality checker with payout interval selector and benchmark comparisons.
+    1. Instant Loan APR calculator with interactive inputs, clear "Simple Annualized Borrowing Cost Rate (Estimated Simple APR)" labeling, explanatory amortization note, and one-click presets.
+    2. High-Yield Ponzi reality checker with payout interval selector and benchmark comparisons (RBI Repo 5.50%, Nifty 12.5%, FD 7.0%, BUDS Act context).
     3. RBI Digital Lending statutory compliance checklist.
 - **Standalone Page (`scamfy/app/loan-analyzer/page.tsx`)**:
   - Educational deep-dive explaining predatory APR mechanics, extortion dynamics, and official portals.
@@ -44,4 +45,4 @@ Phase 9 delivers **Slice 3: Loan & High-Return Trap Analyzer** for Scamfy, fulfi
 - **Frontend Unit & Integration Tests**: 169 passed across 31 test files (`npm run test:run`)
 - **Production Build**: Successfully compiled & prerendered `/loan-analyzer` (`npm run build`)
 - **Backend Linting**: Clean (`python -m ruff check app tests`)
-- **Backend Tests**: 69 passed in 8.10s (`python -m pytest`)
+- **Backend Tests**: 69 passed (`python -m pytest`)

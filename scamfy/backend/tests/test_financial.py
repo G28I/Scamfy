@@ -1,9 +1,10 @@
 """Unit tests for backend financial calculation engine (LOAN-01, LOAN-02)."""
 
 from app.core.financial import (
-    BUDS_ACT_THRESHOLD,
-    PREDATORY_APR_THRESHOLD,
+    HEURISTIC_HIGH_COST_APR_THRESHOLD,
+    HEURISTIC_PREDATORY_APR_THRESHOLD,
     RBI_REPO_RATE,
+    UNREGULATED_HIGH_YIELD_ANOMALY_THRESHOLD,
     LoanInputParams,
     YieldInputParams,
     calculate_loan_metrics,
@@ -46,7 +47,7 @@ def test_calculate_loan_metrics_standard_bank_loan():
     assert result.upfront_deduction_percentage == 1.5
     assert result.annualized_simple_apr < 20.0
     assert result.risk_level == "NORMAL"
-    assert "standard consumer lending" in result.risk_summary
+    assert "standard market ranges" in result.risk_summary
 
 
 def test_calculate_loan_metrics_high_cost_micro_loan():
@@ -68,7 +69,7 @@ def test_calculate_loan_metrics_high_cost_micro_loan():
 
 def test_classify_loan_risk_thresholds():
     """Verify risk classification boundary conditions."""
-    assert classify_loan_risk(PREDATORY_APR_THRESHOLD, 60, 0.05) == "PREDATORY"
+    assert classify_loan_risk(HEURISTIC_PREDATORY_APR_THRESHOLD, 60, 0.05) == "PREDATORY"
     assert classify_loan_risk(25.0, 7, 0.20) == "PREDATORY"
     assert classify_loan_risk(40.0, 90, 0.05) == "HIGH_COST"
     assert classify_loan_risk(12.0, 365, 0.02) == "NORMAL"
@@ -101,11 +102,11 @@ def test_calculate_yield_metrics_reasonable_investment():
 
     assert result.annualized_simple_yield_percentage == 12.0
     assert result.risk_level == "REASONABLE"
-    assert "normal regulated capital market" in result.risk_summary
+    assert "standard regulated capital market" in result.risk_summary
 
 
 def test_calculate_yield_metrics_buds_act_threshold():
-    """Verify that guaranteed 30% yield triggers HIGH_RISK under BUDS Act."""
+    """Verify that guaranteed 30% yield triggers HIGH_RISK under BUDS Act warning."""
     params = YieldInputParams(
         investment_amount=25000.0,
         promised_return_percentage=2.5,
@@ -118,8 +119,34 @@ def test_calculate_yield_metrics_buds_act_threshold():
     assert any("BUDS Act" in f for f in result.flags)
 
 
+def test_calculate_yield_metrics_zero_and_borderline_daily_return():
+    """Verify that zero return and low daily return (<0.1%/day) do not trigger false positive Ponzi flags."""
+    zero_result = calculate_yield_metrics(
+        YieldInputParams(
+            investment_amount=10000.0,
+            promised_return_percentage=0.0,
+            frequency="daily",
+        )
+    )
+    assert zero_result.annualized_simple_yield_percentage == 0.0
+    assert zero_result.risk_level == "REASONABLE"
+    assert len(zero_result.flags) == 0
+
+    borderline_result = calculate_yield_metrics(
+        YieldInputParams(
+            investment_amount=10000.0,
+            promised_return_percentage=0.05,
+            frequency="daily",
+        )
+    )
+    assert borderline_result.annualized_simple_yield_percentage == 18.25
+    assert borderline_result.risk_level == "REASONABLE"
+    assert len(borderline_result.flags) == 0
+
+
 def test_financial_constants():
-    """Verify regulatory constants are defined accurately."""
-    assert RBI_REPO_RATE == 6.5
-    assert BUDS_ACT_THRESHOLD == 24.0
-    assert PREDATORY_APR_THRESHOLD == 100.0
+    """Verify regulatory and heuristic constants are defined accurately."""
+    assert RBI_REPO_RATE == 5.50
+    assert UNREGULATED_HIGH_YIELD_ANOMALY_THRESHOLD == 24.0
+    assert HEURISTIC_PREDATORY_APR_THRESHOLD == 100.0
+    assert HEURISTIC_HIGH_COST_APR_THRESHOLD == 36.0
