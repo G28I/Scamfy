@@ -55,7 +55,6 @@ export function MuleReceivedFundsGuide({
     amount: "",
     senderIdentifier: "",
     communicationChannel: "WhatsApp / Telegram",
-    fundsRetainedIntact: true,
   });
 
   // Checklist state for evidence preservation
@@ -117,7 +116,6 @@ export function MuleReceivedFundsGuide({
       amount: "45,000",
       senderIdentifier: "unknown_payer@okhdfcbank",
       communicationChannel: "Telegram Job Group",
-      fundsRetainedIntact: true,
     });
   };
 

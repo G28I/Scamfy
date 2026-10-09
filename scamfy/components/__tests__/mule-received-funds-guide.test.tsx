@@ -32,6 +32,19 @@ describe("MuleReceivedFundsGuide Component (MULE-03, UX-05)", () => {
     fireEvent.change(nameInput, { target: { value: "Test User" } });
 
     expect(screen.getByText(/Generated Written Notice Template/i)).toBeDefined();
+
+    // Regression check: Fresh form must NOT claim funds are untouched by default
+    const preNotice = screen.getByText(/Subject: Urgent Request for Voluntary Temporary Debit Hold/i);
+    expect(preNotice.textContent).toContain("formally reporting this transaction to request appropriate bank-level dispute logging");
+    expect(preNotice.textContent).not.toContain("have NOT touched, withdrawn, spent, or forwarded");
+
+    // When user explicitly confirms the checkbox
+    const confirmCheckbox = screen.getByLabelText(/I confirm that the received funds remain intact/i);
+    expect((confirmCheckbox as HTMLInputElement).checked).toBe(false);
+    fireEvent.click(confirmCheckbox);
+    expect((confirmCheckbox as HTMLInputElement).checked).toBe(true);
+
+    expect(preNotice.textContent).toContain("retained the received funds intact in my account and have NOT touched");
   });
 
   it("navigates through Step 3 (Evidence Checklist) and allows toggling checklist items", () => {
