@@ -12,6 +12,7 @@ logger = logging.getLogger("scamfy")
 
 
 def create_application() -> FastAPI:
+    """Create and configure the FastAPI application instance with routes and error handlers."""
     app = FastAPI(
         title=settings.PROJECT_NAME,
         version=settings.VERSION,
@@ -23,6 +24,7 @@ def create_application() -> FastAPI:
     # Global sanitized exception handler (SEC-03: Never leak internal traces/exceptions)
     @app.exception_handler(Exception)
     async def global_exception_handler(request: Request, exc: Exception) -> JSONResponse:
+        """Mask internal exceptions and return generic safe JSON responses."""
         logger.error(f"Unhandled exception on {request.url}: {exc}", exc_info=True)
         return JSONResponse(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,

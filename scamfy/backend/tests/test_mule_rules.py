@@ -8,6 +8,7 @@ from backend.app.core.extractors import extract_all_entities
 
 
 def test_rule_money_mule_forwarding_commission():
+    """Verify detection of fund forwarding with percentage commission lure."""
     text = (
         "Part-time financial assistant needed! Receive ₹50,000 in your bank account, "
         "keep a 10% commission of ₹5,000, and transfer the remaining ₹45,000 to our UPI ID: merchant@paytm."
@@ -23,6 +24,7 @@ def test_rule_money_mule_forwarding_commission():
 
 
 def test_rule_money_mule_crypto_conversion():
+    """Verify detection of receiving funds and converting to USDT crypto."""
     text = (
         "Deposit ₹80,000 into your account today. Buy USDT crypto with the received funds "
         "and forward to wallet address. You earn ₹4,000 per transaction."
@@ -35,6 +37,7 @@ def test_rule_money_mule_crypto_conversion():
 
 
 def test_rule_account_rental_p2p():
+    """Verify detection of bank account rental solicitation for P2P crypto arbitrage."""
     text = (
         "Urgent requirement: Rent your current account or savings bank account for crypto P2P arbitrage. "
         "Earn Rs 10,000 daily rent for providing your bank account. Contact @p2p_deals on Telegram."
@@ -53,6 +56,7 @@ def test_rule_account_rental_p2p():
 
 
 def test_rule_account_rental_telegram_campus():
+    """Verify detection of campus student account procurement on messaging channels."""
     text = (
         "Campus student offer on Telegram: procure or arrange 3 savings accounts of friends "
         "for daily rent of Rs 2,500 per active account."
@@ -65,6 +69,7 @@ def test_rule_account_rental_telegram_campus():
 
 
 def test_rule_overpayment_reversal_mule():
+    """Verify detection of accidental transfer pretext requesting reverse payout."""
     text = (
         "Hello sir, I mistakenly transferred Rs 25,000 to your UPI by mistake. "
         "Please refund the excess amount to this other phone number: 9876543210 immediately."

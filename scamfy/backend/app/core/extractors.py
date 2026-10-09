@@ -66,6 +66,7 @@ TELEGRAM_REGEX = re.compile(
 
 
 def extract_emails(text: str) -> list[str]:
+    """Extract and deduplicate valid email addresses from text."""
     matches = EMAIL_REGEX.findall(text)
     # Deduplicate while preserving order
     seen = set()
@@ -79,6 +80,7 @@ def extract_emails(text: str) -> list[str]:
 
 
 def extract_upi_ids(text: str) -> list[str]:
+    """Extract valid Indian UPI VPA handles from text, disambiguating against standard email domains."""
     emails = {e.lower() for e in extract_emails(text)}
     matches = UPI_REGEX.findall(text)
     seen = set()
@@ -96,6 +98,7 @@ def extract_upi_ids(text: str) -> list[str]:
 
 
 def extract_phone_numbers(text: str) -> list[str]:
+    """Extract 10-digit Indian mobile and helpline phone numbers with optional country codes."""
     matches = PHONE_REGEX.findall(text)
     seen = set()
     result = []
@@ -108,6 +111,7 @@ def extract_phone_numbers(text: str) -> list[str]:
 
 
 def extract_urls(text: str) -> list[str]:
+    """Extract web URLs and link targets from text, stripping trailing punctuation."""
     matches = URL_REGEX.findall(text)
     seen = set()
     result = []
@@ -120,6 +124,7 @@ def extract_urls(text: str) -> list[str]:
 
 
 def extract_amounts(text: str) -> list[str]:
+    """Extract monetary currency expressions (INR, Rs., INR symbols, amounts) from text."""
     matches = AMOUNT_REGEX.findall(text)
     seen = set()
     result = []
@@ -132,6 +137,7 @@ def extract_amounts(text: str) -> list[str]:
 
 
 def extract_bank_accounts(text: str) -> list[str]:
+    """Extract bank account numbers and IFSC routing codes from text."""
     seen = set()
     result = []
     ifscs = IFSC_REGEX.findall(text)
@@ -152,6 +158,7 @@ def extract_bank_accounts(text: str) -> list[str]:
 
 
 def extract_handles(text: str) -> list[str]:
+    """Extract social handles (Telegram / messaging handles) while excluding emails and UPI VPAs."""
     matches = TELEGRAM_REGEX.findall(text)
     emails = {e.lower() for e in extract_emails(text)}
     upis = {u.lower() for u in extract_upi_ids(text)}
@@ -170,6 +177,7 @@ def extract_handles(text: str) -> list[str]:
 
 
 def extract_all_entities(text: str) -> ExtractedEntities:
+    """Perform comprehensive entity extraction across all supported entity types."""
     return ExtractedEntities(
         upi_ids=extract_upi_ids(text),
         phone_numbers=extract_phone_numbers(text),

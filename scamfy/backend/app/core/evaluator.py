@@ -440,6 +440,16 @@ def detect_missing_evidence(
 
 
 def evaluate_message(text: str, entities: ExtractedEntities) -> AnalyzeResponse:
+    """Evaluate text content and extracted entities against deterministic scam detection rules.
+
+    Args:
+        text: Raw message text to evaluate for deceptive or fraudulent patterns.
+        entities: Structured entities (UPI IDs, URLs, phone numbers, amounts) extracted from the message.
+
+    Returns:
+        AnalyzeResponse containing overall risk rating, matched signals, primary category,
+        psychological tactics, missing corroborating evidence, and defensive recommendations.
+    """
     matched_signals: list[AnalysisSignal] = []
     matched_rules: list[dict[str, Any]] = []
     categories: list[str] = []

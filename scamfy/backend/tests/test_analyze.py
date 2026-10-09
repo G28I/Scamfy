@@ -10,6 +10,7 @@ from httpx import ASGITransport, AsyncClient
 
 
 def test_entity_extraction_comprehensive():
+    """Verify comprehensive extraction of UPI IDs, phones, URLs, emails, bank accounts, amounts, and handles."""
     sample_text = (
         "Dear Customer, your electricity bill is unpaid. Power will be disconnected tonight. "
         "Pay Rs. 1,450 to avoid cutoff. Send payment to upi id: billpay@okhdfcbank or call our officer "
@@ -28,6 +29,7 @@ def test_entity_extraction_comprehensive():
 
 
 def test_evaluator_upi_pin_reverse_scam():
+    """Verify evaluator flags UPI reverse payment scam with CRITICAL severity."""
     text = "Congratulations! You won cashback of Rs 5,000. Enter your UPI PIN to receive money in your bank."
     entities = extract_all_entities(text)
     result = evaluate_message(text, entities)
@@ -40,6 +42,7 @@ def test_evaluator_upi_pin_reverse_scam():
 
 
 def test_evaluator_electricity_disconnection_scam():
+    """Verify evaluator flags fake electricity cutoff notice with CRITICAL severity."""
     text = "Dear consumer, your electricity will be disconnected tonight by 9:30 PM. Call electricity officer at 9876543210."
     entities = extract_all_entities(text)
     result = evaluate_message(text, entities)
@@ -50,6 +53,7 @@ def test_evaluator_electricity_disconnection_scam():
 
 
 def test_evaluator_digital_arrest_scam():
+    """Verify evaluator flags fake digital arrest notice with CRITICAL severity and 1930 guidance."""
     text = "Police department notice: Digital arrest warrant issued against you for illegal parcel at customs. Join video call for interrogation."
     entities = extract_all_entities(text)
     result = evaluate_message(text, entities)
@@ -60,6 +64,7 @@ def test_evaluator_digital_arrest_scam():
 
 
 def test_evaluator_part_time_task_scam():
+    """Verify evaluator flags part-time YouTube task commission scam with HIGH_RISK severity."""
     text = "Work from home part time job! Earn Rs 2500 - 5000 daily by liking YouTube videos. Join telegram group @task_earning."
     entities = extract_all_entities(text)
     result = evaluate_message(text, entities)
@@ -69,6 +74,7 @@ def test_evaluator_part_time_task_scam():
 
 
 def test_evaluator_clean_safe_message():
+    """Verify evaluator returns SAFE with no signals for benign meeting message."""
     text = "Team, please review the presentation slides before tomorrow's quarterly review meeting at 10:00 AM."
     entities = extract_all_entities(text)
     result = evaluate_message(text, entities)
@@ -80,6 +86,7 @@ def test_evaluator_clean_safe_message():
 
 @pytest.mark.asyncio
 async def test_analyze_api_endpoint():
+    """Verify FastAPI analyze endpoint returns 200 with structured threat evaluation."""
     payload = {
         "text": "Dear customer, your electricity power will be disconnected tonight. Call officer at 9876543210 immediately."
     }
@@ -100,6 +107,7 @@ async def test_analyze_api_endpoint():
 
 @pytest.mark.asyncio
 async def test_analyze_api_endpoint_validation_error():
+    """Verify FastAPI analyze endpoint returns 422 for input shorter than 3 characters."""
     payload = {"text": "hi"}  # Too short (min 3 chars)
     transport = ASGITransport(app=app)
     async with AsyncClient(transport=transport, base_url="http://test") as client:
@@ -109,6 +117,7 @@ async def test_analyze_api_endpoint_validation_error():
 
 
 def test_extract_bank_account_numbers():
+    """Verify bank account number and IFSC extraction patterns."""
     text1 = "Please pay to account 5028123456789012 at once"
     entities1 = extract_all_entities(text1)
     assert "A/C: 5028123456789012" in entities1.bank_accounts
@@ -121,6 +130,7 @@ def test_extract_bank_account_numbers():
 
 @pytest.mark.asyncio
 async def test_analyze_rate_limiting():
+    """Verify rate limiter blocks the 61st request in a 60-second window with 429 status."""
     from backend.app.core.rate_limit import _request_history
 
     _request_history.clear()
@@ -139,6 +149,7 @@ async def test_analyze_rate_limiting():
 
 @pytest.mark.asyncio
 async def test_analyze_rate_limiting_with_internal_secret_forwarding():
+    """Verify authenticated BFF requests with X-Internal-Secret track distinct forwarded client IPs."""
     from backend.app.core.config import settings
     from backend.app.core.rate_limit import _request_history
 
@@ -174,6 +185,7 @@ async def test_analyze_rate_limiting_with_internal_secret_forwarding():
 
 
 def test_arbitrator_confidence_calculation():
+    """Verify arbitrator confidence calculation rules across deterministic and AI severity inputs."""
     from backend.app.api.v1.schemas.analyze import (
         AnalysisSignal,
         AnalyzeResponse,

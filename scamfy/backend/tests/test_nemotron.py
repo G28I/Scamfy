@@ -13,6 +13,7 @@ from backend.app.core.nemotron import _sanitize_json_content, analyze_with_nemot
 
 
 def test_sanitize_json_content_with_markdown_fences():
+    """Verify markdown code fence stripping from raw LLM output strings."""
     raw_markdown = '```json\n{"overall_risk": "CRITICAL", "confidence": "high"}\n```'
     assert (
         _sanitize_json_content(raw_markdown) == '{"overall_risk": "CRITICAL", "confidence": "high"}'
@@ -24,6 +25,7 @@ def test_sanitize_json_content_with_markdown_fences():
 
 @pytest.mark.asyncio
 async def test_nemotron_skips_when_api_key_empty():
+    """Verify graceful fallback when NVIDIA_API_KEY is not configured."""
     with patch.object(settings, "NVIDIA_API_KEY", ""):
         entities = ExtractedEntities()
         result, metadata = await analyze_with_nemotron("test message", entities)
@@ -34,6 +36,7 @@ async def test_nemotron_skips_when_api_key_empty():
 
 @pytest.mark.asyncio
 async def test_nemotron_successful_inference_contract():
+    """Verify successful Nemotron NIM inference and JSON schema contract validation."""
     mock_payload = {
         "overall_risk": "CRITICAL",
         "confidence": "high",
@@ -94,6 +97,8 @@ async def test_nemotron_successful_inference_contract():
 
 @pytest.mark.asyncio
 async def test_nemotron_upstream_error_fallback():
+    """Verify graceful handling and metadata recording when upstream NIM API returns HTTP 500."""
+
     async def mock_post_500(*args, **kwargs):
         return httpx.Response(
             500, text="Internal Server Error", request=httpx.Request("POST", "http://test")
@@ -113,6 +118,8 @@ async def test_nemotron_upstream_error_fallback():
 
 @pytest.mark.asyncio
 async def test_nemotron_malformed_json_fallback():
+    """Verify graceful fallback when LLM output contains malformed or unparseable JSON."""
+
     async def mock_post_malformed(*args, **kwargs):
         return httpx.Response(
             200,

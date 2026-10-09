@@ -66,10 +66,16 @@ export function MuleReceivedFundsGuide({
     timelineNotes: false,
   });
 
+  /**
+   * Toggles completion status for an evidence preservation item.
+   */
   const toggleChecklist = (key: string) => {
     setCheckedItems((prev) => ({ ...prev, [key]: !prev[key] }));
   };
 
+  /**
+   * Updates a single field in the bank notice details state.
+   */
   const handleInputChange = (field: keyof BankNoticeDetails, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
@@ -78,6 +84,9 @@ export function MuleReceivedFundsGuide({
     return generateBankLienNoticeTemplate(formData);
   }, [formData]);
 
+  /**
+   * Copies the generated bank notice template text to the system clipboard.
+   */
   const handleCopyNotice = async () => {
     try {
       if (typeof navigator !== "undefined" && navigator.clipboard) {
@@ -90,6 +99,9 @@ export function MuleReceivedFundsGuide({
     }
   };
 
+  /**
+   * Downloads the generated bank notice template text as a .txt file.
+   */
   const handleDownloadNotice = () => {
     try {
       const blob = new Blob([generatedNoticeText], { type: "text/plain;charset=utf-8" });
@@ -106,6 +118,9 @@ export function MuleReceivedFundsGuide({
     }
   };
 
+  /**
+   * Pre-fills the bank notice form with realistic illustrative sample data.
+   */
   const handleFillSample = () => {
     setFormData({
       accountHolderName: "Rahul Sharma",

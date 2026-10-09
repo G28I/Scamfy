@@ -6,6 +6,7 @@ from httpx import ASGITransport, AsyncClient
 
 @pytest.mark.asyncio
 async def test_health_check_returns_ok() -> None:
+    """Verify health check endpoint returns 200 with operational status metadata."""
     transport = ASGITransport(app=app)
     async with AsyncClient(transport=transport, base_url="http://test") as client:
         response = await client.get("/api/v1/health")
@@ -20,10 +21,12 @@ async def test_health_check_returns_ok() -> None:
 
 @pytest.mark.asyncio
 async def test_sanitized_error_handling_masks_internal_details() -> None:
+    """Verify internal exception messages and database secrets are never leaked to clients."""
     test_app = create_application()
 
     @test_app.get("/api/v1/test-internal-error")
     async def trigger_internal_error() -> None:
+        """Helper test route that raises an unhandled exception with sensitive content."""
         raise RuntimeError("CRITICAL_INTERNAL_DB_PASSWORD_LEAK_SECRET_12345")
 
     wrapped_test_app = CORSMiddleware(
