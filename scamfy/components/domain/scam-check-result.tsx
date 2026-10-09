@@ -11,6 +11,7 @@ import {
   Brain,
   HelpCircle,
   Zap,
+  Calculator,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -29,7 +30,9 @@ import { IndicatorTag } from "@/components/domain/indicator-tag";
 import { UrgencyBanner } from "@/components/domain/urgency-banner";
 import { PreTransferWarningModal } from "@/components/domain/pre-transfer-warning-modal";
 import { MuleReceivedFundsGuide } from "@/components/domain/mule-received-funds-guide";
+import { LoanTrapAnalyzer } from "@/components/domain/loan-trap-analyzer";
 import { isMoneyMuleRisk } from "@/lib/mule";
+import { isLoanOrYieldRisk } from "@/lib/loan";
 import type { AnalysisResultDto } from "@/app/api/check/route";
 import { cn } from "@/lib/utils";
 
@@ -53,8 +56,10 @@ export function ScamCheckResult({
 }: ScamCheckResultProps) {
   const [copiedSummary, setCopiedSummary] = React.useState(false);
   const isMuleThreat = React.useMemo(() => isMoneyMuleRisk(result), [result]);
+  const isLoanThreat = React.useMemo(() => isLoanOrYieldRisk(result), [result]);
   const [showMuleWarningModal, setShowMuleWarningModal] = React.useState(isMuleThreat);
   const [showReceivedFundsGuide, setShowReceivedFundsGuide] = React.useState(false);
+  const [showLoanCalculator, setShowLoanCalculator] = React.useState(false);
 
   const isEmergency = result.overall_risk === "CRITICAL";
   const isHighRisk = result.overall_risk === "HIGH_RISK";
@@ -149,6 +154,40 @@ export function ScamCheckResult({
               {showReceivedFundsGuide ? "Hide Received Funds Protocol" : "Received Unsolicited Money? (Guide)"}
             </Button>
           </div>
+        </div>
+      )}
+
+      {/* 0.2 Dedicated Predatory Loan / High-Yield Trap Banner */}
+      {isLoanThreat && !isMuleThreat && (
+        <div className="rounded-xl border border-amber-500/40 bg-amber-500/10 p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div className="space-y-1">
+            <div className="flex items-center gap-2 font-bold text-amber-600 dark:text-amber-400 text-sm">
+              <Calculator className="h-4 w-4 text-amber-500" />
+              <span>Predatory Loan / High-Yield Trap Pattern Detected</span>
+            </div>
+            <p className="text-xs text-muted-foreground max-w-xl leading-relaxed">
+              This message exhibits characteristics of illegal 7-day lending apps, advance-fee approval scams, or unsustainable high-yield returns. Dissect true borrowing costs and verify RBI regulatory compliance before proceeding.
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-2 shrink-0">
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              onClick={() => setShowLoanCalculator((prev) => !prev)}
+              className="text-xs font-semibold border-amber-500/40 hover:bg-amber-500/10 text-foreground"
+            >
+              <Calculator className="h-3.5 w-3.5 text-amber-500 mr-1" />
+              {showLoanCalculator ? "Hide Financial Trap Calculator" : "Launch Loan & Yield Trap Analyzer"}
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {/* 0.3 Embedded Loan Trap Analyzer when toggled */}
+      {showLoanCalculator && (
+        <div className="pt-2">
+          <LoanTrapAnalyzer />
         </div>
       )}
 

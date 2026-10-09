@@ -52,6 +52,11 @@ export function SiteFooter() {
                 </Link>
               </li>
               <li>
+                <Link href="/loan-analyzer" className="hover:text-foreground transition-colors">
+                  Loan &amp; Yield Analyzer
+                </Link>
+              </li>
+              <li>
                 <Link href="/mule-protection" className="hover:text-foreground transition-colors">
                   Money-Mule Shield
                 </Link>

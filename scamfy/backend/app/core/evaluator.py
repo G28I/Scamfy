@@ -358,6 +358,97 @@ RULES = [
             "Refuse requests to create accounts or register company current accounts under your PAN/Aadhaar.",
         ],
     },
+    {
+        "id": "RULE-LOAN-7DAY-TENURE",
+        "category": "PREDATORY_LOAN_FRAUD",
+        "severity": RiskLevel.CRITICAL,
+        "name": "7-Day / Hyper-Short Predatory Loan Trap",
+        "description": "Offers instant micro-loans with predatory 6-day, 7-day, or weekly repayment deadlines characteristic of illegal digital lending apps.",
+        "patterns": [
+            r"(?:loan|credit|cash)\b.{0,60}?(?:repay\s*in|tenure\s*(?:of|is)?|due\s*in|repayment\s*within)\s*(?:[67]|seven)\s*days",
+            r"(?:[67]|seven)\s*day[s]?\s*(?:loan|tenure|repayment|micro\s*loan|repayment\s*period)",
+            r"(?:weekly\s*repayment|repay\s*every\s*week)\b.{0,60}?(?:instant|urgent|emergency)\s*loan",
+        ],
+        "tactics": ["Predatory Tenures", "Artificial Debt Cycle Trap"],
+        "recommendations": [
+            "CRITICAL: Legitimate personal loans from RBI-registered NBFCs or banks never enforce 7-day repayment deadlines.",
+            "Do not borrow from 7-day loan apps. They trap borrowers in compounding cycle loans and aggressive recovery extortion.",
+            "Verify the lender's registration status on the official RBI Sachet portal (sachet.rbi.org.in).",
+        ],
+    },
+    {
+        "id": "RULE-LOAN-UPFRONT-DEDUCTION",
+        "category": "PREDATORY_LOAN_FRAUD",
+        "severity": RiskLevel.CRITICAL,
+        "name": "Excessive Upfront Loan Fee Deduction Trick",
+        "description": "Deducts 25%–50% of the stated principal upfront as processing fees, platform service charges, or GST before disbursing net funds.",
+        "patterns": [
+            r"(?:deduct|cut|minus)\s*(?:rs\.?|₹|inr)?\s*[\d,]+\s*(?:processing\s*fee|service\s*charge|platform\s*fee|gst|upfront)\b.{0,60}?(?:disburse|receive|credit|in\s*hand)",
+            r"(?:apply|approved\s*for)\s*(?:rs\.?|₹|inr)?\s*[\d,]+\b.{0,60}?(?:receive|disbursed|get)\s*(?:only|just)?\s*(?:rs\.?|₹|inr)?\s*[\d,]+\b.{0,60}?(?:deduct|processing\s*fee)",
+            r"(?:2[5-9]|[3-9]\d)%\s*(?:upfront|processing|platform)\s*(?:fee|charge|deduction)\b.{0,60}?(?:loan|disburs)",
+        ],
+        "tactics": ["Hidden Fee Deception", "Disbursement Shrinkage"],
+        "recommendations": [
+            "CRITICAL: RBI Digital Lending Guidelines prohibit lenders from deducting predatory 25%–50% upfront fees from loan principal.",
+            "Demand an official Key Fact Statement (KFS) showing the transparent Annual Percentage Rate (APR) before accepting any loan.",
+            "Refuse loans where net disbursed amount is substantially lower than stated principal.",
+        ],
+    },
+    {
+        "id": "RULE-LOAN-CONTACT-HARVEST-BLACKMAIL",
+        "category": "PREDATORY_LOAN_FRAUD",
+        "severity": RiskLevel.CRITICAL,
+        "name": "Loan Recovery Blackmail & Contact Book Harassment",
+        "description": "Threatens to leak morphed photos, contact friends/family/colleagues from the phonebook, or defame the borrower on social media for loan recovery.",
+        "patterns": [
+            r"(?:send|share|call|message)\s*(?:to\s*)?(?:your\s*)?(?:all\s*)?(?:contacts|family|friends|relatives|parents|colleagues|phonebook)\b.{0,80}?(?:repay|loan|defame|shame|fraud|thief)",
+            r"(?:leak|post|viral|upload)\s*(?:your\s*)?(?:morphed\s*)?(?:photos|pictures|id|aadhaar|pan)\b.{0,80}?(?:repay|loan|due|defaulter)",
+            r"(?:access|permission\s*to)\s*(?:your\s*)?(?:contacts|gallery|photos|camera)\b.{0,60}?(?:loan\s*app|instant\s*credit|apk)",
+        ],
+        "tactics": ["Social Shaming Extortion", "Privacy Weaponization"],
+        "recommendations": [
+            "CRITICAL: RBI rules strictly forbid digital lending apps from accessing contact lists or harassing third parties for recovery.",
+            "Do not pay blackmail demands; paying encourages repeated extortion cycles.",
+            "Preserve threat screenshots and file a formal cybercrime complaint on 1930 / cybercrime.gov.in.",
+        ],
+    },
+    {
+        "id": "RULE-LOAN-ADVANCE-FEE-APPROVAL",
+        "category": "PREDATORY_LOAN_FRAUD",
+        "severity": RiskLevel.CRITICAL,
+        "name": "Advance-Fee Loan Approval Scam",
+        "description": "Demands upfront payment for file charges, approval fees, security deposits, GST, or insurance before releasing or sanctioning an approved loan amount.",
+        "patterns": [
+            r"(?:pay|transfer|deposit|send)\s*(?:rs\.?|₹|inr)?\s*[\d,]+\s*(?:as|for)?\s*(?:file\s*charge|approval\s*fee|processing\s*fee|security\s*deposit|gst|insurance)\b.{0,80}?(?:to\s*release|to\s*disburse|to\s*approve|for\s*loan\s*sanction)",
+            r"(?:loan\s*(?:of\s*)?(?:rs\.?|₹|inr)?\s*[\d,]+\s*(?:approved|sanctioned))\b.{0,80}?(?:first\s*pay|deposit|transfer)\s*(?:rs\.?|₹|inr)?\s*[\d,]+",
+            r"(?:pay\s*refundable\s*(?:deposit|fee))\b.{0,60}?(?:to\s*get|for)\s*(?:instant\s*)?loan",
+        ],
+        "tactics": ["Advance-Fee Bait", "Manufactured Approval Illusion"],
+        "recommendations": [
+            "CRITICAL: Legitimate banks and NBFCs NEVER ask borrowers to pay upfront file charges or deposits via UPI to release a loan.",
+            "Genuine processing fees are always deducted from the loan disbursal or billed in official statements, never paid in advance.",
+            "Never send money to claim an approved loan.",
+        ],
+    },
+    {
+        "id": "RULE-YIELD-GUARANTEED-DAILY-RETURN",
+        "category": "INVESTMENT_PONZI_FRAUD",
+        "severity": RiskLevel.CRITICAL,
+        "name": "Guaranteed Daily/Weekly High-Yield Ponzi Lure",
+        "description": "Promises mathematically impossible guaranteed daily or weekly returns (e.g. 1%–5% daily, 100% monthly) under crypto trading, AI arbitrage, or forex schemes.",
+        "patterns": [
+            r"(?:guaranteed|fixed|assured)\s*(?:return|profit|yield|income|gain)s?\s*(?:of\s*)?(?:[1-9]\d?%|\d+\s*percent)\s*(?:daily|per\s*day|every\s*day|weekly|per\s*week)",
+            r"(?:invest|deposit)\s*(?:rs\.?|₹|inr|\$)?\s*[\d,]+\b.{0,60}?(?:get|earn|receive)\s*(?:rs\.?|₹|inr|\$)?\s*[\d,]+\s*(?:daily|every\s*day|in\s*\d+\s*days|doubled?)",
+            r"(?:double|2x|3x|10x)\s*(?:your\s*)?(?:money|investment|funds|deposit)\s*(?:in|within)\s*(?:[1-9]\d?|24|48|72)\s*(?:hours|days)",
+            r"(?:daily\s*(?:roi|payout|passive\s*income))\s*(?:of\s*)?(?:[1-9]\d?%|\d+%)",
+        ],
+        "tactics": ["Unrealistic Greed Lure", "Compounding Ponzi Deception"],
+        "recommendations": [
+            "CRITICAL: Guaranteed returns of 1%–5% daily are mathematically impossible and represent illegal Ponzi / HYIP schemes under the BUDS Act, 2019.",
+            "Regulated investment products in India never promise fixed risk-free daily compounding profits.",
+            "Verify investment entities on the SEBI register (sebi.gov.in) before committing any funds.",
+        ],
+    },
 ]
 
 
@@ -434,6 +525,14 @@ def detect_missing_evidence(
         if any(r["category"] == "MONEY_MULE_RECRUITMENT" for r in matched_rules):
             missing.append(
                 "No formal employment contract, verified corporate remittance authorization, or authentic RBI-registered lender credentials."
+            )
+        if any(r["category"] == "PREDATORY_LOAN_FRAUD" for r in matched_rules):
+            missing.append(
+                "No standardized RBI Key Fact Statement (KFS), APR disclosure, or registered NBFC partner credentials."
+            )
+        if any(r["category"] == "INVESTMENT_PONZI_FRAUD" for r in matched_rules):
+            missing.append(
+                "No SEBI registration number, fund prospectus, or audited financial disclosure under the BUDS Act, 2019."
             )
 
     return missing
