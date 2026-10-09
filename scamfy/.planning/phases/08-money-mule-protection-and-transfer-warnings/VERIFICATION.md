@@ -30,7 +30,7 @@ All components, deterministic backend rules, modal interrupt dialogs, guided rec
 
 ## 3. Legal & Safety Verification Audit
 
-During implementation, all legal statements were carefully audited against authoritative Indian sources (RBI Circular DBOD.AML.BC.No.65/14.01.001/2010-11 dated 7 December 2010 on Operation of Bank Accounts and Money Mules, RBI Master KYC Directions 2016, and I4C/Cybercrime Advisories):
+During implementation, all legal statements were carefully audited against authoritative Indian sources (RBI Circular DBOD.AML.BC.No.65/14.01.001/2010-11 dated 7 December 2010 on Operation of accounts – 'Money Mules', RBI Master KYC Directions 2016 as updated on 14 August 2025, and I4C/Cybercrime Advisories):
 - **Avoided Dogmatic Citations**: Replaced unverified hard-coded citations with legally accurate and neutral explanations of Indian banking and cybercrime law consequences (temporary debit holds / account freezes under RBI guidelines, Section 102 CrPC, and potential accomplice inquiry under cybercrime laws).
 - **No Guarantee Boundaries**: No promises of automated fund recovery, chargebacks, or account unfreezing were introduced (`OOS-02`).
 - **No Direct Account Access**: Maintained zero bank account credential storage or automated debiting (`OOS-01`).
