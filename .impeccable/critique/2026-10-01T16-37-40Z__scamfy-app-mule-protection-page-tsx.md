@@ -1,7 +1,7 @@
 ---
-target_identity: "file:C:\\Users\\ramak\\OneDrive\\Desktop\\Scamfy\\scamfy\\app\\mule-protection\\page.tsx"
+target_identity: "file:scamfy/app/mule-protection/page.tsx"
 target_fingerprint: "sha256:b7c2e97b5050f6e683df1f8a558ddbb7b6e74609b9723c39166b87750e418c58"
-target_path: "C:\\Users\\ramak\\OneDrive\\Desktop\\Scamfy\\scamfy\\app\\mule-protection\\page.tsx"
+target_path: "scamfy/app/mule-protection/page.tsx"
 timestamp: 2026-10-01T16-37-40Z
 slug: scamfy-app-mule-protection-page-tsx
 target: "app/mule-protection/page.tsx"

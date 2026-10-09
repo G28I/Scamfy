@@ -51,7 +51,7 @@ export function MuleReceivedFundsGuide({
     bankName: "",
     accountNumber: "",
     transactionRefOrUtr: "",
-    transactionDate: new Date().toISOString().split("T")[0] || "",
+    transactionDate: "",
     amount: "",
     senderIdentifier: "",
     communicationChannel: "WhatsApp / Telegram",
@@ -122,16 +122,17 @@ export function MuleReceivedFundsGuide({
    * Pre-fills the bank notice form with realistic illustrative sample data.
    */
   const handleFillSample = () => {
-    setFormData({
+    setFormData((prev) => ({
+      ...prev,
       accountHolderName: "Rahul Sharma",
       bankName: "State Bank of India",
       accountNumber: "30012345678",
       transactionRefOrUtr: "UPI/429183928193",
-      transactionDate: new Date().toISOString().split("T")[0] || "2026-10-01",
+      transactionDate: "2026-10-01",
       amount: "45,000",
       senderIdentifier: "unknown_payer@okhdfcbank",
       communicationChannel: "Telegram Job Group",
-    });
+    }));
   };
 
   const steps = [

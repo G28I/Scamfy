@@ -330,8 +330,8 @@ RULES = [
         "name": "Deceptive Intermediary Reassurance & Fund Routing Lure",
         "description": "Minimizes legal/financial risk with deceptive reassurances ('only an intermediary', 'harmless', 'no risk') while instructing fund receipt, account sharing, or money forwarding.",
         "patterns": [
-            r"(?:only\s+(?:an?\s+)?intermediary|just\s+helping\s+transfer|completely\s+harmless|no\s*risk\s*(?:at\s*all|to\s*you)?|not\s*(?:be\s*)?responsible|used\s+temporarily)\b.{0,120}?(?:receive|transfer|forward|send|keep\s+(?:commission|cut|\d+%)|bank\s*account|upi)",
-            r"(?:receive|transfer|forward|send|keep\s+(?:commission|cut|\d+%)|bank\s*account|upi)\b.{0,120}?(?:only\s+(?:an?\s+)?intermediary|just\s+helping\s+transfer|completely\s+harmless|no\s*risk\s*(?:at\s*all|to\s*you)?|not\s*(?:be\s*)?responsible|used\s+temporarily)",
+            r"(?:only\s+(?:an?\s+)?intermediary|just\s+helping\s+transfer|completely\s+harmless|no\s*risk\s*(?:at\s*all|to\s*you)?|not\s*(?:be\s*)?responsible|used\s+temporarily)\b.{0,120}?(?:(?:receive|transfer|forward|send|route)\s+(?:the\s+)?(?:funds?|money|amount|cash|₹|rs\.?|\d+)|keep\s+(?:a\s+)?(?:commission|cut|\d+%))",
+            r"(?:(?:receive|transfer|forward|send|route)\s+(?:the\s+)?(?:funds?|money|amount|cash|₹|rs\.?|\d+)|keep\s+(?:a\s+)?(?:commission|cut|\d+%))\b.{0,120}?(?:only\s+(?:an?\s+)?intermediary|just\s+helping\s+transfer|completely\s+harmless|no\s*risk\s*(?:at\s*all|to\s*you)?|not\s*(?:be\s*)?responsible|used\s+temporarily)",
         ],
         "tactics": ["Deceptive Risk Minimization", "Third-Party Shielding"],
         "recommendations": [

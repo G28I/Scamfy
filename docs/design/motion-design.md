@@ -45,11 +45,11 @@
 
 ```css
 @media (prefers-reduced-motion: reduce) {
-  /* Suppress spatial translations and infinite loops while preserving state visibility */
+  /* Suppress spatial movement and looping effects while preserving state visibility */
   *,
   ::before,
   ::after {
-    animation-iteration-count: 1 !important;
+    animation: none !important;
     scroll-behavior: auto !important;
   }
 }

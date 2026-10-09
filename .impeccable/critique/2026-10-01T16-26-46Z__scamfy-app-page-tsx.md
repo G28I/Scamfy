@@ -1,7 +1,7 @@
 ---
-target_identity: "file:C:\\Users\\ramak\\OneDrive\\Desktop\\Scamfy\\scamfy\\app\\page.tsx"
+target_identity: "file:scamfy/app/page.tsx"
 target_fingerprint: "sha256:ddac575ac7434e64723c9d75d4a3f10d91823ba145cbc6a1300e69cf14a9e2bb"
-target_path: "C:\\Users\\ramak\\OneDrive\\Desktop\\Scamfy\\scamfy\\app\\page.tsx"
+target_path: "scamfy/app/page.tsx"
 target: app/page.tsx
 timestamp: 2026-10-01T16-26-46Z
 slug: scamfy-app-page-tsx

@@ -5,9 +5,9 @@ max_score: 40
 na_heuristics: 
 p0_count: 0
 p1_count: 0
-target_identity: "file:C:\\Users\\ramak\\OneDrive\\Desktop\\Scamfy\\scamfy\\app\\mule-protection\\page.tsx"
+target_identity: "file:scamfy/app/mule-protection/page.tsx"
 target_fingerprint: "sha256:1a02bdb45855e55397451e7e839bdd349af34eb8e5b67ebc0df956f585765c44"
-target_path: "C:\\Users\\ramak\\OneDrive\\Desktop\\Scamfy\\scamfy\\app\\mule-protection\\page.tsx"
+target_path: "scamfy/app/mule-protection/page.tsx"
 timestamp: 2026-10-01T14-50-58Z
 slug: scamfy-app-mule-protection-page-tsx
 ---

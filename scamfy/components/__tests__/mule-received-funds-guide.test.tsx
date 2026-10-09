@@ -77,4 +77,22 @@ describe("MuleReceivedFundsGuide Component (MULE-03, UX-05)", () => {
     fireEvent.click(completeBtn);
     expect(onComplete).toHaveBeenCalled();
   });
+
+  it("preserves fundsRetainedIntact state when Fill Sample Details is clicked", () => {
+    render(<MuleReceivedFundsGuide />);
+
+    fireEvent.click(screen.getByRole("button", { name: /Next Step/i }));
+
+    const confirmCheckbox = screen.getByLabelText(/I confirm that the received funds remain intact/i) as HTMLInputElement;
+    fireEvent.click(confirmCheckbox);
+    expect(confirmCheckbox.checked).toBe(true);
+
+    const fillSampleBtn = screen.getByRole("button", { name: /Fill Sample Details/i });
+    fireEvent.click(fillSampleBtn);
+
+    expect(confirmCheckbox.checked).toBe(true);
+    const notice = screen.getByText(/Subject: Urgent Request for Voluntary Temporary Debit Hold/i);
+    expect(notice.textContent).toContain("Rahul Sharma");
+    expect(notice.textContent).toContain("retained the received funds intact in my account and have NOT touched");
+  });
 });

@@ -450,7 +450,7 @@ export default function HomePage() {
                   What should I do if I already sent money or shared my OTP?
                 </AccordionTrigger>
                 <AccordionContent className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
-                  Immediately call the <strong>National Cyber Crime Helpline at 1930</strong> (within the first 2-3 hours &mdash; the golden hour) to request a lien/freeze on the recipient account, block your ATM/credit cards and netbanking access with your bank, and file an official complaint on <a href="https://cybercrime.gov.in" target="_blank" rel="noopener noreferrer" className="text-primary underline">cybercrime.gov.in</a>. You can also use Scamfy&apos;s <Link href="/cases" className="text-primary underline font-semibold">Victim Case Organizer</Link> to compile your payment transaction IDs, chat exports, and factual timeline for official police reporting.
+                  Immediately call the <strong>National Cyber Crime Helpline at 1930</strong> (within the 2-hour golden period) to request a lien/freeze on the recipient account, block your ATM/credit cards and netbanking access with your bank, and file an official complaint on <a href="https://cybercrime.gov.in" target="_blank" rel="noopener noreferrer" className="text-primary underline">cybercrime.gov.in</a>. You can also use Scamfy&apos;s <Link href="/cases" className="text-primary underline font-semibold">Victim Case Organizer</Link> to compile your payment transaction IDs, chat exports, and factual timeline for official police reporting.
                 </AccordionContent>
               </AccordionItem>
 

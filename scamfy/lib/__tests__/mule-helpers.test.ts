@@ -228,4 +228,54 @@ describe("Money Mule Detection Helpers & Bank Notice Generator (lib/mule)", () =
     expect(neutralNotice).toContain("formally reporting this transaction to request appropriate bank-level dispute logging");
     expect(neutralNotice).not.toContain("have NOT touched, withdrawn, spent, or forwarded");
   });
+
+  it("leaves [Date of Credit] placeholder when transactionDate is empty or whitespace", () => {
+    const notice = generateBankLienNoticeTemplate({
+      accountHolderName: "Kavita",
+      bankName: "ICICI Bank",
+      accountNumber: "1234",
+      transactionRefOrUtr: "UTR123",
+      transactionDate: "   ",
+      amount: "10,000",
+    });
+
+    expect(notice).toContain("- Date of Credit: [Date of Credit]");
+  });
+
+  it("does not trigger mule detection on unrelated substring matches like FORMULE", () => {
+    const mockResult: AnalysisResultDto = {
+      id: "res-formule",
+      overall_risk: "SAFE",
+      confidence: "low",
+      primary_category: "INFORMATIONAL_OR_UNKNOWN",
+      secondary_categories: [],
+      signals: [
+        {
+          id: "RULE-SAFE-FORMULA",
+          name: "FORMULE CHECK",
+          description: "Unrelated check mentioning mathematical formule",
+          severity: "CAUTION",
+          evidence: "formula calculation",
+        },
+      ],
+      extracted_entities: {
+        upi_ids: [],
+        phone_numbers: [],
+        urls: [],
+        emails: [],
+        bank_accounts: [],
+        amounts: [],
+        handles: [],
+      },
+      psychological_tactics: [],
+      missing_evidence: [],
+      synthesis_summary: "Safe message.",
+      action_recommendations: [],
+      model_metadata: {},
+      created_at: new Date().toISOString(),
+    };
+
+    expect(isMoneyMuleRisk(mockResult)).toBe(false);
+    expect(getMuleSignals(mockResult)).toEqual([]);
+  });
 });

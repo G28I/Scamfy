@@ -5,9 +5,9 @@ max_score: 40
 na_heuristics: 
 p0_count: 0
 p1_count: 1
-target_identity: "file:C:\\Users\\ramak\\OneDrive\\Desktop\\Scamfy\\scamfy\\app\\page.tsx"
+target_identity: "file:scamfy/app/page.tsx"
 target_fingerprint: "sha256:8ba4c9c4d385ad96ff711ff49b61d9c2cdd7598668f349136e29b8db1e4f4d01"
-target_path: "C:\\Users\\ramak\\OneDrive\\Desktop\\Scamfy\\scamfy\\app\\page.tsx"
+target_path: "scamfy/app/page.tsx"
 timestamp: 2026-10-01T15-01-15Z
 slug: scamfy-app-page-tsx
 closed: true

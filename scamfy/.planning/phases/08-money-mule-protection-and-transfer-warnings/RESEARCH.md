@@ -15,9 +15,9 @@ In cyber-financial fraud in India, "money mules" (predominantly college students
 1. **Delhi Government-Scholarship Mule Ring (Sept 2026)**:
    - Facilitators recruited college students under the guise of government scholarship processing.
    - Students were paid a 10% commission to arrange peer bank accounts and route fraud proceeds through campus networks.
-2. **Goa Loan Assistance Mule Syndicate (Sept 2026)**:
-   - 60+ individuals recruited under the pretext of loan sanction assistance.
-   - Bank passbooks, ATM cards, and blank signed cheques were collected and handed over to international fraud rings.
+2. **Loan Assistance Mule Syndicate Investigation (Sept 2026)**:
+   - 60–70 bank accounts operated in Pimpri-Chinchwad by suspects traced from Goa and Kolkata under the pretext of loan sanction assistance.
+   - Bank passbooks, ATM cards, and blank signed cheques were collected and handed over to cyber-fraud syndicates.
 3. **Bengaluru Campus Laundering Case (Feb 2026)**:
    - A 19-year-old engineering student surrendered account credentials to acquaintances, resulting in ₹7 crore being laundered through his personal account in 48 hours.
 4. **Rajasthan Telegram Instrument Harvesting Network (Sept 2026)**:

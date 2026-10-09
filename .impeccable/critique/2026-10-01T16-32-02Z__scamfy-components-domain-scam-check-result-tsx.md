@@ -1,7 +1,7 @@
 ---
-target_identity: "file:C:\\Users\\ramak\\OneDrive\\Desktop\\Scamfy\\scamfy\\components\\domain\\scam-check-result.tsx"
+target_identity: "file:scamfy/components/domain/scam-check-result.tsx"
 target_fingerprint: "sha256:e6550cfbd9733c73febfa97a3aaf64017e01622615c3bb90ee8dc910c512d4f2"
-target_path: "C:\\Users\\ramak\\OneDrive\\Desktop\\Scamfy\\scamfy\\components\\domain\\scam-check-result.tsx"
+target_path: "scamfy/components/domain/scam-check-result.tsx"
 target: components/domain/scam-check-result.tsx
 timestamp: 2026-10-01T16-32-02Z
 slug: scamfy-components-domain-scam-check-result-tsx

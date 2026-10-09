@@ -51,7 +51,6 @@ export function isMoneyMuleRisk(result: AnalysisResultDto | null | undefined): b
       sid.includes("RULE-ACCOUNT-RENTAL") ||
       sid.includes("RULE-OVERPAYMENT-REVERSAL") ||
       sname.includes("MONEY MULE") ||
-      sname.includes("MULE") ||
       sname.includes("ACCOUNT RENTAL") ||
       sname.includes("OVERPAYMENT & THIRD-PARTY")
     );
@@ -76,7 +75,6 @@ export function getMuleSignals(result: AnalysisResultDto | null | undefined): An
       sid.includes("RULE-ACCOUNT-RENTAL") ||
       sid.includes("RULE-OVERPAYMENT-REVERSAL") ||
       sname.includes("MONEY MULE") ||
-      sname.includes("MULE") ||
       sname.includes("ACCOUNT RENTAL") ||
       sname.includes("OVERPAYMENT")
     );
@@ -91,7 +89,7 @@ export function getMuleSignals(result: AnalysisResultDto | null | undefined): An
  * @returns Formatted plain text template ready for email or written submission
  */
 export function generateBankLienNoticeTemplate(details: BankNoticeDetails): string {
-  const dateStr = details.transactionDate || new Date().toISOString().split("T")[0];
+  const dateStr = details.transactionDate.trim() || "[Date of Credit]";
   const holderName = details.accountHolderName.trim() || "[Your Full Name]";
   const bank = details.bankName.trim() || "[Bank Name]";
   const accNo = details.accountNumber.trim() || "[Your Account Number]";

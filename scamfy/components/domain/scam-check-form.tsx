@@ -59,6 +59,8 @@ export function ScamCheckForm({
   const [text, setText] = React.useState(initialText);
   const [inputError, setInputError] = React.useState<string | null>(null);
   const [isPopulatedHighlight, setIsPopulatedHighlight] = React.useState(false);
+  const [announcementText, setAnnouncementText] = React.useState("");
+  const [announcementCount, setAnnouncementCount] = React.useState(0);
   const textareaRef = React.useRef<HTMLTextAreaElement>(null);
   const highlightTimeoutRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -69,6 +71,20 @@ export function ScamCheckForm({
       }
     };
   }, []);
+
+  const triggerLoadHighlight = (message: string) => {
+    if (highlightTimeoutRef.current) {
+      clearTimeout(highlightTimeoutRef.current);
+    }
+    setIsPopulatedHighlight(true);
+    setAnnouncementCount((prev) => prev + 1);
+    setAnnouncementText(message);
+
+    highlightTimeoutRef.current = setTimeout(() => {
+      setIsPopulatedHighlight(false);
+      setAnnouncementText("");
+    }, 800);
+  };
 
   const handleSubmit = (e?: React.FormEvent) => {
     e?.preventDefault();
@@ -98,25 +114,22 @@ export function ScamCheckForm({
   const handleSelectPreset = (presetText: string) => {
     setText(presetText);
     setInputError(null);
-    setIsPopulatedHighlight(true);
+    triggerLoadHighlight("Preset message loaded into input canvas.");
     textareaRef.current?.focus();
 
     if (typeof window !== "undefined" && window.innerWidth < 768) {
       textareaRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
     }
-
-    if (highlightTimeoutRef.current) {
-      clearTimeout(highlightTimeoutRef.current);
-    }
-    highlightTimeoutRef.current = setTimeout(() => {
-      setIsPopulatedHighlight(false);
-    }, 800);
   };
 
   const handleClear = () => {
     setText("");
     setInputError(null);
     setIsPopulatedHighlight(false);
+    setAnnouncementText("");
+    if (highlightTimeoutRef.current) {
+      clearTimeout(highlightTimeoutRef.current);
+    }
     textareaRef.current?.focus();
   };
 
@@ -127,15 +140,8 @@ export function ScamCheckForm({
         if (clipText) {
           setText(clipText);
           setInputError(null);
-          setIsPopulatedHighlight(true);
+          triggerLoadHighlight("Pasted content loaded into input canvas.");
           textareaRef.current?.focus();
-
-          if (highlightTimeoutRef.current) {
-            clearTimeout(highlightTimeoutRef.current);
-          }
-          highlightTimeoutRef.current = setTimeout(() => {
-            setIsPopulatedHighlight(false);
-          }, 800);
         }
       }
     } catch {
@@ -209,7 +215,7 @@ export function ScamCheckForm({
         )}
       >
         <div className="sr-only" aria-live="polite" aria-atomic="true">
-          {isPopulatedHighlight ? "Preset message loaded into input canvas." : ""}
+          {announcementText ? `${announcementText} (${announcementCount})` : ""}
         </div>
 
         <div className="flex items-center justify-between border-b border-border/50 bg-muted/20 px-3.5 py-2 text-xs text-muted-foreground">

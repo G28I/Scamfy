@@ -5,9 +5,9 @@ max_score: 40
 na_heuristics: 
 p0_count: 0
 p1_count: 2
-target_identity: "file:C:\\Users\\ramak\\OneDrive\\Desktop\\Scamfy\\scamfy\\components\\domain\\scam-check-result.tsx"
+target_identity: "file:scamfy/components/domain/scam-check-result.tsx"
 target_fingerprint: "sha256:52ed14fc7a52c4bae36efe0732218da121211f7b91c38abbfcf6298cf0f182fb"
-target_path: "C:\\Users\\ramak\\OneDrive\\Desktop\\Scamfy\\scamfy\\components\\domain\\scam-check-result.tsx"
+target_path: "scamfy/components/domain/scam-check-result.tsx"
 timestamp: 2026-10-01T14-34-13Z
 slug: scamfy-components-domain-scam-check-result-tsx
 ---
