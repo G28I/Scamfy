@@ -98,6 +98,55 @@ describe("Money Mule Detection Helpers & Bank Notice Generator (lib/mule)", () =
     expect(muleSignals[0]?.id).toBe("RULE-MONEY-MULE-FORWARDING");
   });
 
+  it("detects money mule risk for student-specific rule IDs", () => {
+    const studentRuleIds = [
+      "RULE-MULE-LOAN-ASSISTANCE-PRETEXT",
+      "RULE-MULE-SCHOLARSHIP-JOB-COMMISSION",
+      "RULE-MULE-BANKING-INSTRUMENT-CAPTURE",
+      "RULE-MULE-INTERMEDIARY-REASSURANCE",
+      "RULE-MULE-CORPORATE-ACCOUNT-CREATION",
+    ];
+
+    for (const ruleId of studentRuleIds) {
+      const mockResult: AnalysisResultDto = {
+        id: `res-${ruleId}`,
+        overall_risk: "CRITICAL",
+        confidence: "high",
+        primary_category: "MONEY_MULE_RECRUITMENT",
+        secondary_categories: [],
+        signals: [
+          {
+            id: ruleId,
+            name: "Student Mule Threat Signal",
+            description: "Mule solicitation signal",
+            severity: "CRITICAL",
+            evidence: "suspicious pattern match",
+          },
+        ],
+        extracted_entities: {
+          upi_ids: [],
+          phone_numbers: [],
+          urls: [],
+          emails: [],
+          bank_accounts: [],
+          amounts: [],
+          handles: [],
+        },
+        psychological_tactics: [],
+        missing_evidence: [],
+        synthesis_summary: "Student mule signal detected.",
+        action_recommendations: [],
+        model_metadata: {},
+        created_at: new Date().toISOString(),
+      };
+
+      expect(isMoneyMuleRisk(mockResult)).toBe(true);
+      const signals = getMuleSignals(mockResult);
+      expect(signals.length).toBe(1);
+      expect(signals[0]?.id).toBe(ruleId);
+    }
+  });
+
   it("returns false for benign results without mule categories or signals", () => {
     const mockResult: AnalysisResultDto = {
       id: "res-4",

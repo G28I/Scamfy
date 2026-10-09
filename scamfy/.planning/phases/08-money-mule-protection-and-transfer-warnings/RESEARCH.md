@@ -2,81 +2,94 @@
 
 - **Phase**: 08
 - **Milestone**: Milestone 2 (Slice 2 - Community Intel & Mule Shield)
-- **Status**: Research Complete 🔬
-- **Target Deliverable**: Comprehensive money-mule detection engine, interruptive pre-transfer warnings, legal liability education, and a guided preservation workflow for already-received funds.
+- **Status**: Research Complete & Expanded 🔬
+- **Target Deliverable**: Comprehensive money-mule detection engine covering student-specific recruitment vectors, contextual multi-signal detection, interruptive pre-transfer warnings, non-dogmatic legal liability education, and a guided preservation workflow for already-received funds.
 
 ---
 
-## 1. Domain & Threat Landscape: Money-Mule Operations in India
+## 1. Domain & Threat Landscape: Student-Targeted Money-Mule Operations in India
 
-In cyber-financial fraud in India, "money mules" (often unwitting college students, job seekers, or gig workers) are recruited to receive illicit funds into their personal savings or current bank accounts and transfer/forward them elsewhere.
+In cyber-financial fraud in India, "money mules" (predominantly college students, young job seekers, and unemployed youth) are recruited as financial infrastructure to receive illicit funds into personal savings or current accounts and layer/forward them to criminal networks.
 
-### Primary Mule Recruitment Archetypes:
-1. **Part-Time Salary / Task Commission Forwarding**:
-   - Scammer recruits student as "payment assistant", "finance intern", or "crypto P2P merchant".
-   - Instructs victim to receive funds (e.g., ₹25,000–₹1,00,000) from diverse UPI IDs, keep a 5–10% commission, and transfer the remaining 90–95% to another UPI ID, bank account, or convert into crypto (USDT) / gift cards.
-2. **Bank Account / UPI Handle Rental (P2P Arbitrage)**:
-   - Scammer offers daily/weekly rental fees (e.g., "₹5,000/day for your current account / UPI handle") for "gaming payouts" or "crypto P2P arbitrage".
-   - The victim surrenders account access or operates it under the scammer's direction.
-3. **Accidental / Overpayment Reversal Lure**:
-   - Scammer sends money (or fake SMS credit alert) to victim and calls claiming: *"I sent ₹50,000 to your UPI by mistake. Please send back ₹45,000 to this other number and keep ₹5,000 for your trouble."*
-   - Forwarding these funds connects the victim's account directly to a fraud chain.
-4. **Campus Cash Withdrawal Rings**:
-   - Student asked to withdraw cash from ATM using funds received in their account and hand cash to an agent.
+### Observed Real-World Incident Case Studies:
+1. **Delhi Government-Scholarship Mule Ring (Sept 2026)**:
+   - Facilitators recruited college students under the guise of government scholarship processing.
+   - Students were paid a 10% commission to arrange peer bank accounts and route fraud proceeds through campus networks.
+2. **Goa Loan Assistance Mule Syndicate (Sept 2026)**:
+   - 60+ individuals recruited under the pretext of loan sanction assistance.
+   - Bank passbooks, ATM cards, and blank signed cheques were collected and handed over to international fraud rings.
+3. **Bengaluru Campus Laundering Case (Feb 2026)**:
+   - A 19-year-old engineering student surrendered account credentials to acquaintances, resulting in ₹7 crore being laundered through his personal account in 48 hours.
+4. **Rajasthan Telegram Instrument Harvesting Network (Sept 2026)**:
+   - Facilitators procured bank accounts, ATM cards, registered SIM kits, and passbooks via Telegram and WhatsApp groups for crypto P2P layering and gaming payouts.
 
 ---
 
-## 2. Legal & Financial Realities in India (`MULE-02`, `UX-02`)
+## 2. Six Student-Specific Recruitment Families
 
-1. **Accomplice Liability**: Under the Prevention of Money Laundering Act (PMLA), IPC Section 420 (Cheating), and IT Act Section 66D, providing your bank account or UPI ID to receive and forward proceeds of crime makes the account holder legally liable as a co-conspirator/mule.
-2. **Section 102 CrPC Liens & Freezes**: Cyber crime police units automatically issue debit freezes on the entire transaction chain. An unwitting student whose account touched stolen money will have their account frozen, PAN flagged, and credit history impaired.
+MULE-01 extends deterministic detection across six core student recruitment vectors:
+
+| Family | Pattern Identifier | Core Detection Mechanism | Severity |
+| :--- | :--- | :--- | :--- |
+| **A. Loan Assistance & Fake Bank DSA** | `RULE-MULE-LOAN-ASSISTANCE-PRETEXT` | Pretext of loan approval/disbursement coupled with requests for blank signed cheques, debit cards, passbooks, or third-party fund routing. | `CRITICAL` |
+| **B. Fake Scholarships & Job Arranging** | `RULE-MULE-SCHOLARSHIP-JOB-COMMISSION` | Scholarship, stipend, or part-time job offers requiring personal account routing of client payments or recruiting peer accounts for commission. | `CRITICAL` |
+| **C. Instrument & Credential Harvesting** | `RULE-MULE-BANKING-INSTRUMENT-CAPTURE` | Direct demands for blank signed cheques, ATM cards/PINs, passbook kits, SIM cards, NetBanking passwords, or OTP forwarding. | `CRITICAL` |
+| **D. Deceptive Risk Minimization** | `RULE-MULE-INTERMEDIARY-REASSURANCE` | Deceptive reassurances ("only an intermediary", "harmless", "no risk", "not responsible") combined with account use or fund movement instructions. | `CRITICAL` |
+| **E. Corporate Proxy Account Creation** | `RULE-MULE-CORPORATE-ACCOUNT-CREATION` | Solicitations to open a bank account in the student's name for external companies/clients to operate in exchange for rent or commission. | `CRITICAL` |
+| **F. Campus / Messaging Account Rental** | `RULE-ACCOUNT-RENTAL-P2P` | Account/UPI rental or procuring offers circulated on Telegram, WhatsApp, Instagram, or campus groups for daily rent or arbitrage fees. | `CRITICAL` |
+
+---
+
+## 3. Contextual Multi-Signal Detection Architecture
+
+Rather than relying on flat, isolated keyword regexes, Scamfy structures mule detection across four correlated evidence dimensions:
+
+```
+[ Opportunity Context ]
+        ↓ (Job / Scholarship / Loan Assistance / Corporate Proxy)
+[ Account or Instrument Request ]
+        ↓ (Cheque / Debit Card / PIN / OTP / Account Open / Account Rental)
+[ Incentive or Risk Minimization ]
+        ↓ (Commission % / Daily Rent / "Only an intermediary" / "No risk")
+[ Fund Movement Instruction ]
+        ↓ (Receive & Forward / USDT Conversion / Reversal Trap)
+[ High-Priority Money-Mule Risk Classification ]
+```
+
+### Flexible Dimension Hierarchy:
+1. **Full Recruitment Funnel**: Co-occurrence of all dimensions indicates an active, coordinated mule recruitment scheme (`CRITICAL`).
+2. **High-Risk Partial Funnels**:
+   - Loan assistance + blank signed cheques / debit cards → Immediate `CRITICAL` instrument-harvesting warning.
+   - Account rental + daily commission on messaging platforms → Immediate `CRITICAL` rental warning.
+3. **Standalone Dangerous Credential Requests**: Explicit surrender demands for OTPs, NetBanking credentials, or blank signed cheques independently warrant immediate `CRITICAL` warnings even in isolation.
+
+---
+
+## 4. Legal & Regulatory Realities in India (`MULE-02`, `UX-02`)
+
+All guidance and educational alerts adhere strictly to verified primary sources:
+1. **Primary Regulatory & Law Enforcement Sources**:
+   - **National Cyber Crime Reporting Portal** ([cybercrime.gov.in](https://www.cybercrime.gov.in/))
+   - **Indian Cyber Crime Coordination Centre (I4C)**: Citizen Financial Cyber Fraud Helpline (1930) and National Cybercrime Threat Analytics Unit.
+   - **Reserve Bank of India (RBI)**: Master Direction – Know Your Customer (KYC) Direction, 2016 (Section on Monitoring of Accounts & Money Mules, [RBI/DBR/2015-16/18 Master Direction DBR.AML.BC.No.81/14.01.001/2015-16](https://www.rbi.org.in/Scripts/BS_ViewMasDirections.aspx?id=11566)) and Circular on Operation of Accounts – 'Money Mules' ([DBOD.AML.BC.No. 77 /14.01.001/2010-11](https://www.rbi.org.in/Scripts/NotificationUser.aspx?Id=6264&Mode=0)).
+2. **Neutral, Non-Dogmatic Legal Framing**:
+   - Replaced categorical claims of automatic criminal guilt with neutral, legally accurate statements: *"Allowing your account to route unsolicited funds risks immediate bank debit holds, account freezes under cybercrime investigations, and potential inquiry as an unwitting accomplice."*
+   - Explicitly clarified that Scamfy triage is an automated advisory assessment and does not constitute a judicial, regulatory, or criminal determination of guilt (`AI-05`, `OOS-03`).
 3. **Safe Action Priority**:
    - **DO NOT transfer or forward any part of the funds.**
-   - **DO NOT withdraw or spend the money.**
-   - **Immediately issue a written notice to your bank's nodal officer.**
+   - **DO NOT touch, withdraw, or spend received funds.**
+   - **Issue a formal written notice to the bank branch manager / nodal officer requesting a voluntary debit hold.**
    - **Preserve digital evidence and lodge an informational report on 1930 / cybercrime.gov.in.**
 
 ---
 
-## 3. Detection Strategy & Rule Patterns (`MULE-01`)
+## 5. False-Positive Safeguards (Negative Control Suite)
 
-### Deterministic Rule Engine Extensions (`backend/app/core/evaluator.py`):
-1. `RULE-MONEY-MULE-FORWARDING`:
-   - Matches keywords: `receive in (your) account`, `transfer (to|back|remaining)`, `keep (commission|percent|share|rs)`, `forward funds`, `send to other upi`.
-   - Severity: `CRITICAL`.
-   - Category: `MONEY_MULE_RECRUITMENT`.
-2. `RULE-ACCOUNT-RENTAL-P2P`:
-   - Matches keywords: `rent your (bank|current|savings|upi) account`, `account for crypto p2p`, `daily rent for account`, `provide corporate account`.
-   - Severity: `CRITICAL`.
-   - Category: `MONEY_MULE_RECRUITMENT`.
-3. `RULE-OVERPAYMENT-REVERSAL-MULE`:
-   - Matches keywords: `sent by mistake`, `transfer back to different (number|upi|account)`, `refund excess amount to`, `keep extra money`.
-   - Severity: `CRITICAL`.
-   - Category: `MONEY_MULE_RECRUITMENT`.
-
----
-
-## 4. Guided Workflow for Received Funds (`MULE-03`)
-
-When a user indicates that money has already arrived in their account:
-1. **Step 1: Immediate Freeze & No-Action Rule**:
-   - Explain why spending or returning the money to the scammer is dangerous.
-2. **Step 2: Formal Bank Notification**:
-   - Provide a formal written communication template for the branch manager / nodal fraud officer.
-   - Include fields: Account number, UTR/Transaction reference, Date/Time, Amount, and request for a specific debit lien/hold.
-3. **Step 3: Evidence Capture & Preservation**:
-   - Structured checklist: Full chat export, sender phone numbers, transaction SMS alerts, account statements, scammer's UPI/bank instructions.
-4. **Step 4: Official Helpline / Record Handoff**:
-   - Clear instructions to call 1930 / visit cybercrime.gov.in as an unwitting account target.
-
----
-
-## 5. UI/UX Architecture (`UX-02`, `UX-03`, `UX-04`, `UX-05`)
-
-1. **`MuleWarningModal` / `PreTransferWarningBanner`**:
-   - Interruptive alert when risk includes `MONEY_MULE_RECRUITMENT` or high transfer risk.
-   - Prominent "Emergency Money-Mule Warning" banner with shield/alert visual styling.
-   - Action buttons: "I haven't sent money yet (View Safe Steps)", "Money already received (Guided Recovery)".
-2. **`MuleReceivedFundsGuide`**:
-   - Step-by-step interactive wizard with copyable bank notice templates and evidence checklist.
-   - Full keyboard operability and WCAG AA contrast.
+To prevent legitimate financial communications from triggering false alarms, Scamfy enforces explicit negative test controls:
+1. **Monthly Salary Notifications**: Corporate payroll credits with payslip links.
+2. **Expense Reimbursements**: Approved travel/client business expense payouts.
+3. **Routine Family Transfers**: Parental remittances for hostel, mess fees, or books.
+4. **Genuine Scholarship Disbursements**: Direct government scholarship credits from registered ministry accounts.
+5. **Legitimate Bank Loan Sanction**: Verified branch sanction letters requesting physical branch document verification without credential surrender.
+6. **Ordinary Internship Offers**: Standard offer letters detailing stipends without account-routing instructions.
+7. **Routine P2P & Bill Splitting**: Friends settling dinner expenses or sharing utility bills.

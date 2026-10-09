@@ -2,9 +2,9 @@
 
 ## Current Status
 - **Current Milestone**: Milestone 2 (Slice 2 - Community Intel & Mule Shield)
-- **Active Phase**: Phase 8 Complete (Ready for Phase 9)
+- **Active Phase**: Phase 8 Complete (MULE-01 Student-Specific Detection Expansion Verified)
 - **Status**: 🟢 Phase 8 Complete
-- **Last Updated**: 2026-10-01
+- **Last Updated**: 2026-10-09
 
 ---
 
@@ -19,7 +19,7 @@
 | **05** | Scam Check Input & Analysis Slice | Slice 1 | 🟢 **Complete** | 2026-09-26 |
 | **06** | Deterministic Risk Engine + Nemotron NIM | Slice 1 | 🟢 **Complete** | 2026-09-26 |
 | **07** | Scam Pattern Database & Community Reporting | Slice 2 | 🟢 **Complete** | 2026-09-26 |
-| **08** | Money-Mule Protection & Transfer Warnings | Slice 2 | 🟢 **Complete** | 2026-10-01 |
+| **08** | Money-Mule Protection & Transfer Warnings | Slice 2 | 🟢 **Complete** | 2026-10-09 |
 | **09** | Loan & High-Return Trap Analyzer | Slice 3 | ⚪ Planned | — |
 | **10** | Official Reporting Gateway & 1930 Route | Slice 3 | ⚪ Planned | — |
 | **11** | Victim Case Center & Evidence Vault | Slice 4 | ⚪ Planned | — |
@@ -30,6 +30,7 @@
 
 ## Phase 8 Execution Checklist (Money-Mule Protection & Transfer Warnings)
 - [x] Task 1: Backend Deterministic Mule Rules & Pattern Detection Engine (`backend/app/core/evaluator.py`, `backend/app/core/extractors.py`, `backend/tests/test_mule_rules.py`)
+- [x] Task 1.1: Student-Specific Money-Mule Detection Expansion (`RULE-MULE-LOAN-ASSISTANCE-PRETEXT`, `RULE-MULE-SCHOLARSHIP-JOB-COMMISSION`, `RULE-MULE-BANKING-INSTRUMENT-CAPTURE`, `RULE-MULE-INTERMEDIARY-REASSURANCE`, `RULE-MULE-CORPORATE-ACCOUNT-CREATION`, `RULE-ACCOUNT-RENTAL-P2P` extended; 22 unit tests with 8 negative controls in `test_mule_rules.py`)
 - [x] Task 2: Frontend Threat Analysis BFF Integration & Types (`lib/mule.ts`, `lib/__tests__/mule-helpers.test.ts`)
 - [x] Task 3: Interruptive Pre-Transfer Warning Modal & Safe Action Directives (`components/domain/pre-transfer-warning-modal.tsx`, `components/__tests__/pre-transfer-warning-modal.test.tsx`)
 - [x] Task 4: Interactive Guided Workflow for Received Funds & Evidence Preservation (`components/domain/mule-received-funds-guide.tsx`, `app/mule-protection/page.tsx`, `components/__tests__/mule-received-funds-guide.test.tsx`)
@@ -38,7 +39,7 @@
 ---
 
 ## Immediate Next Actions
-Milestone 2 (Slice 2 - Community Intel & Mule Shield) is now 100% complete! Ready to plan Milestone 3 (Slice 3 - Financial Traps & Official Gateway) via `/gsd-plan-phase 9`.
+Milestone 2 (Slice 2 - Community Intel & Mule Shield) is 100% complete with student-specific money-mule detection and false-positive controls verified. Ready to plan Milestone 3 (Slice 3 - Financial Traps & Official Gateway) via `/gsd-plan-phase 9`.
 
 
 

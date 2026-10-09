@@ -46,9 +46,11 @@ export function isMoneyMuleRisk(result: AnalysisResultDto | null | undefined): b
     const sname = (s.name || "").toUpperCase();
     return (
       sid.includes("RULE-MONEY-MULE") ||
+      sid.includes("RULE-MULE-") ||
       sid.includes("RULE-ACCOUNT-RENTAL") ||
       sid.includes("RULE-OVERPAYMENT-REVERSAL") ||
       sname.includes("MONEY MULE") ||
+      sname.includes("MULE") ||
       sname.includes("ACCOUNT RENTAL") ||
       sname.includes("OVERPAYMENT & THIRD-PARTY")
     );
@@ -69,9 +71,11 @@ export function getMuleSignals(result: AnalysisResultDto | null | undefined): An
     const sname = (s.name || "").toUpperCase();
     return (
       sid.includes("RULE-MONEY-MULE") ||
+      sid.includes("RULE-MULE-") ||
       sid.includes("RULE-ACCOUNT-RENTAL") ||
       sid.includes("RULE-OVERPAYMENT-REVERSAL") ||
       sname.includes("MONEY MULE") ||
+      sname.includes("MULE") ||
       sname.includes("ACCOUNT RENTAL") ||
       sname.includes("OVERPAYMENT")
     );

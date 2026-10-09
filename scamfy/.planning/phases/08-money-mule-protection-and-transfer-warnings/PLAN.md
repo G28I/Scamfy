@@ -15,7 +15,7 @@
 - **Action**:
   - Update `backend/app/core/evaluator.py`:
     - Add `RULE-MONEY-MULE-FORWARDING`: Detects requests to receive funds in personal accounts and forward/transfer them to third-party accounts or convert to crypto/cash with commission lures (`MULE-01`).
-    - Add `RULE-ACCOUNT-RENTAL-P2P`: Detects schemes renting personal/corporate bank accounts or UPI handles for gaming/crypto P2P arbitrage (`MULE-01`).
+    - Add `RULE-ACCOUNT-RENTAL-P2P`: Detects schemes renting personal/corporate bank accounts or UPI handles for gaming/crypto P2P arbitrage, expanded to cover campus/messaging platform procuring (`MULE-01`).
     - Add `RULE-OVERPAYMENT-REVERSAL-MULE`: Detects fake accidental transfer claims asking victim to refund excess money to a different account/UPI ID (`MULE-01`).
   - Update `backend/app/core/extractors.py`:
     - Add pattern extractors for mule-related indicators (commission percentages, account rental keywords, forwarding instructions).
@@ -24,6 +24,25 @@
   - Author test suite `backend/tests/test_mule_rules.py`:
     - Test all mule variants: task salary forwarding, account rental, crypto P2P arbitrage, overpayment refund tricks, and benign job messages.
 - **Verification**: `python -m pytest backend/tests` passes 100%.
+
+### Task 1.1: Student-Specific Money-Mule Detection Expansion (`MULE-01`)
+- **Action**:
+  - Extend `backend/app/core/evaluator.py` with 5 new dedicated student recruitment rule families and multi-signal dimension matching:
+    1. `RULE-MULE-LOAN-ASSISTANCE-PRETEXT`: Loan processing assistance requesting account access, passbooks, debit cards, or blank signed cheques.
+    2. `RULE-MULE-SCHOLARSHIP-JOB-COMMISSION`: Fake scholarships/internships/part-time jobs requiring personal account fund routing or student peer account arrangement for commission.
+    3. `RULE-MULE-BANKING-INSTRUMENT-CAPTURE`: Standalone requests to surrender blank signed cheques, ATM cards/PINs, passbooks, SIM cards, OTP forwarding, or NetBanking credentials.
+    4. `RULE-MULE-INTERMEDIARY-REASSURANCE`: Deceptive risk minimization ("only an intermediary", "harmless", "no risk", "not responsible") combined with fund routing or account use instructions.
+    5. `RULE-MULE-CORPORATE-ACCOUNT-CREATION`: Requests to open a personal bank account/UPI identity for a purported company/client to operate.
+    6. Extended `RULE-ACCOUNT-RENTAL-P2P`: Added support for campus procuring and Telegram/WhatsApp account rental networks.
+  - Update `detect_missing_evidence()` in `evaluator.py` to identify missing corporate remittance agreements / lender credentials for `MONEY_MULE_RECRUITMENT` per `DET-05`.
+  - Extend `backend/tests/test_mule_rules.py` with 22 unit test scenarios:
+    - 6 positive test cases covering all student recruitment vectors.
+    - 8 negative control test cases verifying zero false positives on legitimate salaries, expense reimbursements, family transfers, genuine scholarships, verified bank loan sanction letters, and ordinary internships.
+  - Update `backend/tests/test_evaluator.py` rule count and uniqueness assertions to 18 active rules.
+- **Acceptance Criteria**:
+  - Contextual multi-signal rule matching prevents keyword false positives on benign banking communications.
+  - Standalone credential harvesting triggers immediate `CRITICAL` risk without requiring a recruitment funnel.
+  - All 54 backend pytest tests pass cleanly.
 
 ### Task 2: Frontend Threat Analysis BFF Integration & Types (`MULE-01`, `MULE-02`)
 - **Action**:

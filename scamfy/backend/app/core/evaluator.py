@@ -219,19 +219,25 @@ RULES = [
         "id": "RULE-ACCOUNT-RENTAL-P2P",
         "category": "MONEY_MULE_RECRUITMENT",
         "severity": RiskLevel.CRITICAL,
-        "name": "Bank Account / UPI Rental Scheme",
-        "description": "Solicits renting, leasing, or sharing personal or corporate bank accounts, current accounts, or UPI handles for gaming payouts or crypto P2P arbitrage.",
+        "name": "Bank Account / UPI Rental & Campus Procuring Scheme",
+        "description": "Solicits renting, leasing, sharing, or procuring personal or corporate bank accounts, current accounts, or UPI handles for gaming payouts, crypto P2P arbitrage, or betting operations.",
         "patterns": [
-            r"(?:rent|lease|share|provide|lend|give)\s+.*?(?:bank|savings|current|corporate|upi|crypto)\s+.*?(?:account|id|handle|vpa).*?(?:daily|weekly|monthly|commission|crypto|gaming|p2p|arbitrage)",
+            r"(?:rent|lease|share|provide|lend|give|procure|arrange)\s+.*?(?:bank|savings|current|corporate|upi|crypto)\s+.*?(?:account|id|handle|vpa).*?(?:daily|weekly|monthly|commission|crypto|gaming|p2p|arbitrage|rent)",
             r"(?:need|wanted|looking\s*for)\s+.*?(?:current|savings|bank)\s*(?:account|accounts).*?(?:for\s+)?(?:p2p|crypto|arbitrage|gaming|commission|daily\s*rent)",
-            r"(?:earn|get|make)\s+.*?(?:daily|per\s*day|monthly).*?(?:renting|providing|giving|sharing)\s+.*?(?:bank\s*)?account",
+            r"(?:earn|get|make)\s+.*?(?:daily|per\s*day|monthly).*?(?:renting|providing|giving|sharing|arranging)\s+.*?(?:bank\s*)?account",
             r"(?:daily|weekly)\s*rent\s+.*?(?:for|of)\s+.*?(?:bank|current|savings|upi)\s*account",
+            r"(?:telegram|whatsapp|instagram|campus).*?(?:rent|procure|arrange|provide).*?(?:bank|savings|current|upi)\s*account.*?(?:daily|rent|commission|fee)",
+            r"(?:rent|share)\s+(?:your\s+)?(?:upi\s*id|google\s*pay|phonepe|paytm)\s+(?:for\s+)?(?:daily\s*rent|daily\s*income|commission)",
         ],
-        "tactics": ["Account Rental Lure", "Identity Shielding Exploitation"],
+        "tactics": [
+            "Account Rental Lure",
+            "Identity Shielding Exploitation",
+            "Campus Network Recruitment",
+        ],
         "recommendations": [
-            "Never rent, lease, or share your bank account, NetBanking, or UPI credentials with third parties.",
+            "Never rent, lease, share, or arrange your bank account, NetBanking, or UPI credentials with third parties.",
             "Account holders remain legally and financially responsible for all transactions passing through their accounts.",
-            "Report and block any contact soliciting account sharing or rental.",
+            "Report and block any contact soliciting account sharing or rental on Telegram, WhatsApp, or campus groups.",
         ],
     },
     {
@@ -251,6 +257,104 @@ RULES = [
             "Do NOT transfer money back to a different UPI ID or account provided by an unknown caller.",
             "Instruct the sender to raise an official dispute through their own banking app for authorized reversal.",
             "If unsolicited funds were credited, notify your bank immediately in writing to place a temporary debit hold on that transaction amount.",
+        ],
+    },
+    {
+        "id": "RULE-MULE-LOAN-ASSISTANCE-PRETEXT",
+        "category": "MONEY_MULE_RECRUITMENT",
+        "severity": RiskLevel.CRITICAL,
+        "name": "Loan Assistance & Banking Instrument Harvesting Mule Lure",
+        "description": "Solicits personal bank accounts, blank signed cheques, debit cards, or fund routing under the guise of loan approval, loan assistance, or fake bank DSA processing.",
+        "patterns": [
+            r"(?:loan\s*(?:assistance|approval|dsa|processing|sanction|disbursement)|instant\s*loan|education\s*loan|pancard\s*loan|mudra\s*loan)\b.{0,100}?(?:send|courier|handover|provide|give|share|mail)\b.{0,60}?(?:blank\s*signed\s*cheques?|cheque\s*books?|debit\s*cards?|atm\s*cards?|passbooks?|sim\s*cards?|sim\s*kits?|netbanking)",
+            r"(?:send|courier|handover|provide|give|share|mail)\b.{0,60}?(?:blank\s*signed\s*cheques?|cheque\s*books?|debit\s*cards?|atm\s*cards?|passbooks?|sim\s*cards?|sim\s*kits?|netbanking)\b.{0,100}?(?:for\s*(?:your\s*)?)?(?:loan\s*(?:assistance|approval|dsa|processing|sanction|disbursement)|instant\s*loan|education\s*loan)",
+            r"(?:loan\s*(?:assistance|approval|dsa|processing|sanction|disbursement)|instant\s*loan|education\s*loan)\b.{0,120}?(?:receive|deposit|disburse)\b.{0,60}?(?:in|into|to)\s+(?:your\s+)?(?:account|bank|savings)\b.{0,80}?(?:forward|transfer|send|wire|pay\s*to)\b.{0,60}?(?:company|agency|dsa|corporate|third\s*party|client)",
+            r"(?:need|use)\s+(?:your\s+)?(?:bank\s*)?account\s+(?:temporarily\s+)?to\s+(?:process|disburse|sanction|approve)\s+(?:your\s+)?loan",
+        ],
+        "tactics": ["Loan Assistance Bait", "Instrument Harvesting / Layering"],
+        "recommendations": [
+            "CRITICAL: Legitimate lenders and DSAs NEVER ask to use your personal account to route third-party funds or demand blank signed cheques / debit cards.",
+            "Never courier or surrender blank cheques, debit cards, SIM cards, or NetBanking logins for loan sanction.",
+            "Apply for loans only through RBI-registered banks or verified NBFCs.",
+        ],
+    },
+    {
+        "id": "RULE-MULE-SCHOLARSHIP-JOB-COMMISSION",
+        "category": "MONEY_MULE_RECRUITMENT",
+        "severity": RiskLevel.CRITICAL,
+        "name": "Fake Scholarship & Job Payment Routing / Arranging Lure",
+        "description": "Recruits students or jobseekers under scholarship, internship, or part-time job pretexts to receive and forward third-party funds or arrange peer bank accounts for commissions.",
+        "patterns": [
+            r"(?:scholarship|education\s*grant|stipend\s*program|student\s*aid|fee\s*assistance)\b.{0,120}?(?:receive|accept|deposit)\b.{0,60}?(?:in|into|to)\s+(?:your\s+)?(?:account|bank|upi|vpa)\b.{0,80}?(?:forward|transfer|send|wire|keep\s+(?:a\s+)?(?:cut|commission|\d+%\s*))",
+            r"(?:scholarship|student\s*(?:scheme|grant|aid))\b.{0,100}?(?:arrange|procure|provide|collect)\b.{0,60}?(?:student|peer|friend|college|bank)\s*accounts?\b.{0,60}?(?:commission|cut|percentage|₹|rs\.?)",
+            r"(?:part[\s-]?time\s*job|work\s*from\s*home|finance\s*assistant|payment\s*(?:operator|assistant|clerk)|internship)\b.{0,120}?(?:use|using)\s+(?:your\s+)?(?:personal\s+)?(?:bank\s*account|savings\s*account|upi|google\s*pay|phonepe|paytm)\b.{0,80}?(?:process|receive|route)\b.{0,60}?(?:company|client|customer)\s*payments?",
+            r"(?:arrange|procure|recruit|gather)\s+(?:bank\s*accounts?|savings\s*accounts?|upi\s*ids?)\s+(?:of\s+)?(?:students?|friends?|peers?|others?)\b.{0,60}?(?:commission|cut|share|profit|earn|₹|rs\.?)",
+            r"(?:receive|route|process)\s+(?:company|client|customer)\s*funds?\s+(?:through|in|via)\s+(?:your\s+)?(?:personal\s+)?(?:bank|account|upi)\b.{0,60}?(?:keep|earn)\s+(?:commission|cut|\d+%)",
+        ],
+        "tactics": [
+            "Education/Job Masquerade",
+            "Student Peer Arranging Lure",
+            "Commission Lure",
+        ],
+        "recommendations": [
+            "CRITICAL: Legitimate scholarships and employers NEVER ask students to route company/client funds through personal accounts or arrange peer accounts.",
+            "Do not accept, forward, or arrange bank accounts for commissions or stipends.",
+            "Refuse the offer and report the communication to campus authorities and 1930.",
+        ],
+    },
+    {
+        "id": "RULE-MULE-BANKING-INSTRUMENT-CAPTURE",
+        "category": "MONEY_MULE_RECRUITMENT",
+        "severity": RiskLevel.CRITICAL,
+        "name": "Banking Instrument, SIM Kit & Credential Surrender Demand",
+        "description": "Explicit demand to surrender or share blank signed cheques, ATM/debit cards, cheque books, NetBanking credentials, OTPs, or SIM cards for financial operations.",
+        "patterns": [
+            r"(?:send|courier|handover|provide|give|share|surrender|mail)\s+(?:us\s+)?(?:[\d\w]+\s+)?blank\s*signed\s*cheques?",
+            r"(?:send|courier|handover|provide|give|surrender|mail)\s+(?:your\s+)?(?:debit\s*card|atm\s*card|cheque\s*book|passbook\s*kit|sim\s*kit)\s*(?:and|with|,)?\s*(?:pin|welcome\s*kit|password)?",
+            r"(?:share|provide|send|disclose|give)\s+(?:your\s+)?(?:netbanking|mobile\s*banking)\s*(?:user\s*id|username|login)?\s*(?:and\s*)?(?:password|credentials?|pin|mpin)",
+            r"(?:forward|share|provide|send)\b.{0,40}?(?:bank\s*)?otps?\b.{0,60}?(?:to\s+(?:us|our|manager)|so\s+(?:we|they|someone)\s+can\s+operate)",
+            r"(?:handover|give|share|surrender)\s+(?:your\s+)?(?:registered\s+)?sim\s*card\s+(?:and|for)\s+(?:bank|account|banking\s*operations?)",
+        ],
+        "tactics": ["Credential Harvesting", "Physical Instrument Extortion / Surrender"],
+        "recommendations": [
+            "CRITICAL: Never share or courier blank signed cheques, debit cards, passbooks, or registered SIM cards to anyone.",
+            "Never disclose NetBanking passwords, UPI PINs, or forward OTPs. Banks and employers never request these.",
+            "If you have already surrendered banking instruments, contact your bank immediately to block the cards/cheques and freeze account access.",
+        ],
+    },
+    {
+        "id": "RULE-MULE-INTERMEDIARY-REASSURANCE",
+        "category": "MONEY_MULE_RECRUITMENT",
+        "severity": RiskLevel.CRITICAL,
+        "name": "Deceptive Intermediary Reassurance & Fund Routing Lure",
+        "description": "Minimizes legal/financial risk with deceptive reassurances ('only an intermediary', 'harmless', 'no risk') while instructing fund receipt, account sharing, or money forwarding.",
+        "patterns": [
+            r"(?:only\s+(?:an?\s+)?intermediary|just\s+helping\s+transfer|completely\s+harmless|no\s*risk\s*(?:at\s*all|to\s*you)?|not\s*(?:be\s*)?responsible|used\s+temporarily)\b.{0,120}?(?:receive|transfer|forward|send|keep\s+(?:commission|cut|\d+%)|bank\s*account|upi)",
+            r"(?:receive|transfer|forward|send|keep\s+(?:commission|cut|\d+%)|bank\s*account|upi)\b.{0,120}?(?:only\s+(?:an?\s+)?intermediary|just\s+helping\s+transfer|completely\s+harmless|no\s*risk\s*(?:at\s*all|to\s*you)?|not\s*(?:be\s*)?responsible|used\s+temporarily)",
+        ],
+        "tactics": ["Deceptive Risk Minimization", "Third-Party Shielding"],
+        "recommendations": [
+            "CRITICAL: Claiming you are 'only an intermediary' or that 'there is no risk' does NOT protect you from legal and financial consequences.",
+            "Account holders are held accountable for transactions passing through their personal accounts under cybercrime and money laundering laws.",
+            "Do not allow anyone to route funds through your account under promises of temporary or harmless usage.",
+        ],
+    },
+    {
+        "id": "RULE-MULE-CORPORATE-ACCOUNT-CREATION",
+        "category": "MONEY_MULE_RECRUITMENT",
+        "severity": RiskLevel.CRITICAL,
+        "name": "Third-Party / Corporate Mule Account Opening Scheme",
+        "description": "Solicits opening a bank account, UPI identity, or wallet in an individual's name for a company, client, or third party to operate, often with upfront payment or commission.",
+        "patterns": [
+            r"(?:open|create|register)\s+(?:a\s+)?(?:new\s+)?(?:bank|savings|current|salary)\s*account\b.{0,80}?(?:in|under)\s+(?:your\s+name|your\s+pan|your\s+aadhaar)\b.{0,100}?(?:for\s+.*?(?:company|client|business|agency|crypto|gaming|firm)\s+to\s+(?:use|operate|run)|and\s+handover)",
+            r"(?:open\s+(?:an?|bank)\s*account\s+for\s+(?:our\s+)?(?:company|client|firm))\b.{0,80}?(?:earn|pay\s*you|monthly|commission|₹|rs\.?)",
+            r"(?:open|provide)\s+(?:current|savings)\s*accounts?\s+under\s+your\s+name\b.{0,60}?(?:for\s+(?:our\s+)?(?:crypto|p2p|betting|gaming|firm)|we\s+will\s+operate)",
+        ],
+        "tactics": ["Identity Exploitation", "Corporate Proxy Creation"],
+        "recommendations": [
+            "CRITICAL: Never open a bank account or UPI identity in your name for someone else or a third-party company to operate.",
+            "Opening an account in your name for external use makes you the designated account owner responsible for any fraud committed using that account.",
+            "Refuse requests to create accounts or register company current accounts under your PAN/Aadhaar.",
         ],
     },
 ]
@@ -325,6 +429,10 @@ def detect_missing_evidence(
         if any(r["id"] == "RULE-ELECTRICITY-DISCONNECTION" for r in matched_rules):
             missing.append(
                 "No consumer ID / bill account number matching official state DISCOM records."
+            )
+        if any(r["category"] == "MONEY_MULE_RECRUITMENT" for r in matched_rules):
+            missing.append(
+                "No formal employment contract, verified corporate remittance authorization, or authentic RBI-registered lender credentials."
             )
 
     return missing
