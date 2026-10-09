@@ -1,7 +1,5 @@
 
 
-
-
 Scamfy
 What this is
 Scamfy is a fraud-prevention and victim-support platform focused initially on students. It helps people recognize suspicious jobs, investment offers, loans, payment requests, money-mule recruitment, and other financial scam patterns before they cause harm. When a user is already affected, Scamfy helps them preserve evidence, organize a case timeline, prepare information for the appropriate official reporting channel, and understand what action to take next.
@@ -84,6 +82,33 @@ The design system and visual direction must be decided and documented in the rel
 For UI work, use the available design/frontend tooling in Antigravity when it is part of the project workflow. A visual direction must be established before building a screen. Keep animation restrained and purposeful, especially in emergency and victim-support flows.
 
 Every risk state must be understandable without relying only on color. Prefer clear labels such as Low Risk, Needs Verification, High Risk, or Emergency Action, accompanied by explanations and next steps.
+
+## Motion Design
+
+- `docs/design/motion-design.md` is the authoritative motion specification for Scamfy's core triage pipeline.
+- Motion must communicate feedback, hierarchy, state continuity, or urgency.
+- Prefer opacity, transform, and border-color transitions.
+- Do not introduce layout-property animations without a concrete UX requirement.
+- Critical-risk animation must remain restrained and professional.
+- Respect `prefers-reduced-motion` using Scamfy's intentional reduced-motion behavior.
+- Do not add decorative animation merely to make the interface feel more dynamic.
+
+## UI Design Authority
+
+Priority order for frontend decisions:
+
+1. `DESIGN.md`
+2. `docs/design/motion-design.md`
+3. Existing Scamfy components and tokens
+4. Impeccable audits/critique findings
+5. Installed frontend skills
+6. External component libraries
+
+External design skills and component libraries must adapt to Scamfy's established design system rather than replace it.
+
+Do not introduce a new visual language merely because a skill or component library recommends it.
+
+Do not replace Scamfy's established Lucide iconography, risk-state semantics, typography, spacing, or restrained motion without an explicit design-system change.
 
 Scam Analysis Principles
 Scamfy uses a layered analysis model:

@@ -65,7 +65,7 @@ export function UrgencyBanner({
               className="inline-flex items-center justify-center gap-2 rounded-lg bg-red-600 px-4 py-2.5 text-sm font-bold text-white shadow-sm transition-colors hover:bg-red-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2 min-h-[44px] min-w-[140px]"
               aria-label={`Call National Cyber Crime Helpline ${helplineNumber}`}
             >
-              <PhoneCall className="h-4 w-4 animate-bounce motion-reduce:animate-none" />
+              <PhoneCall className="h-4 w-4 animate-pulse motion-reduce:animate-none" />
               <span>Call {helplineNumber} Helpline</span>
             </a>
           )}

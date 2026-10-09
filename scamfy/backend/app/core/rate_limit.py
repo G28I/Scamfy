@@ -7,6 +7,7 @@ _request_history: dict[str, list[float]] = {}
 
 
 def check_rate_limit(request: Request) -> None:
+    """Enforce per-client sliding window rate limiting on public analysis endpoints."""
     now = time.time()
     window_start = now - 60.0
 

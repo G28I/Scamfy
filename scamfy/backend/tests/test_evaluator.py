@@ -4,12 +4,14 @@ from backend.app.core.extractors import extract_all_entities
 
 
 def test_rules_count_and_uniqueness():
+    """Verify evaluator contains exactly 18 unique deterministic rule configurations."""
     rule_ids = [r["id"] for r in RULES]
-    assert len(rule_ids) == 10
-    assert len(set(rule_ids)) == 10
+    assert len(rule_ids) == 18
+    assert len(set(rule_ids)) == 18
 
 
 def test_rule_upi_pin_reverse():
+    """Verify detection of UPI reverse payment PIN fraud on cashback claim."""
     text = (
         "Congratulations! You won ₹2,500 cashback. Enter your UPI PIN to claim credit in account."
     )
@@ -22,6 +24,7 @@ def test_rule_upi_pin_reverse():
 
 
 def test_rule_digital_arrest():
+    """Verify detection of fake law enforcement digital arrest extortion."""
     text = "CBI officer notice: Digital arrest warrant issued for illegal parcel containing narcotics at Mumbai customs. Join video call for statement."
     entities = extract_all_entities(text)
     res = evaluate_message(text, entities)
@@ -33,6 +36,7 @@ def test_rule_digital_arrest():
 
 
 def test_rule_customs_parcel_extortion():
+    """Verify detection of fake customs contraband parcel extortion."""
     text = "FedEx courier consignment held at customs. Contraband and drugs found in your parcel. Contact police officer for clearance."
     entities = extract_all_entities(text)
     res = evaluate_message(text, entities)
@@ -41,6 +45,7 @@ def test_rule_customs_parcel_extortion():
 
 
 def test_rule_loan_apk_harassment():
+    """Verify detection of predatory instant loan APK downloads."""
     text = "Instant 7 day loan approved Rs 50,000 without CIBIL. Download APK link http://instant-credit.apk and grant contacts permission."
     entities = extract_all_entities(text)
     res = evaluate_message(text, entities)
@@ -50,6 +55,7 @@ def test_rule_loan_apk_harassment():
 
 
 def test_rule_electricity_disconnection():
+    """Verify detection of urgent fake electricity power disconnection notice."""
     text = "Dear consumer, your electricity bill is unpaid. Power will be disconnected tonight. Call officer at 9876543210."
     entities = extract_all_entities(text)
     res = evaluate_message(text, entities)
@@ -59,6 +65,7 @@ def test_rule_electricity_disconnection():
 
 
 def test_rule_part_time_task_scam():
+    """Verify detection of part-time task commission job bait."""
     text = "Part time work from home job! Like YouTube videos and earn Rs 3000 daily. Join Telegram group @vip_tasks."
     entities = extract_all_entities(text)
     res = evaluate_message(text, entities)
@@ -68,6 +75,7 @@ def test_rule_part_time_task_scam():
 
 
 def test_rule_bank_kyc_pan_phishing():
+    """Verify detection of bank account blocked KYC / PAN phishing link."""
     text = "Dear customer, your SBI bank account has been blocked. Click here to update your PAN immediately: https://bit.ly/sbi-kyc"
     entities = extract_all_entities(text)
     res = evaluate_message(text, entities)
@@ -77,6 +85,7 @@ def test_rule_bank_kyc_pan_phishing():
 
 
 def test_rule_crypto_stock_vip_trap():
+    """Verify detection of WhatsApp VIP stock trading guaranteed return trap."""
     text = "Join our VIP stock trading signal group on WhatsApp! Guaranteed profit of 40% daily with institutional upper circuit insider tips."
     entities = extract_all_entities(text)
     res = evaluate_message(text, entities)
@@ -86,6 +95,7 @@ def test_rule_crypto_stock_vip_trap():
 
 
 def test_rule_fake_customer_care():
+    """Verify detection of fake airline / banking customer support helpline number."""
     text = "For airline ticket refund or cancellation, call our customer care support helpline officer: 9876543210."
     entities = extract_all_entities(text)
     res = evaluate_message(text, entities)
@@ -94,6 +104,7 @@ def test_rule_fake_customer_care():
 
 
 def test_rule_suspicious_short_url():
+    """Verify suspicious risk flagging on isolated URL shorteners."""
     text = "Your package delivery tracking details are updated at https://tinyurl.com/track-pkg."
     entities = extract_all_entities(text)
     res = evaluate_message(text, entities)
@@ -102,6 +113,7 @@ def test_rule_suspicious_short_url():
 
 
 def test_clean_benign_message():
+    """Verify SAFE risk and zero false-positive signals on benign workplace message."""
     text = "Hi Alice, could we schedule our project sync meeting for tomorrow at 2 PM in conference room A?"
     entities = extract_all_entities(text)
     res = evaluate_message(text, entities)
@@ -112,6 +124,7 @@ def test_clean_benign_message():
 
 
 def test_detect_missing_evidence_shorteners():
+    """Verify missing evidence analysis correctly detects domain obscuration by shorteners."""
     # Message with only shortener URL and critical threat
     text = "CBI Digital Arrest: parcel seized. Connect immediately: https://bit.ly/cbi-case"
     entities = extract_all_entities(text)

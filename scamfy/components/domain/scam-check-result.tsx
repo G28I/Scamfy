@@ -27,6 +27,9 @@ import { RiskBadge } from "@/components/domain/risk-badge";
 import { ConfidenceMeter } from "@/components/domain/confidence-meter";
 import { IndicatorTag } from "@/components/domain/indicator-tag";
 import { UrgencyBanner } from "@/components/domain/urgency-banner";
+import { PreTransferWarningModal } from "@/components/domain/pre-transfer-warning-modal";
+import { MuleReceivedFundsGuide } from "@/components/domain/mule-received-funds-guide";
+import { isMoneyMuleRisk } from "@/lib/mule";
 import type { AnalysisResultDto } from "@/app/api/check/route";
 import { cn } from "@/lib/utils";
 
@@ -49,6 +52,9 @@ export function ScamCheckResult({
   ...props
 }: ScamCheckResultProps) {
   const [copiedSummary, setCopiedSummary] = React.useState(false);
+  const isMuleThreat = React.useMemo(() => isMoneyMuleRisk(result), [result]);
+  const [showMuleWarningModal, setShowMuleWarningModal] = React.useState(isMuleThreat);
+  const [showReceivedFundsGuide, setShowReceivedFundsGuide] = React.useState(false);
 
   const isEmergency = result.overall_risk === "CRITICAL";
   const isHighRisk = result.overall_risk === "HIGH_RISK";
@@ -101,8 +107,53 @@ export function ScamCheckResult({
 
   return (
     <div className={cn("w-full space-y-6 animate-in fade-in-50 duration-300", className)} {...props}>
+      {/* 0. Pre-Transfer Warning Modal (MULE-02, UX-02) */}
+      {isMuleThreat && (
+        <PreTransferWarningModal
+          isOpen={showMuleWarningModal}
+          onOpenChange={setShowMuleWarningModal}
+          result={result}
+          onOpenReceivedFundsGuide={() => setShowReceivedFundsGuide(true)}
+        />
+      )}
+
+      {/* 0.1 Dedicated Money-Mule Risk Banner */}
+      {isMuleThreat && (
+        <div className="rounded-xl border border-rose-500/40 bg-rose-500/10 p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div className="space-y-1">
+            <div className="flex items-center gap-2 font-bold text-rose-500 text-sm">
+              <AlertTriangle className="h-4 w-4" />
+              <span>Money-Mule / Account Rental Risk Detected</span>
+            </div>
+            <p className="text-xs text-muted-foreground max-w-xl leading-relaxed">
+              You are being asked to receive and forward funds or share your account credentials. Doing so risks immediate bank debit holds and investigation under cybercrime laws.
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-2 shrink-0">
+            <Button
+              type="button"
+              size="sm"
+              variant="destructive"
+              onClick={() => setShowMuleWarningModal(true)}
+              className="text-xs font-semibold bg-rose-600 hover:bg-rose-700 text-white"
+            >
+              Pre-Transfer Warning
+            </Button>
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              onClick={() => setShowReceivedFundsGuide((prev) => !prev)}
+              className="text-xs font-semibold border-rose-500/30 hover:bg-rose-500/10"
+            >
+              {showReceivedFundsGuide ? "Hide Received Funds Protocol" : "Received Unsolicited Money? (Guide)"}
+            </Button>
+          </div>
+        </div>
+      )}
+
       {/* 1. Emergency 1930 Headline Alert (UX-02) */}
-      {isEmergency && (
+      {isEmergency && !isMuleThreat && (
         <UrgencyBanner
           title="Critical Scam Threat Detected"
           description={
@@ -121,7 +172,7 @@ export function ScamCheckResult({
         />
       )}
 
-      {isHighRisk && !isEmergency && (
+      {isHighRisk && !isEmergency && !isMuleThreat && (
         <UrgencyBanner
           title="High-Risk Fraud Pattern Identified"
           description={
@@ -174,10 +225,67 @@ export function ScamCheckResult({
         </CardHeader>
 
         <CardContent className="p-5 sm:p-7 space-y-6">
-          {/* 3. Executive Analysis Summary */}
-          {result.synthesis_summary && (
-            <Card className="border-border/80 bg-background/50 shadow-xs">
-              <CardContent className="p-4 sm:p-5 space-y-2">
+          {/* Action Protocol Container Definition */}
+          {(() => {
+            const actionProtocolSection = (
+              <div
+                className={cn(
+                  "rounded-xl border p-5 space-y-3.5",
+                  isEmergency
+                    ? "border-red-500/40 bg-red-500/5 dark:border-red-500/30 dark:bg-red-950/25"
+                    : isHighRisk
+                      ? "border-amber-500/40 bg-amber-500/5 dark:border-amber-500/30 dark:bg-amber-950/25"
+                      : isSafe
+                        ? "border-emerald-500/40 bg-emerald-500/5 dark:border-emerald-500/30 dark:bg-emerald-950/25"
+                        : "border-blue-500/40 bg-blue-500/5 dark:border-blue-500/30 dark:bg-blue-950/25"
+                )}
+              >
+                <div className="flex items-center justify-between">
+                  <h4 className="text-sm font-bold tracking-tight text-foreground flex items-center gap-2">
+                    <ShieldCheck
+                      className={cn(
+                        "h-4 w-4 shrink-0",
+                        isEmergency
+                          ? "text-red-600 dark:text-red-400"
+                          : isHighRisk
+                            ? "text-amber-600 dark:text-amber-400"
+                            : "text-emerald-600 dark:text-emerald-400"
+                      )}
+                    />
+                    <span>Immediate Defensive Action Protocol</span>
+                  </h4>
+                  <Badge variant="outline" className="text-[10px] font-semibold uppercase tracking-wider">
+                    Priority Steps
+                  </Badge>
+                </div>
+
+                <div className="space-y-2.5 text-xs sm:text-sm text-foreground">
+                  {result.action_recommendations.map((rec, idx) => (
+                    <div
+                      key={idx}
+                      className="flex items-start gap-3 rounded-lg border border-border/60 bg-card p-3 shadow-xs"
+                    >
+                      <span
+                        className={cn(
+                          "flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-xs font-bold",
+                          isEmergency
+                            ? "bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-300"
+                            : isHighRisk
+                              ? "bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300"
+                              : "bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300"
+                        )}
+                      >
+                        {idx + 1}
+                      </span>
+                      <span className="leading-relaxed font-medium pt-0.5">{rec}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            );
+
+            const executiveSummarySection = result.synthesis_summary ? (
+              <div className="rounded-xl border border-border/70 bg-muted/20 p-4 sm:p-5 space-y-2">
                 <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-muted-foreground">
                   <Brain className="h-4 w-4 text-primary" />
                   <span>Executive Analysis &amp; Assessment</span>
@@ -185,65 +293,22 @@ export function ScamCheckResult({
                 <p className="text-sm font-medium text-foreground leading-relaxed">
                   {result.synthesis_summary}
                 </p>
-              </CardContent>
-            </Card>
-          )}
+              </div>
+            ) : null;
 
-          {/* 4. Action Protocol (Step 1, Step 2, Step 3) */}
-          <div
-            className={cn(
-              "rounded-xl border p-5 space-y-3.5",
-              isEmergency
-                ? "border-red-300 bg-red-50/50 dark:border-red-900/60 dark:bg-red-950/20"
-                : isHighRisk
-                  ? "border-amber-300 bg-amber-50/50 dark:border-amber-900/60 dark:bg-amber-950/20"
-                  : isSafe
-                    ? "border-emerald-300 bg-emerald-50/50 dark:border-emerald-900/60 dark:bg-emerald-950/20"
-                    : "border-blue-300 bg-blue-50/50 dark:border-blue-900/60 dark:bg-blue-950/20"
-            )}
-          >
-            <div className="flex items-center justify-between">
-              <h4 className="text-sm font-bold tracking-tight text-foreground flex items-center gap-2">
-                <ShieldCheck
-                  className={cn(
-                    "h-4 w-4 shrink-0",
-                    isEmergency
-                      ? "text-red-600"
-                      : isHighRisk
-                        ? "text-amber-600"
-                        : "text-emerald-600"
-                  )}
-                />
-                <span>Immediate Defensive Action Protocol (UX-01)</span>
-              </h4>
-              <Badge variant="outline" className="text-[10px] font-semibold uppercase tracking-wider">
-                Priority Steps
-              </Badge>
-            </div>
-
-            <div className="space-y-2.5 text-xs sm:text-sm text-foreground">
-              {result.action_recommendations.map((rec, idx) => (
-                <div
-                  key={idx}
-                  className="flex items-start gap-3 rounded-lg border border-border/60 bg-background/90 p-3 shadow-xs"
-                >
-                  <span
-                    className={cn(
-                      "flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-xs font-bold",
-                      isEmergency
-                        ? "bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-300"
-                        : isHighRisk
-                          ? "bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300"
-                          : "bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300"
-                    )}
-                  >
-                    {idx + 1}
-                  </span>
-                  <span className="leading-relaxed font-medium pt-0.5">{rec}</span>
-                </div>
-              ))}
-            </div>
-          </div>
+            {/* Invert hierarchy: Action Protocol first in emergency/high-risk states */}
+            return isEmergency || isHighRisk ? (
+              <>
+                {actionProtocolSection}
+                {executiveSummarySection}
+              </>
+            ) : (
+              <>
+                {executiveSummarySection}
+                {actionProtocolSection}
+              </>
+            );
+          })()}
 
           {/* 5. Detected Psychological Pressure Tactics */}
           {result.psychological_tactics && result.psychological_tactics.length > 0 && (
@@ -267,7 +332,7 @@ export function ScamCheckResult({
             </div>
           )}
 
-          {/* 6. Extracted Identifiers & Evidence (DET-03) */}
+          {/* 6. Extracted Identifiers & Evidence */}
           <div className="space-y-3">
             <div className="flex items-center justify-between border-b border-border/50 pb-2">
               <h4 className="text-sm font-bold text-foreground flex items-center gap-2">
@@ -310,7 +375,7 @@ export function ScamCheckResult({
             )}
           </div>
 
-          {/* 7. Detected Threat Signals Breakdown (DET-04) */}
+          {/* 7. Detected Threat Signals Breakdown */}
           {result.signals.length > 0 && (
             <div className="space-y-3 pt-1">
               <h4 className="text-sm font-bold text-foreground flex items-center gap-2 border-b border-border/50 pb-2">
@@ -345,13 +410,13 @@ export function ScamCheckResult({
             </div>
           )}
 
-          {/* 8. Missing Evidence & Uncertainty Notice (DET-05) */}
+          {/* 8. Missing Evidence & Uncertainty Notice */}
           {result.missing_evidence && result.missing_evidence.length > 0 && (
             <Alert className="border-border bg-muted/30">
               <HelpCircle className="h-4 w-4 text-blue-500 shrink-0" />
               <div>
                 <AlertTitle className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                  Missing Corroborating Context (DET-05)
+                  Missing Corroborating Context
                 </AlertTitle>
                 <AlertDescription className="mt-2">
                   <ul className="list-disc list-inside space-y-1 text-xs text-muted-foreground leading-relaxed">
@@ -369,7 +434,7 @@ export function ScamCheckResult({
           {/* 9. Analysis Transparency Notice */}
           <div className="rounded-lg bg-muted/20 border border-border/60 p-3.5 text-[11px] text-muted-foreground leading-relaxed">
             <span className="font-semibold text-foreground">Analysis Provenance: </span>
-            <span>Engine model: {modelSlug}. Automated educational risk analysis; does not constitute a judicial, criminal, or regulatory determination (AI-05, OOS-03).</span>
+            <span>Engine model: {modelSlug}. Automated educational risk analysis; does not constitute a judicial, criminal, or regulatory determination.</span>
           </div>
         </CardContent>
 
@@ -404,12 +469,22 @@ export function ScamCheckResult({
           )}
         </CardFooter>
       </Card>
+
+      {/* 11. Collapsible/Expandable Received Funds Emergency Guide */}
+      {isMuleThreat && showReceivedFundsGuide && (
+        <div className="pt-2 animate-in fade-in-50 slide-in-from-top-4 duration-300">
+          <MuleReceivedFundsGuide onComplete={() => setShowReceivedFundsGuide(false)} />
+        </div>
+      )}
     </div>
   );
 }
 
 function formatCategoryTitle(category: string): string {
   switch (category) {
+    case "MONEY_MULE_RECRUITMENT":
+    case "CAT_MONEY_MULE":
+      return "Money-Mule Solicitation & Fund Routing Scheme";
     case "UPI_REVERSE_PAYMENT_FRAUD":
       return "UPI PIN Reverse Payment Lure";
     case "UTILITY_ELECTRICITY_FRAUD":

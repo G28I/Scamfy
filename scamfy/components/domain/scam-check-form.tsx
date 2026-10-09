@@ -1,5 +1,5 @@
 import * as React from "react";
-import { ShieldCheck, Zap, CreditCard, Briefcase, ShieldAlert, Trash2, Clipboard, CornerDownLeft, Flame, Lock } from "lucide-react";
+import { ShieldCheck, Zap, CreditCard, Briefcase, ShieldAlert, Trash2, Clipboard, Flame, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
@@ -58,6 +58,33 @@ export function ScamCheckForm({
 }: ScamCheckFormProps) {
   const [text, setText] = React.useState(initialText);
   const [inputError, setInputError] = React.useState<string | null>(null);
+  const [isPopulatedHighlight, setIsPopulatedHighlight] = React.useState(false);
+  const [announcementText, setAnnouncementText] = React.useState("");
+  const [announcementCount, setAnnouncementCount] = React.useState(0);
+  const textareaRef = React.useRef<HTMLTextAreaElement>(null);
+  const highlightTimeoutRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  React.useEffect(() => {
+    return () => {
+      if (highlightTimeoutRef.current) {
+        clearTimeout(highlightTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  const triggerLoadHighlight = (message: string) => {
+    if (highlightTimeoutRef.current) {
+      clearTimeout(highlightTimeoutRef.current);
+    }
+    setIsPopulatedHighlight(true);
+    setAnnouncementCount((prev) => prev + 1);
+    setAnnouncementText(message);
+
+    highlightTimeoutRef.current = setTimeout(() => {
+      setIsPopulatedHighlight(false);
+      setAnnouncementText("");
+    }, 800);
+  };
 
   const handleSubmit = (e?: React.FormEvent) => {
     e?.preventDefault();
@@ -87,11 +114,23 @@ export function ScamCheckForm({
   const handleSelectPreset = (presetText: string) => {
     setText(presetText);
     setInputError(null);
+    triggerLoadHighlight("Preset message loaded into input canvas.");
+    textareaRef.current?.focus();
+
+    if (typeof window !== "undefined" && window.innerWidth < 768) {
+      textareaRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
   };
 
   const handleClear = () => {
     setText("");
     setInputError(null);
+    setIsPopulatedHighlight(false);
+    setAnnouncementText("");
+    if (highlightTimeoutRef.current) {
+      clearTimeout(highlightTimeoutRef.current);
+    }
+    textareaRef.current?.focus();
   };
 
   const handlePaste = async () => {
@@ -101,6 +140,8 @@ export function ScamCheckForm({
         if (clipText) {
           setText(clipText);
           setInputError(null);
+          triggerLoadHighlight("Pasted content loaded into input canvas.");
+          textareaRef.current?.focus();
         }
       }
     } catch {
@@ -125,7 +166,7 @@ export function ScamCheckForm({
             <button
               type="button"
               onClick={handleClear}
-              className="inline-flex items-center gap-1 text-xs font-medium text-muted-foreground hover:text-destructive transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded px-1.5 py-0.5"
+              className="inline-flex items-center gap-1 text-xs font-medium text-muted-foreground hover:text-destructive transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded px-2 py-1 min-h-[32px]"
               aria-label="Clear text input"
             >
               <Trash2 className="h-3 w-3" />
@@ -145,7 +186,7 @@ export function ScamCheckForm({
                 disabled={isLoading}
                 onClick={() => handleSelectPreset(preset.text)}
                 className={cn(
-                  "group flex items-center justify-between rounded-lg border p-2.5 text-left text-xs transition-all cursor-pointer select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-50",
+                  "group flex items-center justify-between rounded-lg border p-2.5 min-h-[44px] text-left text-xs transition-all cursor-pointer select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-50",
                   isSelected
                     ? "border-primary bg-primary/10 text-foreground ring-1 ring-primary/40 font-semibold shadow-xs"
                     : "border-border/80 bg-muted/40 text-muted-foreground hover:border-primary/40 hover:bg-muted/80 hover:text-foreground"
@@ -165,10 +206,26 @@ export function ScamCheckForm({
       </div>
 
       {/* 2. Main Input Canvas */}
-      <div className="relative rounded-xl border border-border bg-background shadow-inner transition-focus">
+      <div
+        className={cn(
+          "relative rounded-xl border bg-background shadow-inner transition-all duration-300",
+          isPopulatedHighlight
+            ? "border-primary/60 ring-2 ring-primary/20"
+            : "border-border"
+        )}
+      >
+        <div className="sr-only" aria-live="polite" aria-atomic="true">
+          {announcementText ? `${announcementText} (${announcementCount})` : ""}
+        </div>
+
         <div className="flex items-center justify-between border-b border-border/50 bg-muted/20 px-3.5 py-2 text-xs text-muted-foreground">
           <span className="font-mono font-semibold text-foreground text-[11px] uppercase tracking-wider flex items-center gap-1.5">
-            <span className="inline-block h-1.5 w-1.5 rounded-full bg-primary" />
+            <span
+              className={cn(
+                "inline-block h-1.5 w-1.5 rounded-full bg-primary transition-transform duration-300",
+                isPopulatedHighlight && "scale-125"
+              )}
+            />
             <span>Message Content Canvas</span>
           </span>
 
@@ -177,7 +234,7 @@ export function ScamCheckForm({
               type="button"
               onClick={handlePaste}
               disabled={isLoading}
-              className="inline-flex items-center gap-1 rounded bg-card border border-border px-2 py-0.5 text-[11px] font-medium text-foreground hover:bg-muted transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              className="inline-flex items-center gap-1 rounded bg-card border border-border px-2.5 py-1 text-[11px] font-medium text-foreground hover:bg-muted transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring min-h-[32px]"
               title="Paste from clipboard"
             >
               <Clipboard className="h-3 w-3" />
@@ -188,6 +245,7 @@ export function ScamCheckForm({
 
         <div className="p-1">
           <Textarea
+            ref={textareaRef}
             id="scam-check-input"
             value={text}
             onChange={(e) => {
@@ -219,11 +277,19 @@ export function ScamCheckForm({
           <Button
             type="submit"
             size="lg"
+            aria-label="Analyze Message"
             isLoading={isLoading}
-            disabled={isLoading}
+            disabled={isLoading || !text.trim()}
             leftIcon={<ShieldCheck className="h-4 w-4" />}
-            rightIcon={<CornerDownLeft className="h-3.5 w-3.5 opacity-60 hidden sm:inline-block" />}
-            className="w-full sm:w-auto font-bold px-7 shadow-md transition-all active:scale-[0.99]"
+            rightIcon={
+              <kbd
+                aria-hidden="true"
+                className="hidden sm:inline-flex items-center gap-0.5 rounded border border-primary-foreground/30 bg-primary-foreground/20 px-1.5 py-0.5 text-[10px] font-mono font-medium text-primary-foreground"
+              >
+                Ctrl+↵
+              </kbd>
+            }
+            className="w-full sm:w-auto font-bold px-6 shadow-md transition-all active:scale-[0.99]"
           >
             {isLoading ? "Running Threat Heuristics..." : "Analyze Message"}
           </Button>

@@ -21,6 +21,7 @@ router = APIRouter(tags=["Analysis"])
     description="Accepts text input, extracts financial/contact entities, and performs hybrid deterministic + NVIDIA Nemotron scam triage.",
 )
 async def analyze_message_endpoint(request: AnalyzeRequest) -> AnalyzeResponse:
+    """Analyze suspicious message text through entity extraction, deterministic rules, and AI inference."""
     entities = extract_all_entities(request.text)
     det_response = evaluate_message(request.text, entities)
     nemotron_output, nemotron_metadata = await analyze_with_nemotron(request.text, entities)
