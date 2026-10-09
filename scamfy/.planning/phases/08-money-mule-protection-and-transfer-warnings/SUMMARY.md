@@ -19,12 +19,12 @@
      - `RULE-MULE-CORPORATE-ACCOUNT-CREATION`: Solicitations to create personal bank accounts for third-party companies/clients to operate.
      - Extended `RULE-ACCOUNT-RENTAL-P2P`: Campus account procuring and messaging platform (Telegram/WhatsApp) rental networks.
    - Updated missing evidence detector (`detect_missing_evidence`) for `MONEY_MULE_RECRUITMENT` per `DET-05`.
-   - Authored and expanded pytest test suite `backend/tests/test_mule_rules.py` (22 unit test scenarios covering all 6 positive student families and 8 negative false-positive controls).
-   - Total backend test suite: 54/54 tests passing.
+    - Authored and expanded pytest test suite `backend/tests/test_mule_rules.py` (23 unit test scenarios covering all positive student families, direct UPI PIN surrender demands, and 8 negative false-positive controls).
+    - Total backend test suite: 55/55 tests passing.
 
 2. **Frontend Mule Threat Triage & Helper Utilities (`MULE-01`, `MULE-02`)**:
-   - Implemented `lib/mule.ts` with `isMoneyMuleRisk()`, `getMuleSignals()`, and `generateBankLienNoticeTemplate()`, mapping all new student rule IDs (`RULE-MULE-*`).
-   - Authored test suite `lib/__tests__/mule-helpers.test.ts` validating signal mapping and risk identification.
+   - Implemented `lib/mule.ts` with `isMoneyMuleRisk()`, `getMuleSignals()`, and `generateBankLienNoticeTemplate()`, mapping all student rule IDs (`RULE-MULE-*`) and providing truthful, conditional funds status declarations.
+   - Authored test suite `lib/__tests__/mule-helpers.test.ts` (7 tests passed).
 
 3. **Pre-Transfer Warning Interrupt Modal (`MULE-02`, `UX-02`, `UX-03`, `UX-04`)**:
    - Built `components/domain/pre-transfer-warning-modal.tsx` with high-urgency visual styling, legal education under Indian banking law, and 3 mandatory safe actions:
@@ -36,7 +36,7 @@
 4. **Received Funds Emergency Protocol & Standalone Page (`MULE-03`, `UX-05`)**:
    - Built `components/domain/mule-received-funds-guide.tsx` featuring a 4-step wizard:
      - Step 1: Immediate Freeze & No-Action Protocol
-     - Step 2: Live Bank Notification Generator (copyable written letter requesting a voluntary debit hold)
+     - Step 2: Live Bank Notification Generator (copyable written letter with explicit funds intact confirmation checkbox)
      - Step 3: Digital Evidence Preservation Checklist
      - Step 4: Official Helpline (1930) and cybercrime.gov.in handoff
    - Built standalone public page `app/mule-protection/page.tsx` for campus safety workshops and direct URL access.
@@ -53,7 +53,7 @@
 All 6 canonical verification gates passed with zero errors or warnings:
 - Gate 1 (`typecheck`): 0 errors
 - Gate 2 (`lint`): 0 warnings, 0 errors
-- Gate 3 (`vitest`): 27 files, 144/144 tests passed
+- Gate 3 (`vitest`): 27 files, 145/145 tests passed
 - Gate 4 (`next build`): 20/20 routes compiled cleanly
 - Gate 5 (`ruff check & format`): 20 backend files formatted and clean
-- Gate 6 (`pytest`): 54/54 backend tests passed
+- Gate 6 (`pytest`): 55/55 backend tests passed

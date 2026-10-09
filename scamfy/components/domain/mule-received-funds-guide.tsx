@@ -55,6 +55,7 @@ export function MuleReceivedFundsGuide({
     amount: "",
     senderIdentifier: "",
     communicationChannel: "WhatsApp / Telegram",
+    fundsRetainedIntact: true,
   });
 
   // Checklist state for evidence preservation
@@ -116,6 +117,7 @@ export function MuleReceivedFundsGuide({
       amount: "45,000",
       senderIdentifier: "unknown_payer@okhdfcbank",
       communicationChannel: "Telegram Job Group",
+      fundsRetainedIntact: true,
     });
   };
 
@@ -333,6 +335,20 @@ export function MuleReceivedFundsGuide({
                   onChange={(e) => handleInputChange("senderIdentifier", e.target.value)}
                   className="w-full h-9 rounded-md border border-input bg-background px-3 text-xs text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
                 />
+              </div>
+
+              <div className="sm:col-span-2 pt-1">
+                <label className="flex items-start gap-2 text-xs text-foreground cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={formData.fundsRetainedIntact ?? false}
+                    onChange={(e) => setFormData((prev) => ({ ...prev, fundsRetainedIntact: e.target.checked }))}
+                    className="h-4 w-4 rounded border-border text-primary focus:ring-primary mt-0.5"
+                  />
+                  <span>
+                    <strong>I confirm that the received funds remain intact in my account</strong> (I have not withdrawn, spent, or forwarded any part).
+                  </span>
+                </label>
               </div>
             </div>
 

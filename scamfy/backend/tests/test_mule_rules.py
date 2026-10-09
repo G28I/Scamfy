@@ -176,6 +176,19 @@ def test_rule_mule_otp_forwarding_capture():
     assert any(s.id == "RULE-MULE-BANKING-INSTRUMENT-CAPTURE" for s in res.signals)
 
 
+def test_rule_mule_direct_upi_pin_sharing_capture():
+    """Family C: Direct request to send or share UPI PIN to operate an account."""
+    text = "Send us your UPI PIN so we can operate your account."
+    entities = extract_all_entities(text)
+    res = evaluate_message(text, entities)
+
+    assert res.overall_risk == RiskLevel.CRITICAL
+    assert any(s.id == "RULE-MULE-BANKING-INSTRUMENT-CAPTURE" for s in res.signals)
+    assert any(
+        "Never disclose NetBanking passwords, UPI PINs" in r for r in res.action_recommendations
+    )
+
+
 def test_rule_mule_intermediary_reassurance():
     """Family D: Deceptive risk minimization ('only an intermediary') with fund routing."""
     text = (

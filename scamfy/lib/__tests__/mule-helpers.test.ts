@@ -187,6 +187,7 @@ describe("Money Mule Detection Helpers & Bank Notice Generator (lib/mule)", () =
       amount: "45,000",
       senderIdentifier: "fraudster@upi",
       communicationChannel: "Telegram",
+      fundsRetainedIntact: true,
     });
 
     expect(template).toContain("State Bank of India");
@@ -196,5 +197,35 @@ describe("Money Mule Detection Helpers & Bank Notice Generator (lib/mule)", () =
     expect(template).toContain("₹45,000");
     expect(template).toContain("temporary debit hold / lien");
     expect(template).toContain("NCRP / 1930");
+    expect(template).toContain("retained the received funds intact in my account and have NOT touched");
+  });
+
+  it("generates truthful notice when funds were not confirmed intact or partially transferred", () => {
+    const forwardedNotice = generateBankLienNoticeTemplate({
+      accountHolderName: "Priya Patel",
+      bankName: "HDFC Bank",
+      accountNumber: "50098765432",
+      transactionRefOrUtr: "IMPS-998877",
+      transactionDate: "2026-10-02",
+      amount: "25,000",
+      fundsRetainedIntact: false,
+    });
+
+    expect(forwardedNotice).toContain("HDFC Bank");
+    expect(forwardedNotice).toContain("Priya Patel");
+    expect(forwardedNotice).toContain("protective lien placement on available funds");
+    expect(forwardedNotice).not.toContain("have NOT touched, withdrawn, spent, or forwarded");
+
+    const neutralNotice = generateBankLienNoticeTemplate({
+      accountHolderName: "Priya Patel",
+      bankName: "HDFC Bank",
+      accountNumber: "50098765432",
+      transactionRefOrUtr: "IMPS-998877",
+      transactionDate: "2026-10-02",
+      amount: "25,000",
+    });
+
+    expect(neutralNotice).toContain("formally reporting this transaction to request appropriate bank-level dispute logging");
+    expect(neutralNotice).not.toContain("have NOT touched, withdrawn, spent, or forwarded");
   });
 });

@@ -9,6 +9,7 @@ export interface BankNoticeDetails {
   amount: string;
   senderIdentifier?: string;
   communicationChannel?: string;
+  fundsRetainedIntact?: boolean;
 }
 
 /**
@@ -99,6 +100,17 @@ export function generateBankLienNoticeTemplate(details: BankNoticeDetails): stri
   const sender = details.senderIdentifier?.trim() || "[Sender UPI ID / Account / Phone Number]";
   const channel = details.communicationChannel?.trim() || "[WhatsApp / Telegram / Call / SMS]";
 
+  let circumstancesText =
+    "I was contacted by an unverified third party regarding this transaction under suspicious pretexts. Recognizing this as a potential money-mule or unauthorized routing scheme, I am formally reporting this transaction to request appropriate bank-level dispute logging, voluntary debit hold / lien, and investigative coordination.";
+
+  if (details.fundsRetainedIntact === true) {
+    circumstancesText =
+      "I was contacted by an unverified third party who instructed me to receive these funds and forward/transfer them to third-party accounts or convert them. Recognizing this as a potential money-mule or illicit routing scheme, I confirm that I have retained the received funds intact in my account and have NOT touched, withdrawn, spent, or forwarded any part of these funds.";
+  } else if (details.fundsRetainedIntact === false) {
+    circumstancesText =
+      "I was contacted by an unverified third party regarding this transaction under suspicious pretexts. Having recognized the potential fraudulent nature of the communication, I am reporting this matter to request urgent bank assistance and protective lien placement on available funds.";
+  }
+
   return `To,
 The Branch Manager / Nodal Fraud Officer,
 ${bank}
@@ -119,7 +131,7 @@ Transaction Details:
 - Channel of Solicitation: ${channel}
 
 Circumstances:
-I was contacted by an unverified third party who instructed me to receive these funds and forward/transfer them to third-party accounts or convert them. Recognizing this as a potential money-mule or illicit routing scheme, I have NOT touched, withdrawn, spent, or forwarded any part of these funds.
+${circumstancesText}
 
 Requested Action:
 1. Please place a voluntary temporary debit hold / lien strictly on the disputed amount of ₹${amt} in my account.
