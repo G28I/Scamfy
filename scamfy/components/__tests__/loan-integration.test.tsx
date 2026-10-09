@@ -148,5 +148,28 @@ describe("Loan & High-Yield Protection Integration Suite (LOAN-01..03, UX-01)", 
       expect(screen.getByText(/Instant Loan APR/i)).toBeDefined();
       expect(screen.getByRole("button", { name: /Hide Financial Trap Calculator/i })).toBeDefined();
     });
+
+    it("renders loan threat banner for mixed loan and money-mule threats", () => {
+      const mixedThreatResult: AnalysisResultDto = {
+        ...mockLoanThreatResult,
+        id: "mixed-threat-1",
+        signals: [
+          ...mockLoanThreatResult.signals,
+          {
+            id: "RULE-MULE-LOAN-ASSISTANCE-PRETEXT",
+            name: "Loan Assistance & Banking Instrument Harvesting Mule Lure",
+            description: "Mule recruitment under loan guise",
+            severity: "CRITICAL",
+            evidence: "Send blank signed cheque for loan",
+          },
+        ],
+      };
+
+      render(<ScamCheckResult result={mixedThreatResult} onReset={vi.fn()} />);
+
+      // Both mule banner and loan banner should be rendered
+      expect(screen.getByText(/Money-Mule \/ Account/i)).toBeDefined();
+      expect(screen.getByText(/Predatory Loan \/ High-Yield Trap Pattern Detected/i)).toBeDefined();
+    });
   });
 });

@@ -33,8 +33,8 @@
 - **Tests**: `scamfy/lib/__tests__/loan-calculator.test.ts`, `scamfy/backend/tests/test_financial.py`
 - **Verification Details**:
   - Validates net cash disbursed calculation: `Net = Principal - UpfrontDeduction`.
-  - Calculates true simple APR: `(Fee + Interest) / NetCash * (365 / TenureDays) * 100`.
-  - Classifies 7-day loan apps (₹5,000 principal, ₹1,500 deduction, ₹5,000 repayment, 7 days) as `PREDATORY_TRAP` with 2,238.78% APR.
+  - Calculates true simple APR: `(Fee + Interest) / NetCash * (365 / TenureDays) * 100` and compounded EAR with a 1e12 cap.
+  - Classifies 7-day loan apps (₹5,000 principal, ₹1,500 deduction, ₹5,000 repayment, 7 days) as `PREDATORY` with 2,238.78% APR.
   - Generates transparent, auditable flags for short tenures (<30 days), upfront deductions (>10%), and implied APRs (>100%).
 
 ### 2. LOAN-02: High-Yield & Ponzi APY Reality Check
@@ -42,7 +42,7 @@
 - **Tests**: `scamfy/lib/__tests__/loan-calculator.test.ts`, `scamfy/backend/tests/test_financial.py`
 - **Verification Details**:
   - Annualizes yields for daily (365x), weekly (52x), monthly (12x), and annual intervals.
-  - Compares against official Indian benchmarks: RBI Repo Rate (6.5%), Bank FD (7.0%), Nifty 50 CAGR (12.0%), and BUDS Act Ceiling (24.0%).
+  - Compares against official Indian benchmarks: RBI Repo Rate (6.5%), Bank FD (7.0%), Nifty 50 CAGR (12.5%), and BUDS Act Ceiling (24.0%).
   - Correctly flags daily 2% return offers (730% simple APY) as `PONZI_TRAP`.
 
 ### 3. LOAN-03: RBI Regulatory Compliance Checklist & Deep Links
@@ -57,7 +57,7 @@
 - **Tests**: `scamfy/backend/tests/test_loan_rules.py`, `scamfy/backend/tests/test_evaluator.py`
 - **Rules Added**:
   - `RULE-LOAN-7DAY-TENURE` (`CRITICAL`)
-  - `RULE-LOAN-UPFRONT-DEDUCTION` (`HIGH_RISK`)
+  - `RULE-LOAN-UPFRONT-DEDUCTION` (`CRITICAL`)
   - `RULE-LOAN-CONTACT-HARVEST-BLACKMAIL` (`CRITICAL`)
   - `RULE-LOAN-ADVANCE-FEE-APPROVAL` (`CRITICAL`)
   - `RULE-YIELD-GUARANTEED-DAILY-RETURN` (`CRITICAL`)
@@ -67,5 +67,5 @@
 - **Files**: `scamfy/components/domain/scam-check-result.tsx`, `scamfy/lib/loan.ts`, `scamfy/components/shared/site-header.tsx`, `scamfy/components/shared/site-footer.tsx`
 - **Tests**: `scamfy/components/__tests__/loan-integration.test.tsx`
 - **Verification Details**:
-  - Scam check analysis results automatically display dedicated loan threat banners when predatory loan or high-yield risk rules trigger.
-  - Seamless "Launch Calculator" button opens interactive calculator with extracted values pre-filled.
+  - Scam check analysis results automatically display dedicated loan threat banners when predatory loan or high-yield risk rules trigger (including mixed loan/mule threats).
+  - Seamless "Launch Loan & Yield Trap Analyzer" button toggles interactive calculator using standard default presets.

@@ -133,7 +133,7 @@ def calculate_loan_metrics(params: LoanInputParams) -> LoanCalculationResult:
             if ear_val < 1e12:
                 annualized_compounded_ear = ear_val
         except (OverflowError, ValueError):
-            annualized_compounded_ear = annualized_simple_apr * 10.0
+            pass
 
     deduction_ratio = upfront_deduction / stated_principal if stated_principal > 0 else 0.0
     risk_level = classify_loan_risk(annualized_simple_apr, tenure_days, deduction_ratio)

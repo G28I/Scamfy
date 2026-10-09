@@ -121,17 +121,15 @@ export function calculateLoanMetrics(params: LoanInputParams): LoanCalculationRe
   const dailyInterestRatePercentage = periodInterestRatePercentage / tenureDays;
   const annualizedSimpleApr = dailyInterestRatePercentage * 365;
 
-  // Compounded Effective Annual Rate (EAR) capped safely to avoid Infinity
+  // Compounded Effective Annual Rate (EAR) capped safely to avoid Infinity / overflow
   const periodsPerYear = 365 / tenureDays;
   const rateFraction = periodInterestRatePercentage / 100;
   let annualizedCompoundedEar = annualizedSimpleApr;
 
   if (rateFraction > 0 && rateFraction < 100) {
-    try {
-      const earVal = (Math.pow(1 + rateFraction, periodsPerYear) - 1) * 100;
-      annualizedCompoundedEar = Number.isFinite(earVal) ? earVal : annualizedSimpleApr * 10;
-    } catch {
-      annualizedCompoundedEar = annualizedSimpleApr * 10;
+    const earVal = (Math.pow(1 + rateFraction, periodsPerYear) - 1) * 100;
+    if (Number.isFinite(earVal) && earVal < 1e12) {
+      annualizedCompoundedEar = earVal;
     }
   }
 

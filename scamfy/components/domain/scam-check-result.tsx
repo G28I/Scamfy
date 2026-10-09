@@ -158,7 +158,7 @@ export function ScamCheckResult({
       )}
 
       {/* 0.2 Dedicated Predatory Loan / High-Yield Trap Banner */}
-      {isLoanThreat && !isMuleThreat && (
+      {isLoanThreat && (
         <div className="rounded-xl border border-amber-500/40 bg-amber-500/10 p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div className="space-y-1">
             <div className="flex items-center gap-2 font-bold text-amber-600 dark:text-amber-400 text-sm">

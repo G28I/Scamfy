@@ -5,15 +5,15 @@ Phase 9 delivers **Slice 3: Loan & High-Return Trap Analyzer** for Scamfy, fulfi
 
 ### 1. Pure Deterministic Mathematical Engines
 - **Frontend (`scamfy/lib/loan-calculator.ts`) & Backend (`scamfy/backend/app/core/financial.py`)**:
-  - Implemented `calculateLoanMetrics`: Computes net cash disbursed, total borrowing cost, simple APR, daily interest rate, and risk classifications (`PREDATORY_TRAP`, `HIGH_RISK`, `FAIR_MARKET_RATE`).
-  - Implemented `calculateYieldMetrics`: Computes simple and compounded APY, evaluates returns against official benchmarks (RBI Repo 6.5%, Bank FD 7%, Nifty 12%, BUDS Act 24% threshold), and flags `PONZI_TRAP` vs `HIGH_RISK` vs `REASONABLE`.
+  - Implemented `calculateLoanMetrics`: Computes net cash disbursed, total borrowing cost, simple APR, daily interest rate, compounded EAR, and risk classifications (`NORMAL`, `HIGH_COST`, `PREDATORY`).
+  - Implemented `calculateYieldMetrics`: Computes simple and compounded APY, evaluates returns against official benchmarks (RBI Repo 6.5%, Bank FD 7%, Nifty 12.5%, BUDS Act 24% threshold), and flags `PONZI_TRAP` vs `HIGH_RISK` vs `REASONABLE`.
   - Thoroughly tested across 13 Vitest tests and 8 Pytest tests.
 
 ### 2. Backend Rule Engine Expansion
 - **Evaluator (`scamfy/backend/app/core/evaluator.py`)**:
   - Added 5 new deterministic rules for loan and investment traps:
     - `RULE-LOAN-7DAY-TENURE` (CRITICAL)
-    - `RULE-LOAN-UPFRONT-DEDUCTION` (HIGH_RISK)
+    - `RULE-LOAN-UPFRONT-DEDUCTION` (CRITICAL)
     - `RULE-LOAN-CONTACT-HARVEST-BLACKMAIL` (CRITICAL)
     - `RULE-LOAN-ADVANCE-FEE-APPROVAL` (CRITICAL)
     - `RULE-YIELD-GUARANTEED-DAILY-RETURN` (CRITICAL)
@@ -34,7 +34,7 @@ Phase 9 delivers **Slice 3: Loan & High-Return Trap Analyzer** for Scamfy, fulfi
 ### 4. Scam Check Triage Integration
 - **Triage Result Card (`scamfy/components/domain/scam-check-result.tsx`)**:
   - Evaluates loan and yield risk signals via `lib/loan.ts`.
-  - Inlines prominent loan threat alert banners and one-click "Launch Calculator" launcher pre-filling detected principal/tenure numbers.
+  - Inlines prominent loan threat alert banner (rendered for all loan threats, including mixed loan/mule threats) with interactive "Launch Loan & Yield Trap Analyzer" toggle rendering `LoanTrapAnalyzer` with its standard defaults.
 
 ---
 
