@@ -3,6 +3,9 @@
 import * as React from "react";
 import { cn } from "@/lib/utils";
 
+/**
+ * Subscribes to window prefers-reduced-motion media query changes.
+ */
 function subscribeReducedMotion(callback: () => void) {
   if (typeof window === "undefined" || !window.matchMedia) {
     return () => {};
@@ -12,6 +15,9 @@ function subscribeReducedMotion(callback: () => void) {
   return () => mediaQuery.removeEventListener("change", callback);
 }
 
+/**
+ * Reads current snapshot of prefers-reduced-motion media query.
+ */
 function getReducedMotionSnapshot(): boolean {
   if (typeof window === "undefined" || !window.matchMedia) {
     return false;
@@ -19,6 +25,9 @@ function getReducedMotionSnapshot(): boolean {
   return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 }
 
+/**
+ * Subscribes to fine pointer (mouse/trackpad) media query changes.
+ */
 function subscribeFinePointer(callback: () => void) {
   if (typeof window === "undefined" || !window.matchMedia) {
     return () => {};
@@ -28,6 +37,9 @@ function subscribeFinePointer(callback: () => void) {
   return () => mediaQuery.removeEventListener("change", callback);
 }
 
+/**
+ * Reads current snapshot of fine pointer (mouse/trackpad) media query.
+ */
 function getFinePointerSnapshot(): boolean {
   if (typeof window === "undefined" || !window.matchMedia) {
     return false;
@@ -35,6 +47,9 @@ function getFinePointerSnapshot(): boolean {
   return window.matchMedia("(hover: hover) and (pointer: fine)").matches;
 }
 
+/**
+ * Fallback server snapshot returning false for motion/pointer media queries.
+ */
 function getServerSnapshotFalse(): boolean {
   return false;
 }
@@ -59,11 +74,6 @@ export function ScamfyDepthCard({
   className,
   ...props
 }: ScamfyDepthCardProps) {
-  const [transformStyle, setTransformStyle] = React.useState<React.CSSProperties>({
-    transform: "perspective(800px) rotateX(0deg) rotateY(0deg) translateZ(0px)",
-    transition: "transform 250ms cubic-bezier(0.16, 1, 0.3, 1)",
-  });
-
   const prefersReducedMotion = React.useSyncExternalStore(
     subscribeReducedMotion,
     getReducedMotionSnapshot,
@@ -77,7 +87,26 @@ export function ScamfyDepthCard({
   );
 
   const cardRef = React.useRef<HTMLDivElement>(null);
+  const rafIdRef = React.useRef<number | null>(null);
 
+  React.useEffect(() => {
+    return () => {
+      if (rafIdRef.current !== null) {
+        cancelAnimationFrame(rafIdRef.current);
+      }
+    };
+  }, []);
+
+  React.useEffect(() => {
+    if ((prefersReducedMotion || !isFinePointer) && cardRef.current) {
+      cardRef.current.style.transform = "";
+      cardRef.current.style.transition = "";
+    }
+  }, [prefersReducedMotion, isFinePointer]);
+
+  /**
+   * Handles pointer move by scheduling transform updates via requestAnimationFrame directly on the DOM ref.
+   */
   const handleMouseMove = React.useCallback(
     (e: React.MouseEvent<HTMLDivElement>) => {
       if (prefersReducedMotion || !isFinePointer || !cardRef.current) {
@@ -93,23 +122,35 @@ export function ScamfyDepthCard({
       const rotateX = (-normalizedY * maxTilt).toFixed(2);
       const rotateY = (normalizedX * maxTilt).toFixed(2);
 
-      setTransformStyle({
-        transform: `perspective(800px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateZ(4px)`,
-        transition: "transform 80ms ease-out",
+      if (rafIdRef.current !== null) {
+        cancelAnimationFrame(rafIdRef.current);
+      }
+
+      rafIdRef.current = requestAnimationFrame(() => {
+        if (cardRef.current) {
+          cardRef.current.style.transform = `perspective(800px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateZ(4px)`;
+          cardRef.current.style.transition = "transform 80ms ease-out";
+        }
       });
     },
     [prefersReducedMotion, isFinePointer, maxTilt]
   );
 
+  /**
+   * Handles pointer leave by resetting 3D transforms back to flat resting state.
+   */
   const handleMouseLeave = React.useCallback(() => {
-    if (prefersReducedMotion || !isFinePointer) {
+    if (rafIdRef.current !== null) {
+      cancelAnimationFrame(rafIdRef.current);
+      rafIdRef.current = null;
+    }
+
+    if (prefersReducedMotion || !isFinePointer || !cardRef.current) {
       return;
     }
 
-    setTransformStyle({
-      transform: "perspective(800px) rotateX(0deg) rotateY(0deg) translateZ(0px)",
-      transition: "transform 300ms cubic-bezier(0.16, 1, 0.3, 1)",
-    });
+    cardRef.current.style.transform = "perspective(800px) rotateX(0deg) rotateY(0deg) translateZ(0px)";
+    cardRef.current.style.transition = "transform 300ms cubic-bezier(0.16, 1, 0.3, 1)";
   }, [prefersReducedMotion, isFinePointer]);
 
   return (
@@ -117,7 +158,6 @@ export function ScamfyDepthCard({
       ref={cardRef}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
-      style={prefersReducedMotion || !isFinePointer ? undefined : transformStyle}
       className={cn(
         "will-change-transform [transform-style:preserve-3d]",
         className

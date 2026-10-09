@@ -6,6 +6,12 @@ import { ScamfyDepthCard } from "@/components/three/scamfy-depth-card";
 
 describe("ScamfyDepthCard component", () => {
   beforeEach(() => {
+    vi.spyOn(window, "requestAnimationFrame").mockImplementation((cb) => {
+      cb(0);
+      return 1;
+    });
+    vi.spyOn(window, "cancelAnimationFrame").mockImplementation(() => {});
+
     Object.defineProperty(window, "matchMedia", {
       writable: true,
       value: vi.fn().mockImplementation((query: string) => ({
