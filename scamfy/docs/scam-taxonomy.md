@@ -70,7 +70,7 @@ graph TD
 ---
 
 ### Category 5: Guaranteed-Return & Fake Investment Schemes (`CAT_INVESTMENT_TRAP`)
-- **Description**: High-yield investment programs (HYIP), fake stock/crypto trading apps, Telegram "VIP trading signals", and Ponzi schemes promising risk-free, mathematically impossible returns.
+- **Description**: High-yield investment programs (HYIP), fake stock/crypto trading apps, Telegram "VIP trading signals", and Ponzi schemes promising risk-free, unsustainable high-yield returns.
 - **Deterministic Red Flags**:
   - Explicit promises of fixed astronomical daily/monthly returns (e.g. *"Invest ₹1,000 → Get 3.5% daily"*, *"Double money in 10 days"*).
   - "100% Risk-Free Guarantee" on volatile equity, forex, or crypto instruments.

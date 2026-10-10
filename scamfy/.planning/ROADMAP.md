@@ -89,7 +89,7 @@ graph TD
 - **Goal**: Provide transparent calculations for predatory digital loans (disbursement vs repayment vs APR) and implausible investment returns.
 - **Deliverables**: Loan calculator UI, financial anomaly rules, lender verification checklists, Nemotron contextual summaries.
 - **Requirements**: `LOAN-01..03`.
-- **Status**: Planned.
+- **Status**: 🟢 Complete.
 
 ### Phase 10: Official Reporting Gateway
 - **Goal**: Source-backed directory and guided reporting workflow for Indian Cyber Crime (1930 / cybercrime.gov.in) with explicit user payload authorization.
@@ -111,6 +111,7 @@ graph TD
 
 ### Phase 13: Pilot Evaluation, Benchmarks & Release
 - **Goal**: Benchmark evaluation across diverse scam/benign test cases, verify precision/recall, configure privacy-safe analytics, and deploy to Vercel/Railway.
-- **Deliverables**: Evaluation benchmark report, Sentry/PostHog integration, production deployment verification.
+- **Deliverables**: Evaluation benchmark report, Sentry/PostHog integration, production deployment verification, live platform cold-start and warm latency benchmarks, Core Web Vitals (LCP/TBT) audit, and fallback resilience verification.
 - **Requirements**: `ENG-04`.
 - **Status**: Planned.
+
