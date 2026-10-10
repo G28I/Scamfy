@@ -6,8 +6,8 @@
 - **Date**: October 9, 2026
 - **Requirements Verified**:
   - `LOAN-01`: Deterministic loan APR & true borrowing cost calculation engine accounting for upfront processing fees, daily rates, and short tenures.
-  - `LOAN-02`: High-yield / Ponzi APY mathematical reality check separating pure mathematical impossibilities (>24% BUDS threshold) from advisory narrative.
-  - `LOAN-03`: Authoritative RBI Digital Lending regulatory compliance checklist & direct deep links to RBI Sachet and NBFC registries.
+  - `LOAN-02`: High-yield / Ponzi APY reality check comparing promised yields against regulated benchmarks and Scamfy product risk heuristics (24% high-yield anomaly, 50% extreme yield risk) with qualified BUDS Act guidance.
+  - `LOAN-03`: Digital Lending borrower-protection advisory checklist & direct deep links to RBI Sachet and NBFC registries.
   - `DET-02`, `DET-04`, `DET-05`: Deterministic backend predatory loan and Ponzi threat rules + missing evidence checks (KFS, SEBI registration).
   - `UX-01`, `UX-03`, `UX-04`, `UX-05`: Accessible, responsive financial analyzer component with tabs, direct presets, and scam-check triage integration.
 
@@ -51,19 +51,19 @@
 - **Files**: `scamfy/components/domain/loan-trap-analyzer.tsx`, `scamfy/app/loan-analyzer/page.tsx`
 - **Tests**: `scamfy/components/__tests__/loan-trap-analyzer.test.tsx`, `scamfy/components/__tests__/loan-analyzer-page.test.tsx`
 - **Verification Details**:
-  - 5-point statutory checklist covering Key Fact Statement (KFS), Direct Bank Disbursal, Zero Contact Book/Gallery Permissions, Cooling-off Period, and RBI Sachet verification.
+  - 5-point borrower-protection advisory checklist covering Key Fact Statement (KFS), Direct Bank Disbursal, Zero Contact Book/Gallery Permissions, Cooling-off Period, and RBI Sachet verification.
   - Deep links to official government portals: `sachet.rbi.org.in`, `rbi.org.in/scripts/BS_NBFCList.aspx`, and `cybercrime.gov.in (1930)`.
 
 ### 4. DET-02, DET-04, DET-05: Backend Detection Rules
 - **Files**: `scamfy/backend/app/core/evaluator.py`
 - **Tests**: `scamfy/backend/tests/test_loan_rules.py`, `scamfy/backend/tests/test_evaluator.py`
 - **Rules Added**:
-  - `RULE-LOAN-7DAY-TENURE` (`CRITICAL`)
-  - `RULE-LOAN-UPFRONT-DEDUCTION` (`CRITICAL`)
+  - `RULE-LOAN-7DAY-TENURE` (`HIGH_RISK`)
+  - `RULE-LOAN-UPFRONT-DEDUCTION` (`HIGH_RISK`)
   - `RULE-LOAN-CONTACT-HARVEST-BLACKMAIL` (`CRITICAL`)
   - `RULE-LOAN-ADVANCE-FEE-APPROVAL` (`CRITICAL`)
-  - `RULE-YIELD-GUARANTEED-DAILY-RETURN` (`CRITICAL`)
-  - `detect_missing_evidence` checks for KFS and SEBI registration documents.
+  - `RULE-YIELD-GUARANTEED-DAILY-RETURN` (`HIGH_RISK`)
+  - `detect_missing_evidence` checks for KFS and regulatory registration documents with evidence-based phrasing.
 
 ### 5. UX Integration & Routing
 - **Files**: `scamfy/components/domain/scam-check-result.tsx`, `scamfy/lib/loan.ts`, `scamfy/components/shared/site-header.tsx`, `scamfy/components/shared/site-footer.tsx`

@@ -166,7 +166,7 @@ export function ScamCheckResult({
               <span>Predatory Loan / High-Yield Trap Pattern Detected</span>
             </div>
             <p className="text-xs text-muted-foreground max-w-xl leading-relaxed">
-              This message exhibits characteristics of illegal 7-day lending apps, advance-fee approval scams, or unsustainable high-yield returns. Dissect true borrowing costs and verify RBI regulatory compliance before proceeding.
+              This message exhibits characteristics of predatory 7-day lending traps, advance-fee approval scams, or unsustainable high-yield returns. Dissect true borrowing costs and verify RBI regulatory compliance before proceeding.
             </p>
           </div>
           <div className="flex flex-wrap gap-2 shrink-0">
@@ -220,7 +220,7 @@ export function ScamCheckResult({
               : result.primary_category === "BANK_KYC_PHISHING"
               ? "Phishing attack targeting banking credentials and PAN/Aadhaar information. Do not click links or install remote access apps."
               : result.primary_category === "INVESTMENT_STOCK_FRAUD"
-              ? "High-risk fraudulent investment or crypto trading scheme. Unregistered entities promising guaranteed profits are illegal."
+              ? "High-risk fraudulent investment or crypto trading scheme. Unregistered entities promising guaranteed profits pose severe financial loss and fraud risk."
               : "High likelihood of fraud detected for this indicator. Do not transfer funds, share personal documents, or install unverified applications."
           }
           show1930CallToAction={false}

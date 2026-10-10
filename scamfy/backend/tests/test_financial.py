@@ -150,3 +150,47 @@ def test_financial_constants():
     assert UNREGULATED_HIGH_YIELD_ANOMALY_THRESHOLD == 24.0
     assert HEURISTIC_PREDATORY_APR_THRESHOLD == 100.0
     assert HEURISTIC_HIGH_COST_APR_THRESHOLD == 36.0
+
+
+def test_exact_yield_boundaries():
+    """Verify classification behavior at exact 24% and 50% yield thresholds."""
+    # 23.9% annual -> REASONABLE
+    res_23 = calculate_yield_metrics(
+        YieldInputParams(investment_amount=10000.0, promised_return_percentage=23.9, frequency="annual")
+    )
+    assert res_23.risk_level == "REASONABLE"
+
+    # 24.0% annual -> HIGH_RISK
+    res_24 = calculate_yield_metrics(
+        YieldInputParams(investment_amount=10000.0, promised_return_percentage=24.0, frequency="annual")
+    )
+    assert res_24.risk_level == "HIGH_RISK"
+
+    # 49.9% annual -> HIGH_RISK
+    res_49 = calculate_yield_metrics(
+        YieldInputParams(investment_amount=10000.0, promised_return_percentage=49.9, frequency="annual")
+    )
+    assert res_49.risk_level == "HIGH_RISK"
+
+    # 50.0% annual -> PONZI_TRAP
+    res_50 = calculate_yield_metrics(
+        YieldInputParams(investment_amount=10000.0, promised_return_percentage=50.0, frequency="annual")
+    )
+    assert res_50.risk_level == "PONZI_TRAP"
+
+
+def test_ear_finite_overflow_protection():
+    """Verify that extreme loan APR calculation produces finite bounded EAR."""
+    res = calculate_loan_metrics(
+        LoanInputParams(
+            stated_principal=5000.0,
+            upfront_deduction=4900.0,
+            total_repayment=50000.0,
+            tenure_days=1,
+        )
+    )
+    import math
+
+    assert math.isfinite(res.annualized_compounded_ear)
+    assert res.annualized_compounded_ear <= 1e12
+

@@ -152,7 +152,8 @@ RULES = [
         "description": "Promotes exclusive WhatsApp/Telegram insider stock trading groups with guaranteed multi-bagger returns or fake institutional trading apps.",
         "patterns": [
             r"(?:vip\s*stock|insider\s*tips|institutional\s*account|upper\s*circuit)",
-            r"(?:guaranteed|fixed)\s*(?:return|profit|gain)\s*(?:of\s*)?(?:\d+%\s*daily|\d+%\s*monthly|[\d,]+)",
+            r"(?:stock|shares?|crypto|forex|trading|vip)\b.{0,60}?(?:guaranteed|fixed)\s*(?:return|profit|gain)\s*(?:of\s*)?(?:\d+%\s*daily|\d+%\s*monthly|[\d,]+|multibagger)",
+            r"(?:guaranteed|fixed)\s*(?:return|profit|gain)\s*(?:of\s*)?(?:\d+%\s*daily|\d+%\s*monthly|[\d,]+)\b.{0,60}?(?:stock|shares?|crypto|forex|trading|sebi|vip)",
             r"(?:crypto|forex|binary\s*option)\s*(?:trading\s*bot|signal\s*group|investment\s*platform)",
         ],
         "tactics": ["Guaranteed Profit Illusion", "Artificial Exclusivity"],
@@ -361,9 +362,9 @@ RULES = [
     {
         "id": "RULE-LOAN-7DAY-TENURE",
         "category": "PREDATORY_LOAN_FRAUD",
-        "severity": RiskLevel.CRITICAL,
-        "name": "7-Day / Hyper-Short Predatory Loan Trap",
-        "description": "Offers instant micro-loans with predatory 6-day, 7-day, or weekly repayment deadlines characteristic of illegal digital lending apps.",
+        "severity": RiskLevel.HIGH_RISK,
+        "name": "Short-Tenure / 7-Day Digital Loan Warning",
+        "description": "Offers instant micro-loans with predatory 6-day, 7-day, or weekly repayment deadlines characteristic of high-risk digital lending apps.",
         "patterns": [
             r"(?:instant|urgent|emergency|quick|online|micro|pancard|aadhaar|dla|app)\s*(?:loan|credit|cash)\b.{0,60}?(?:repay\s*in|tenure\s*(?:of|is)?|due\s*in|repayment\s*within|period\s*(?:of|is)?)\s*(?:[67]|seven)\s*days",
             r"(?:apply|approved|sanctioned|get|download|install|apk|disburse)\b.{0,60}?(?:[67]|seven)\s*day[s]?\s*(?:micro\s*loan|instant\s*loan|loan\s*app|cash\s*loan|tenure)",
@@ -372,17 +373,17 @@ RULES = [
         ],
         "tactics": ["Predatory Tenures", "Artificial Debt Cycle Trap"],
         "recommendations": [
-            "CRITICAL: Legitimate personal loans from RBI-registered NBFCs or banks never enforce 7-day repayment deadlines.",
-            "Do not borrow from 7-day loan apps. They trap borrowers in compounding cycle loans and aggressive recovery extortion.",
+            "Short repayment tenures (6–7 days) combined with instant digital approvals are significant risk indicators commonly observed in predatory lending apps.",
+            "Check whether an official Key Fact Statement (KFS) was provided and verify whether the lending app is partnered with an RBI-registered NBFC.",
             "Verify the lender's registration status on the official RBI Sachet portal (sachet.rbi.org.in).",
         ],
     },
     {
         "id": "RULE-LOAN-UPFRONT-DEDUCTION",
         "category": "PREDATORY_LOAN_FRAUD",
-        "severity": RiskLevel.CRITICAL,
-        "name": "Excessive Upfront Loan Fee Deduction Trick",
-        "description": "Deducts 20%–50% of the stated principal upfront as processing fees, platform service charges, or GST before disbursing net funds.",
+        "severity": RiskLevel.HIGH_RISK,
+        "name": "High Upfront Loan Fee Deduction Indicator",
+        "description": "Identifies substantial upfront deductions (>20% of principal) as processing fees, platform service charges, or GST before disbursing net funds.",
         "patterns": [
             r"(?:deduct|cut|minus)\s*(?:rs\.?|₹|inr)?\s*[\d,]+\s*(?:processing\s*fee|service\s*charge|platform\s*fee|gst|upfront)\b.{0,60}?(?:disburse|receive|credit|in\s*hand)",
             r"(?:apply|approved\s*for)\s*(?:rs\.?|₹|inr)?\s*[\d,]+\b.{0,60}?(?:receive|disbursed|get)\s*(?:only|just)?\s*(?:rs\.?|₹|inr)?\s*[\d,]+\b.{0,60}?(?:deduct|processing\s*fee)",
@@ -390,9 +391,9 @@ RULES = [
         ],
         "tactics": ["Hidden Fee Deception", "Disbursement Shrinkage"],
         "recommendations": [
-            "CRITICAL: RBI Digital Lending Guidelines prohibit lenders from deducting predatory 20%–50% upfront fees from loan principal.",
+            "Substantial upfront deductions reduce effective credit and sharply increase the implied borrowing cost.",
             "Demand an official Key Fact Statement (KFS) showing the transparent Annual Percentage Rate (APR) before accepting any loan.",
-            "Refuse loans where net disbursed amount is substantially lower than stated principal.",
+            "Verify the lender's registration on the official RBI Sachet portal (sachet.rbi.org.in) before proceeding.",
         ],
     },
     {
@@ -408,16 +409,16 @@ RULES = [
         ],
         "tactics": ["Social Shaming Extortion", "Privacy Weaponization"],
         "recommendations": [
-            "CRITICAL: RBI rules strictly forbid digital lending apps from accessing contact lists or harassing third parties for recovery.",
-            "Do not pay blackmail demands; paying encourages repeated extortion cycles.",
-            "Preserve threat screenshots and file a formal cybercrime complaint on 1930 / cybercrime.gov.in.",
+            "CRITICAL: RBI Digital Lending Directives strictly prohibit lending service providers from accessing mobile contact lists or harassing third parties for recovery.",
+            "Do not submit to extortion or blackmail demands; paying encourages repeated harassment cycles.",
+            "Preserve threat screenshots and file a formal cybercrime complaint at 1930 / cybercrime.gov.in.",
         ],
     },
     {
         "id": "RULE-LOAN-ADVANCE-FEE-APPROVAL",
         "category": "PREDATORY_LOAN_FRAUD",
         "severity": RiskLevel.CRITICAL,
-        "name": "Advance-Fee Loan Approval Scam",
+        "name": "Advance-Fee Loan Approval Trap",
         "description": "Demands upfront payment for file charges, approval fees, security deposits, GST, or insurance before releasing or sanctioning an approved loan amount.",
         "patterns": [
             r"(?:pay|transfer|deposit|send)\s*(?:rs\.?|₹|inr)?\s*[\d,]+\s*(?:as|for)?\s*(?:file\s*charge|approval\s*fee|processing\s*fee|security\s*deposit|gst|insurance)\b.{0,80}?(?:to\s*release|to\s*disburse|to\s*approve|for\s*loan\s*sanction)",
@@ -426,17 +427,17 @@ RULES = [
         ],
         "tactics": ["Advance-Fee Bait", "Manufactured Approval Illusion"],
         "recommendations": [
-            "CRITICAL: Legitimate banks and NBFCs NEVER ask borrowers to pay upfront file charges or deposits via UPI to release a loan.",
-            "Genuine processing fees are always deducted from the loan disbursal or billed in official statements, never paid in advance.",
-            "Never send money to claim an approved loan.",
+            "CRITICAL: Legitimate banks and NBFCs disburse sanctioned funds directly and deduct official processing fees from the loan amount or invoice them officially, rather than requiring advance payments via personal UPI handles.",
+            "Genuine processing fees are never required to be paid upfront to personal accounts to release funds.",
+            "Never transfer advance fees or security deposits to claim an approved loan.",
         ],
     },
     {
         "id": "RULE-YIELD-GUARANTEED-DAILY-RETURN",
         "category": "INVESTMENT_PONZI_FRAUD",
-        "severity": RiskLevel.CRITICAL,
-        "name": "Guaranteed Daily/Weekly High-Yield Ponzi Lure",
-        "description": "Promises mathematically impossible guaranteed daily or weekly returns (e.g. 1%–5% daily, 100% monthly) under crypto trading, AI arbitrage, or forex schemes.",
+        "severity": RiskLevel.HIGH_RISK,
+        "name": "Guaranteed High-Yield / Daily Return Warning",
+        "description": "Promises high or daily guaranteed returns (e.g. 1%–5% daily, 100% monthly) under crypto trading, AI arbitrage, or investment schemes.",
         "patterns": [
             r"(?:guaranteed|fixed|assured)\s*(?:return|profit|yield|income|gain)s?\s*(?:of\s*)?(?:[1-9]\d?%|\d+\s*percent)\s*(?:daily|per\s*day|every\s*day|weekly|per\s*week)",
             r"(?:invest|deposit)\s*(?:rs\.?|₹|inr|\$)?\s*[\d,]+\b.{0,60}?(?:get|earn|receive)\s*(?:rs\.?|₹|inr|\$)?\s*[\d,]+\s*(?:daily|every\s*day|in\s*\d+\s*days|doubled?)",
@@ -445,9 +446,9 @@ RULES = [
         ],
         "tactics": ["Unrealistic Greed Lure", "Compounding Ponzi Deception"],
         "recommendations": [
-            "CRITICAL: Guaranteed returns of 1%–5% daily are mathematically impossible and represent illegal Ponzi / HYIP schemes under the BUDS Act, 2019.",
-            "Regulated investment products in India never promise fixed risk-free daily compounding profits.",
-            "Verify investment entities on the SEBI register (sebi.gov.in) before committing any funds.",
+            "Promises of fixed, high daily returns (such as 1%–5% per day) carry extreme investment risk and frequently indicate unregulated high-yield investment or Ponzi schemes.",
+            "The Banning of Unregulated Deposit Schemes (BUDS) Act, 2019 prohibits unregulated deposit-taking; legal applicability depends on the structure of the entity and arrangement.",
+            "Verify investment entities against official regulatory registers (such as SEBI or RBI) before committing funds.",
         ],
     },
 ]
@@ -501,7 +502,7 @@ def detect_missing_evidence(
 
         if not non_shortener_urls and not entities.emails:
             missing.append(
-                "No verifiable corporate domain, official email header, or sender identity."
+                "No verifiable corporate domain, official email header, or sender identity was found in the submitted evidence."
             )
         if has_shortener_urls:
             missing.append(
@@ -513,19 +514,19 @@ def detect_missing_evidence(
             and (entities.amounts or entities.phone_numbers)
         ):
             missing.append(
-                "No verifiable merchant registration or official transaction reference number."
+                "No verifiable merchant registration or official transaction reference number was found in the submitted evidence."
             )
         if any(r["id"] == "RULE-DIGITAL-ARREST-EXTORTION" for r in matched_rules):
             missing.append(
-                "No formal physical court summons, official stamped FIR document, or verifiable police station jurisdiction."
+                "No formal physical court summons, official stamped FIR document, or verifiable police station jurisdiction was found in the submitted evidence."
             )
         if any(r["id"] == "RULE-ELECTRICITY-DISCONNECTION" for r in matched_rules):
             missing.append(
-                "No consumer ID / bill account number matching official state DISCOM records."
+                "No consumer ID / bill account number matching official state DISCOM records was found in the submitted evidence."
             )
         if any(r["category"] == "MONEY_MULE_RECRUITMENT" for r in matched_rules):
             missing.append(
-                "No formal employment contract, verified corporate remittance authorization, or authentic RBI-registered lender credentials."
+                "No formal employment contract, verified corporate remittance authorization, or verified lender credentials were found in the submitted evidence."
             )
         if any(r["category"] == "PREDATORY_LOAN_FRAUD" for r in matched_rules):
             missing.append(
@@ -533,7 +534,7 @@ def detect_missing_evidence(
             )
         if any(r["category"] == "INVESTMENT_PONZI_FRAUD" for r in matched_rules):
             missing.append(
-                "No statutory regulatory registration (e.g., SEBI/RBI), fund prospectus, or audited financial disclosure was found in the submitted evidence."
+                "No statutory regulatory registration (e.g., SEBI/RBI), fund prospectus, or audited financial disclosure was found in the submitted evidence. Verify whether the offering entity is authorized under applicable regulatory frameworks."
             )
 
     return missing

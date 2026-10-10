@@ -58,7 +58,7 @@ describe("LoanTrapAnalyzer Component (LOAN-01, LOAN-02, LOAN-03, UX-03, UX-04)",
     const rbiTabBtn = screen.getByRole("tab", { name: /RBI Verification/i });
     await user.click(rbiTabBtn);
 
-    expect(await screen.findByText(/RBI Digital Lending Regulatory Compliance Checklist/i)).toBeDefined();
+    expect(await screen.findByText(/Digital Lending Borrower-Protection Advisory Checklist/i)).toBeDefined();
     expect(screen.getByText(/1\. Key Fact Statement \(KFS\) Provided/i)).toBeDefined();
     expect(screen.getByText(/2\. Direct Bank-to-Bank Disbursal/i)).toBeDefined();
     expect(screen.getByText(/3\. Zero Mobile Contact Book/i)).toBeDefined();

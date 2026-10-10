@@ -78,8 +78,10 @@ const mockPonziThreatResult: AnalysisResultDto = {
     handles: ["@crypto_pool"],
   },
   psychological_tactics: ["Unrealistic Greed Lure"],
-  missing_evidence: ["No SEBI registration number under BUDS Act, 2019."],
-  synthesis_summary: "Critical threat: Ponzi scheme promising impossible daily returns.",
+  missing_evidence: [
+    "No statutory regulatory registration (e.g., SEBI/RBI), fund prospectus, or audited financial disclosure was found in the submitted evidence.",
+  ],
+  synthesis_summary: "High-risk pattern: Potential Ponzi scheme promising daily returns.",
   action_recommendations: ["Do not invest in guaranteed daily yield schemes."],
   model_metadata: {
     engine: "hybrid-nemotron-v1",

@@ -39,8 +39,9 @@ The Reserve Bank of India (RBI) circular on Digital Lending (*RBI/2022-23/111 DO
 5. **Registered NBFC Association**: Digital Lending Apps (DLAs) and Lending Service Providers (LSPs) must be publicly listed on the website of the partnering RBI-regulated NBFC/Bank.
 
 ### 1.3 High-Yield Investment & Ponzi Traps
-Predatory high-yield investment programs (HYIPs) targeting students commonly guarantee daily returns (e.g., 2% to 5% daily, 100% monthly) disguised as AI crypto trading bots, algorithmic forex pools, or task-based VIP investment tiers.
-- Any scheme promising $>24\%$ annualized risk-free return or daily compounding guaranteed gains triggers mathematical impossibility thresholds under the Banning of Unregulated Deposit Schemes Act, 2019 (BUDS Act).
+Predatory high-yield investment programs (HYIPs) targeting students commonly promise high or daily returns (e.g., 2% to 5% daily, 100% monthly) disguised as AI crypto trading bots, algorithmic forex pools, or task-based VIP investment tiers.
+- The Banning of Unregulated Deposit Schemes Act, 2019 (BUDS Act) prohibits unregulated deposit-taking entities from soliciting or accepting public deposits without regulatory registration.
+- Scamfy employs product risk heuristics (24% p.a. as an anomaly threshold and 50% p.a. as an extreme-risk threshold) to flag unsustainable yield structures and guide users to verify regulatory disclosures.
 
 ---
 
@@ -59,56 +60,61 @@ Scamfy's calculator implements pure, deterministic, auditable financial formulas
   $$C = R - N$$
 - **Effective Flat Rate for Tenure**:
   $$\text{Rate}_{\text{period}} = \frac{R - N}{N} \times 100$$
-- **Annual Percentage Rate (APR - Simple)**:
+- **Simple Annualized Borrowing Cost Rate (Estimated Simple APR)**:
   $$\text{APR}_{\text{simple}} = \left(\frac{R - N}{N}\right) \times \left(\frac{365}{T}\right) \times 100$$
-- **Effective Annual Rate (EAR - Compounded)**:
+- **Compounded Effective Annual Rate (EAR)**:
   $$\text{EAR} = \left[\left(1 + \frac{R - N}{N}\right)^{\frac{365}{T}} - 1\right] \times 100$$
-- **RBI Threshold Comparison**: Flag any APR exceeding **36% p.a.** as High Cost, and any APR exceeding **100% p.a.** or tenure $< 30$ days with $>20\%$ deduction as **Predatory / Illegal Trap**.
+  *(Capped at $10^{12}$ to guard against numeric overflow).*
+- **Scamfy Product Risk Heuristics**:
+  - Implied simple APR $\ge 36\%$ p.a. flags **High-Cost Credit**.
+  - Implied simple APR $\ge 100\%$ p.a. or short tenure ($\le 15$ days) with heavy deductions ($\ge 15\%$) flags **Predatory Lending Trap**.
+  - *Note*: Single-repayment borrowing cost formulas estimate simple APR; installment-based amortized loans produce different effective APRs.
 
 ### 2.2 Investment Yield Metrics
 - **Promised Return ($R_p$)**: e.g., 3% daily, 20% weekly, 200% yearly.
 - **Annualized Return ($\text{APY}$)**:
   - Daily rate $r_d$: $\text{APY}_{\text{simple}} = r_d \times 365$
   - Compounded daily: $\text{APY}_{\text{comp}} = (1 + r_d)^{365} - 1$
-- **Benchmark Comparison**:
-  - RBI Repo Rate / Bank Fixed Deposit: ~6.5% – 7.5% p.a.
-  - Nifty 50 Index historical CAGR: ~12% – 14% p.a.
-  - Mutual Fund Equity Top Tier: ~15% – 18% p.a.
-  - Guaranteed Yield $> 24\%$ p.a.: **Unregulated Deposit / Ponzi Warning**.
-  - Guaranteed Yield $> 50\%$ p.a. or Daily Compounding: **Mathematically Implausible / Definite Scam**.
+- **Benchmark Comparisons**:
+  - RBI Policy Repo Rate: 5.50% p.a. (effective Oct 7, 2026 monetary policy decision; Reserve Bank of India).
+  - Commercial Bank 1-Year Fixed Deposit: ~7.0% p.a.
+  - Nifty 50 Index Historical 10-Year Rolling CAGR: ~12.5% p.a. (historical equity market benchmark; not guaranteed or directly equivalent to fixed-income rates).
+  - Mutual Fund Equity Top Tier: ~15.0% p.a.
+  - Promised Yield $\ge 24.0\%$ p.a.: **Unregulated Yield Anomaly Warning** (Scamfy product heuristic).
+  - Promised Yield $\ge 50.0\%$ p.a. or Daily Payouts ($>0.1\%$/day): **Extreme Yield Risk (Ponzi / HYIP Indicator)**.
 
 ---
 
 ## 3. Regulatory Verification Checklist (`LOAN-03`)
 
-Legitimate vs. Illegal Lending Checklist backed by authoritative RBI regulations:
+Legitimate vs. Predatory Lending Indicators backed by authoritative RBI regulations and market standards:
 
-| Indicator | Legitimate NBFC / Bank | Illegal Predatory App |
+| Indicator | Regulated NBFC / Bank Practice | High-Risk / Predatory Indicator |
 | :--- | :--- | :--- |
-| **KFS (Key Fact Statement)** | Provided upfront with all-inclusive APR and fee breakdown | Hidden or absent; no formal KFS |
-| **Loan Tenure** | Minimum 60–90 days for personal loans per standard credit policy | 6 to 7 days (or 14 days maximum) |
-| **Upfront Fee Deduction** | Nominal processing fee (1%–3%) or deducted transparently | 30%–50% deducted before credit |
-| **App Permissions** | Standard minimal app permissions (no contacts/gallery access) | Demands `READ_CONTACTS`, `READ_SMS`, `READ_MEDIA_IMAGES` |
-| **Disbursement Account** | Directly from NBFC's official current account | Via personal UPI handle, unverified wallet, or mule account |
-| **Repayment Channel** | Official bank virtual account / payment gateway in RE name | Personal UPI VPAs (e.g. `agent123@upi`), WhatsApp QR codes |
-| **Registry Verification** | Listed on RBI's Registered NBFCs directory or Bank partner list | Not found on RBI Sachet portal or RBI registered list |
+| **Key Fact Statement (KFS)** | Delivered prior to agreement stating all-inclusive APR and fee breakdown | Absent or omitted from offer details |
+| **Loan Tenure** | Standard multi-month or annual consumer credit amortizations | Ultra-short (6–7 days) repayment deadlines |
+| **Upfront Fee Deduction** | Nominal processing fees (1%–3%) transparently disclosed | Heavy deductions (>20%–50%) shrinking disbursed credit |
+| **App Permissions** | Minimal required permissions (camera KYC with consent only) | Demands broad access to contact list, SMS, and photo gallery |
+| **Disbursement Account** | Directly from Regulated Entity's bank account | Routed via third-party personal UPI VPAs or unverified wallets |
+| **Repayment Channel** | Official bank virtual account / designated payment gateway | Personal UPI VPAs (e.g. `agent123@upi`), WhatsApp QR codes |
+| **Registry Verification** | Publicly listed on RBI's Registered NBFCs directory or partner list | Unlisted on RBI Sachet portal (`sachet.rbi.org.in`) |
 
 ---
 
 ## 4. Architecture & Technical Decision Record
 
 1. **Deterministic Calculation Core (`lib/loan-calculator.ts` & `backend/app/core/financial.py`)**:
-   - Pure, zero-dependency mathematical functions for loan APR, upfront fee percentage, daily rate, and investment APY.
-   - Enforces strict TypeScript and Python typing with comprehensive boundary testing (zero division guards, negative tenure checks, extreme rates).
+   - Pure, zero-dependency mathematical functions for estimated simple APR, upfront fee percentage, daily rate, and investment APY.
+   - Enforces strict TypeScript and Python typing with comprehensive boundary testing (zero division guards, negative tenure checks, finite EAR caps).
 2. **Evaluator Expansion (`backend/app/core/evaluator.py`)**:
    - Add deterministic detection rules:
-     - `RULE-LOAN-7DAY-TENURE`: Detects 7-day/weekly loan traps with hyper-short turnaround.
-     - `RULE-LOAN-UPFRONT-DEDUCTION`: Detects heavy upfront processing/service fee deductions.
-     - `RULE-LOAN-CONTACT-HARVEST-BLACKMAIL`: Detects threats of contacting friends/family or leaking phonebook.
-     - `RULE-YIELD-GUARANTEED-DAILY-RETURN`: Detects daily/weekly guaranteed passive income or crypto doubling.
-     - `RULE-LOAN-ADVANCE-FEE-APPROVAL`: Detects demands for upfront file charge, security deposit, or insurance before sanctioning loan.
+     - `RULE-LOAN-7DAY-TENURE`: Detects 7-day/weekly loan traps with hyper-short turnaround (HIGH_RISK).
+     - `RULE-LOAN-UPFRONT-DEDUCTION`: Detects heavy upfront processing/service fee deductions (HIGH_RISK).
+     - `RULE-LOAN-CONTACT-HARVEST-BLACKMAIL`: Detects threats of contacting friends/family or leaking phonebook (CRITICAL).
+     - `RULE-LOAN-ADVANCE-FEE-APPROVAL`: Detects demands for upfront file charge, security deposit, or insurance before sanctioning loan (CRITICAL).
+     - `RULE-YIELD-GUARANTEED-DAILY-RETURN`: Detects guaranteed high daily/weekly returns or crypto doubling lures (HIGH_RISK).
 3. **Interactive UI (`components/domain/loan-trap-analyzer.tsx` & `/loan-analyzer` route)**:
    - Tabbed interface supporting:
-     - **Tab 1: Instant Loan Cost & APR Dissector**: Interactive sliders for loan amount, deduction, repayment, and tenure with live APR badge, breakdown cards, and predatory alert thresholds.
-     - **Tab 2: High-Return / Ponzi Impossibility Checker**: Investment return calculator highlighting annual equivalents and comparing against official benchmarks (RBI Repo, Mutual Funds).
+     - **Tab 1: Instant Loan Cost & APR Dissector**: Interactive sliders for loan amount, deduction, repayment, and tenure with live APR badge, breakdown cards, and heuristic alert thresholds.
+     - **Tab 2: High-Yield / Ponzi Reality Checker**: Investment return calculator highlighting annual equivalents and comparing against official benchmarks (RBI Repo, Mutual Funds).
      - **Tab 3: RBI NBFC & Sachet Verification Checklist**: Step-by-step guidance to verify loan app validity on RBI Sachet portal (`sachet.rbi.org.in`) and verify KFS compliance.

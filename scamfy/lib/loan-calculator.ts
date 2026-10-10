@@ -148,7 +148,7 @@ export function calculateLoanMetrics(params: LoanInputParams): LoanCalculationRe
 
   const flags: string[] = [];
   if (tenureDays <= 7) {
-    flags.push("Hyper-short 7-day or weekly tenure trap characteristic of illegal loan apps");
+    flags.push("Hyper-short 7-day or weekly tenure trap characteristic of predatory digital lending apps");
   } else if (tenureDays <= 15) {
     flags.push("Short repayment cycle (< 15 days) not complying with standard personal credit terms");
   }
@@ -177,7 +177,7 @@ export function calculateLoanMetrics(params: LoanInputParams): LoanCalculationRe
     "Loan parameters appear within standard consumer lending interest bounds and standard market ranges.";
   if (riskLevel === "PREDATORY") {
     riskSummary =
-      "CRITICAL: Highly predatory loan structure matching illegal 7-day digital lending trap patterns with excessive fees and hyper-inflated APR.";
+      "CRITICAL: Highly predatory loan structure matching predatory 7-day digital lending trap patterns with excessive fees and hyper-inflated APR.";
   } else if (riskLevel === "HIGH_COST") {
     riskSummary =
       "CAUTION: High-cost credit terms. The total borrowing cost and upfront fee significantly exceed standard regulated bank interest rates.";
@@ -264,7 +264,7 @@ export function calculateYieldMetrics(params: YieldInputParams): YieldCalculatio
     annualizedSimpleYieldPercentage >= OFFICIAL_BENCHMARKS.unregulatedHighYieldAnomalyThresholdPercentage
   ) {
     flags.push(
-      `Promised yield (${annualizedSimpleYieldPercentage.toFixed(1)}% p.a.) significantly exceeds regulated market benchmarks. Operating unregulated deposit schemes promising returns violates the BUDS Act, 2019.`
+      `Promised yield (${annualizedSimpleYieldPercentage.toFixed(1)}% p.a.) significantly exceeds regulated market benchmarks. Schemes soliciting public deposits without authorization may fall under the BUDS Act (Banning of Unregulated Deposit Schemes Act, 2019).`
     );
   }
   if (promisedReturnPercentage > 0 && benchmarkExcessMultiplier >= 5) {

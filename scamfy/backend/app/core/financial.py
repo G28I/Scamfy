@@ -4,6 +4,7 @@ Implements deterministic formulas for APR, effective borrowing costs,
 net disbursement, and annualized yields per LOAN-01 and LOAN-02.
 """
 
+import math
 from typing import Literal
 
 from pydantic import BaseModel, Field
@@ -132,7 +133,7 @@ def calculate_loan_metrics(params: LoanInputParams) -> LoanCalculationResult:
     if 0 < rate_fraction < 100:
         try:
             ear_val = ((1.0 + rate_fraction) ** periods_per_year - 1.0) * 100.0
-            if ear_val < 1e12:
+            if math.isfinite(ear_val) and ear_val < 1e12:
                 annualized_compounded_ear = ear_val
         except (OverflowError, ValueError):
             pass
@@ -142,7 +143,7 @@ def calculate_loan_metrics(params: LoanInputParams) -> LoanCalculationResult:
 
     flags: list[str] = []
     if tenure_days <= 7:
-        flags.append("Hyper-short 7-day or weekly tenure trap characteristic of illegal loan apps")
+        flags.append("Hyper-short 7-day or weekly tenure trap characteristic of predatory digital lending apps")
     elif tenure_days <= 15:
         flags.append("Short repayment cycle (< 15 days) not complying with standard personal credit terms")
 
@@ -159,7 +160,7 @@ def calculate_loan_metrics(params: LoanInputParams) -> LoanCalculationResult:
     risk_summary = "Loan parameters appear within standard consumer lending interest bounds and standard market ranges."
     if risk_level == "PREDATORY":
         risk_summary = (
-            "CRITICAL: Highly predatory loan structure matching illegal 7-day digital lending trap "
+            "CRITICAL: Highly predatory loan structure matching predatory 7-day digital lending trap "
             "patterns with excessive fees and hyper-inflated APR."
         )
     elif risk_level == "HIGH_COST":
@@ -214,7 +215,7 @@ def calculate_yield_metrics(params: YieldInputParams) -> YieldCalculationResult:
     if 0 < rate_fraction < 50:
         try:
             apy_val = ((1.0 + rate_fraction) ** multiplier_per_year - 1.0) * 100.0
-            if apy_val < 1e12:
+            if math.isfinite(apy_val) and apy_val < 1e12:
                 annualized_compounded_apy_percentage = apy_val
         except (OverflowError, ValueError):
             pass
@@ -258,7 +259,7 @@ def calculate_yield_metrics(params: YieldInputParams) -> YieldCalculationResult:
     ):
         flags.append(
             f"Promised yield ({annualized_simple_yield_percentage:.1f}% p.a.) significantly exceeds regulated market benchmarks. "
-            "Operating unregulated deposit schemes promising returns violates the BUDS Act, 2019."
+            "Schemes soliciting public deposits without authorization may fall under the BUDS Act (Banning of Unregulated Deposit Schemes Act, 2019)."
         )
     if promised_return_percentage > 0 and benchmark_excess_multiplier >= 5.0:
         flags.append(

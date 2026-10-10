@@ -16,7 +16,7 @@
   - Implement `scamfy/lib/loan-calculator.ts`:
     - Pure TypeScript functions with strict types:
       - `calculateLoanMetrics(params: LoanInputParams): LoanCalculationResult`: Computes net disbursement ($P - D$), total borrowing cost ($R - N$), effective period rate, simple APR, compounded EAR, and risk rating (`NORMAL`, `HIGH_COST`, `PREDATORY`).
-      - `calculateYieldMetrics(params: YieldInputParams): YieldCalculationResult`: Computes annualized simple yield, compounded APY, daily/monthly breakdown, and comparative benchmark differentials against RBI Repo (6.5%) and Equity Index (12%).
+      - `calculateYieldMetrics(params: YieldInputParams): YieldCalculationResult`: Computes annualized simple yield, compounded APY, daily/monthly breakdown, and comparative benchmark differentials against RBI Repo (5.50%) and Equity Index (12.5%).
       - `classifyLoanRisk(apr: number, tenureDays: number, deductionRatio: number)`: Flags predatory threshold (APR $> 100\%$ or tenure $< 30$ days with $> 20\%$ upfront deduction).
   - Implement `scamfy/backend/app/core/financial.py`:
     - Pure Python counterpart functions with Pydantic schemas for backend API consistency and testing parity.
@@ -49,7 +49,7 @@
         - Real-Time Calculation Cards: Net Disbursed, Total Cost of Borrowing, Implied APR badge with color-coded risk level, and visual explanation.
       - **Tab 2: High-Return / Ponzi Impossibility Checker (`LOAN-01`, `LOAN-02`)**:
         - Inputs for Stated Investment Amount, Promised Return Rate (%), and Payout Period (Daily, Weekly, Monthly, Annual).
-        - Annualized APY Calculation Card with mathematical reality check comparing promised yields against RBI Repo Rate (6.5%) and Top Mutual Funds (15%).
+        - Annualized APY Calculation Card with mathematical reality check comparing promised yields against RBI Repo Rate (5.50%) and Top Mutual Funds (15%).
         - Warning notice citing the Banning of Unregulated Deposit Schemes Act (BUDS Act, 2019).
       - **Tab 3: RBI Sachet & NBFC Regulatory Verification Guide (`LOAN-03`)**:
         - Interactive step-by-step verification checklist for checking lender registration on RBI Sachet portal (`sachet.rbi.org.in`).

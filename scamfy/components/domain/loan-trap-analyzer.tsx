@@ -72,7 +72,7 @@ const YIELD_PRESETS = [
   {
     id: "daily-crypto",
     label: "AI Crypto Arbitrage (2%/day)",
-    badge: "Ponzi",
+    badge: "Extreme Risk",
     params: {
       investmentAmount: 10000,
       promisedReturnPercentage: 2,
@@ -82,7 +82,7 @@ const YIELD_PRESETS = [
   {
     id: "vip-telegram",
     label: "VIP Stock Signal (30%/mo)",
-    badge: "BUDS Act",
+    badge: "High-Yield Risk",
     params: {
       investmentAmount: 25000,
       promisedReturnPercentage: 30,
@@ -185,8 +185,8 @@ export function LoanTrapAnalyzer({
             <span>Predatory Loan &amp; High-Yield Trap Analyzer</span>
           </CardTitle>
           <CardDescription className="text-xs sm:text-sm text-muted-foreground">
-            Dissect hidden upfront deductions, calculate true annualized borrowing APRs, expose mathematically
-            impossible Ponzi yields, and verify RBI regulatory compliance.
+            Dissect hidden upfront deductions, calculate estimated simple annualized borrowing APRs, evaluate
+            unsustainable high-yield Ponzi indicators, and verify RBI regulatory compliance.
           </CardDescription>
 
           <div className="pt-3">
@@ -664,12 +664,13 @@ export function LoanTrapAnalyzer({
           <TabsContent value="rbi-checklist" className="m-0 space-y-4">
             <div className="flex items-center gap-2 text-primary font-bold text-base">
               <FileCheck className="h-5 w-5" />
-              <h3>RBI Digital Lending Regulatory Compliance Checklist (LOAN-03)</h3>
+              <h3>Digital Lending Borrower-Protection Advisory Checklist (LOAN-03)</h3>
             </div>
 
             <p className="text-xs text-muted-foreground">
-              Under RBI Digital Lending Directives (2022–2023), every legitimate digital lending app (DLA)
-              must satisfy these 5 statutory conditions. If any condition is violated, the loan app is likely illegal.
+              Under RBI Digital Lending Directives, regulated digital lending entities are expected to adhere to
+              core borrower-protection standards. Use this advisory checklist to evaluate key disclosures and protections before
+              agreeing to any credit offer.
             </p>
 
             <div className="space-y-2.5">
@@ -677,27 +678,27 @@ export function LoanTrapAnalyzer({
                 {
                   id: "kfsReceived",
                   title: "1. Key Fact Statement (KFS) Provided Before Loan Agreement",
-                  desc: "The lender must deliver an unambiguous KFS stating the Annual Percentage Rate (APR), processing fees, recovery agent details, and cooling-off period.",
+                  desc: "Regulated lenders must deliver a standardized KFS stating the transparent Annual Percentage Rate (APR), processing fees, recovery terms, and cooling-off period.",
                 },
                 {
                   id: "directAccountDisbursal",
                   title: "2. Direct Bank-to-Bank Disbursal (No Third-Party VPAs)",
-                  desc: "Funds must disburse directly from the Regulated Entity's (Bank/NBFC) bank account to the borrower's account without passing through unverified personal UPI handles.",
+                  desc: "Disbursements and repayments should execute directly between the Regulated Entity's bank account and the borrower's account without passing through unverified personal UPI handles.",
                 },
                 {
                   id: "noContactPermission",
                   title: "3. Zero Mobile Contact Book & Gallery Permission Demands",
-                  desc: "RBI strictly prohibits lending apps from demanding access to mobile contacts, SMS logs, camera, or photos (only one-time camera KYC is permitted with consent).",
+                  desc: "RBI directives restrict lending apps from accessing mobile contacts, media galleries, or SMS logs (one-time camera access for KYC with consent is permitted).",
                 },
                 {
                   id: "coolingOffPeriod",
-                  title: "4. Statutory Cooling-off / Look-up Exit Period",
-                  desc: "Borrowers must be provided an explicit cooling-off window to exit the loan without penalty by returning principal and proportionate interest.",
+                  title: "4. Cooling-off / Look-up Exit Period",
+                  desc: "Regulated digital lenders are required to provide a cooling-off window allowing borrowers to exit without penalty by repaying principal and proportionate interest.",
                 },
                 {
                   id: "rbiSachetVerified",
                   title: "5. Listed on RBI Sachet Portal & Regulated NBFC Directory",
-                  desc: "The lending service provider (LSP) and app name must be publicly listed on the partnering RBI-registered NBFC/Bank official website.",
+                  desc: "The lending service provider (LSP) and app name should be publicly listed on the partnering RBI-registered NBFC/Bank official website.",
                 },
               ].map((item) => (
                 <div

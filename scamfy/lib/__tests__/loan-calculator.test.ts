@@ -171,24 +171,59 @@ describe("Deterministic Loan & Yield Calculator Engine (LOAN-01, LOAN-02)", () =
       expect(result.flags.length).toBe(0);
     });
 
-    it("handles zero investment parameters safely", () => {
-      const result = calculateYieldMetrics({
-        investmentAmount: 0,
-        promisedReturnPercentage: 0,
-        frequency: "daily",
+    it("evaluates exact 24% and 50% yield threshold boundaries accurately", () => {
+      // 23.9% annual return -> REASONABLE
+      const result23 = calculateYieldMetrics({
+        investmentAmount: 10000,
+        promisedReturnPercentage: 23.9,
+        frequency: "annual",
       });
+      expect(result23.riskLevel).toBe("REASONABLE");
 
-      expect(result.annualizedSimpleYieldPercentage).toBe(0);
-      expect(result.projectedAnnualReturnAmount).toBe(0);
+      // 24.0% annual return -> HIGH_RISK
+      const result24 = calculateYieldMetrics({
+        investmentAmount: 10000,
+        promisedReturnPercentage: 24.0,
+        frequency: "annual",
+      });
+      expect(result24.riskLevel).toBe("HIGH_RISK");
+
+      // 49.9% annual return -> HIGH_RISK
+      const result49 = calculateYieldMetrics({
+        investmentAmount: 10000,
+        promisedReturnPercentage: 49.9,
+        frequency: "annual",
+      });
+      expect(result49.riskLevel).toBe("HIGH_RISK");
+
+      // 50.0% annual return -> PONZI_TRAP
+      const result50 = calculateYieldMetrics({
+        investmentAmount: 10000,
+        promisedReturnPercentage: 50.0,
+        frequency: "annual",
+      });
+      expect(result50.riskLevel).toBe("PONZI_TRAP");
     });
   });
 
-  describe("Regulatory Benchmarks", () => {
+  describe("Regulatory Benchmarks & Edge Safeguards", () => {
     it("contains authoritative official Indian benchmarks", () => {
       expect(OFFICIAL_BENCHMARKS.rbiRepoRatePercentage).toBe(5.50);
       expect(OFFICIAL_BENCHMARKS.rbiRepoRateAsOfDate).toBe("2026-10-07");
       expect(OFFICIAL_BENCHMARKS.unregulatedHighYieldAnomalyThresholdPercentage).toBe(24.0);
       expect(OFFICIAL_BENCHMARKS.heuristicPredatoryAprThresholdPercentage).toBe(100.0);
+    });
+
+    it("ensures compounded EAR remains finite and bounded for extreme rates", () => {
+      const extremeResult = calculateLoanMetrics({
+        statedPrincipal: 5000,
+        upfrontDeduction: 4900,
+        totalRepayment: 50000,
+        tenureDays: 1,
+      });
+
+      expect(Number.isFinite(extremeResult.annualizedCompoundedEar)).toBe(true);
+      expect(extremeResult.annualizedCompoundedEar).toBeLessThanOrEqual(1e12);
     });
   });
 });

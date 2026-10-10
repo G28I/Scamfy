@@ -14,7 +14,7 @@ def test_rule_loan_7day_tenure_positive():
     entities = extract_all_entities(text)
     res = evaluate_message(text, entities)
 
-    assert res.overall_risk == RiskLevel.CRITICAL
+    assert res.overall_risk == RiskLevel.HIGH_RISK
     assert res.primary_category == "PREDATORY_LOAN_FRAUD"
     assert any(s.id == "RULE-LOAN-7DAY-TENURE" for s in res.signals)
     assert "Predatory Tenures" in res.psychological_tactics
@@ -30,7 +30,7 @@ def test_rule_loan_upfront_deduction_positive():
     entities = extract_all_entities(text)
     res = evaluate_message(text, entities)
 
-    assert res.overall_risk == RiskLevel.CRITICAL
+    assert res.overall_risk == RiskLevel.HIGH_RISK
     assert any(s.id == "RULE-LOAN-UPFRONT-DEDUCTION" for s in res.signals)
     assert "Hidden Fee Deception" in res.psychological_tactics
 
@@ -66,13 +66,13 @@ def test_rule_loan_advance_fee_approval_positive():
 def test_rule_yield_guaranteed_daily_return_positive():
     """Verify detection of guaranteed daily return Ponzi schemes."""
     text = (
-        "Join our AI Crypto Arbitrage Trading Pool! Guaranteed return of 3% daily with instant "
+        "Join our daily yield pool! Guaranteed return of 3% daily with instant "
         "withdrawals. Double your investment in 30 days."
     )
     entities = extract_all_entities(text)
     res = evaluate_message(text, entities)
 
-    assert res.overall_risk == RiskLevel.CRITICAL
+    assert res.overall_risk == RiskLevel.HIGH_RISK
     assert res.primary_category == "INVESTMENT_PONZI_FRAUD"
     assert any(s.id == "RULE-YIELD-GUARANTEED-DAILY-RETURN" for s in res.signals)
     assert any("statutory regulatory registration" in m or "fund prospectus" in m for m in res.missing_evidence)

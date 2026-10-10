@@ -33,8 +33,8 @@ export default function LoanAnalyzerPage() {
               Predatory Loan &amp; High-Yield Trap Analyzer
             </h1>
             <p className="text-sm text-muted-foreground max-w-3xl leading-relaxed">
-              Illegal 7-day lending apps and high-yield Ponzi syndicates trap borrowers and students with
-              obscured fee structures and false promises. Calculate estimated simple borrowing rates (APR), expose
+              Predatory 7-day digital lending apps and high-yield investment traps exploit borrowers and students with
+              obscured fee structures and misleading promises. Calculate estimated simple borrowing rates (APR), expose
               unsustainable yields, and verify RBI registration before sharing personal documents.
             </p>
           </div>
@@ -70,7 +70,7 @@ export default function LoanAnalyzerPage() {
               </div>
               <p className="text-xs text-muted-foreground leading-relaxed">
                 Direct account-to-account lending, mandatory Key Fact Statements (KFS) with all-inclusive APRs,
-                statutory cooling-off exit windows, and zero mobile contact book or gallery access permissions.
+                cooling-off exit windows, and zero mobile contact book or gallery access permissions.
               </p>
             </div>
           </div>

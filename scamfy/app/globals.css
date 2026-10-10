@@ -162,3 +162,25 @@ body {
     scroll-behavior: auto !important;
   }
 }
+
+/* Continuous Safety Disclaimer Ticker */
+@keyframes disclaimer-ticker {
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+  100% {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+.animate-disclaimer-ticker {
+  display: flex;
+  width: max-content;
+  animation: disclaimer-ticker 40s linear infinite;
+}
+
+.animate-disclaimer-ticker:hover,
+.animate-disclaimer-ticker:focus-within {
+  animation-play-state: paused;
+}
+

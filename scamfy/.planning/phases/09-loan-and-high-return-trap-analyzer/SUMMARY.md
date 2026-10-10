@@ -12,13 +12,13 @@ Phase 9 delivers **Slice 3: Loan & High-Return Trap Analyzer** for Scamfy, fulfi
 
 ### 2. Backend Rule Engine Expansion
 - **Evaluator (`scamfy/backend/app/core/evaluator.py`)**:
-  - Added 5 new deterministic rules for loan and investment traps:
-    - `RULE-LOAN-7DAY-TENURE` (CRITICAL)
-    - `RULE-LOAN-UPFRONT-DEDUCTION` (CRITICAL)
+  - Added 5 deterministic rules for loan and investment traps with evidence-proportional severities:
+    - `RULE-LOAN-7DAY-TENURE` (HIGH_RISK)
+    - `RULE-LOAN-UPFRONT-DEDUCTION` (HIGH_RISK)
     - `RULE-LOAN-CONTACT-HARVEST-BLACKMAIL` (CRITICAL)
     - `RULE-LOAN-ADVANCE-FEE-APPROVAL` (CRITICAL)
-    - `RULE-YIELD-GUARANTEED-DAILY-RETURN` (CRITICAL)
-  - Expanded `detect_missing_evidence` per `DET-05` to check for Key Fact Statements ("No Key Fact Statement (KFS)... found in the submitted evidence. Verify whether the lender provided an official KFS prior to agreement.") and SEBI registration documents.
+    - `RULE-YIELD-GUARANTEED-DAILY-RETURN` (HIGH_RISK)
+  - Expanded `detect_missing_evidence` per `DET-05` to check for Key Fact Statements ("No Key Fact Statement (KFS)... found in the submitted evidence. Verify whether the lender provided an official KFS prior to agreement.") and regulatory disclosures.
   - Added dedicated Pytest unit tests in `tests/test_loan_rules.py` with negative controls for legitimate bank disclosures, casual loan mentions, and market performance reports.
 
 ### 3. Interactive UI & Standalone Route
