@@ -173,5 +173,38 @@ describe("Loan & High-Yield Protection Integration Suite (LOAN-01..03, UX-01)", 
       expect(screen.getByText(/Money-Mule \/ Account/i)).toBeDefined();
       expect(screen.getByText(/Predatory Loan \/ High-Yield Trap Pattern Detected/i)).toBeDefined();
     });
+
+    it("renders investment banner and opens yield tab by default for investment-only threats", () => {
+      const investmentOnlyResult: AnalysisResultDto = {
+        ...mockLoanThreatResult,
+        id: "investment-threat-1",
+        primary_category: "INVESTMENT_PONZI_FRAUD",
+        signals: [
+          {
+            id: "RULE-YIELD-GUARANTEED-DAILY-RETURN",
+            name: "Guaranteed Compounding Daily Return Scheme",
+            description: "Unrealistic 2% daily yield",
+            severity: "HIGH_RISK",
+            evidence: "Earn 2% daily return guaranteed",
+          },
+        ],
+      };
+
+      render(<ScamCheckResult result={investmentOnlyResult} onReset={vi.fn()} />);
+
+      expect(
+        screen.getByText(/High-Yield \/ Ponzi Investment Trap Pattern Detected/i)
+      ).toBeDefined();
+      const launchBtn = screen.getByRole("button", {
+        name: /Launch High-Yield & Ponzi Analyzer/i,
+      });
+      expect(launchBtn).toBeDefined();
+
+      fireEvent.click(launchBtn);
+
+      // Verify that Yield tab is open by default
+      expect(screen.getByText(/Effective Annual Yield \(Simple APY\)/i)).toBeDefined();
+      expect(screen.getByText(/Investment Principal \(₹\)/i)).toBeDefined();
+    });
   });
 });

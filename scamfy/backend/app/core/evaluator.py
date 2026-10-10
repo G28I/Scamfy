@@ -387,7 +387,7 @@ RULES = [
         "patterns": [
             r"(?:deduct|cut|minus)\s*(?:rs\.?|₹|inr)?\s*[\d,]+\s*(?:processing\s*fee|service\s*charge|platform\s*fee|gst|upfront)\b.{0,60}?(?:disburse|receive|credit|in\s*hand)",
             r"(?:apply|approved\s*for)\s*(?:rs\.?|₹|inr)?\s*[\d,]+\b.{0,60}?(?:receive|disbursed|get)\s*(?:only|just)?\s*(?:rs\.?|₹|inr)?\s*[\d,]+\b.{0,60}?(?:deduct|processing\s*fee)",
-            r"(?:2[0-9]|[3-9]\d)%\s*(?:upfront|processing|platform)\s*(?:fee|charge|deduction)\b.{0,60}?(?:loan|disburs)",
+            r"(?<![\d.])(?:2[0-9]|[3-9]\d|[1-9]\d{2,})(?:\.\d+)?%\s*(?:(?:upfront|processing|platform|service)\s+)*(?:fee|charge|deduction)\b.{0,60}?(?:loan|disburs)",
         ],
         "tactics": ["Hidden Fee Deception", "Disbursement Shrinkage"],
         "recommendations": [

@@ -117,7 +117,13 @@ export function LoanTrapAnalyzer({
   className,
   ...props
 }: LoanTrapAnalyzerProps) {
+  const [prevDefaultTab, setPrevDefaultTab] = React.useState(defaultTab);
   const [activeTab, setActiveTab] = React.useState<string>(defaultTab);
+
+  if (defaultTab !== prevDefaultTab) {
+    setPrevDefaultTab(defaultTab);
+    setActiveTab(defaultTab);
+  }
 
   // Loan Tab State
   const [loanParams, setLoanParams] = React.useState<LoanInputParams>({

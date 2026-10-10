@@ -40,8 +40,8 @@ The Reserve Bank of India (RBI) circular on Digital Lending (*RBI/2022-23/111 DO
 
 ### 1.3 High-Yield Investment & Ponzi Traps
 Predatory high-yield investment programs (HYIPs) targeting students commonly promise high or daily returns (e.g., 2% to 5% daily, 100% monthly) disguised as AI crypto trading bots, algorithmic forex pools, or task-based VIP investment tiers.
-- The Banning of Unregulated Deposit Schemes Act, 2019 (BUDS Act) prohibits unregulated deposit-taking entities from soliciting or accepting public deposits without regulatory registration.
-- Scamfy employs product risk heuristics (24% p.a. as an anomaly threshold and 50% p.a. as an extreme-risk threshold) to flag unsustainable yield structures and guide users to verify regulatory disclosures.
+- **Legal Framework (BUDS Act, 2019)**: The Banning of Unregulated Deposit Schemes Act, 2019 prohibits unregulated deposit-taking entities from soliciting or accepting public deposits without regulatory registration. The BUDS Act establishes statutory illegality for unregistered deposit-taking activities, but does not define numeric interest rate caps or percentage thresholds.
+- **Scamfy Product Risk Heuristics (24% and 50%)**: Scamfy applies internal empirical heuristics (24% p.a. as an unregulated scheme anomaly threshold and 50% p.a. as an extreme yield risk threshold) based on prevailing capital market returns. These thresholds are entirely product-level risk signals rather than statutory limits, designed to prompt users to verify regulatory registration and disclosures under the BUDS Act framework.
 
 ---
 

@@ -234,11 +234,6 @@ def calculate_yield_metrics(params: YieldInputParams) -> YieldCalculationResult:
         and (
             annualized_simple_yield_percentage >= EXTREME_YIELD_RISK_THRESHOLD
             or (frequency == "daily" and promised_return_percentage > 0.1)
-            or (
-                frequency == "weekly"
-                and promised_return_percentage >= 2.0
-                and annualized_simple_yield_percentage >= EXTREME_YIELD_RISK_THRESHOLD
-            )
         )
     ):
         risk_level = "PONZI_TRAP"

@@ -50,7 +50,7 @@
       - **Tab 2: High-Return / Ponzi Impossibility Checker (`LOAN-01`, `LOAN-02`)**:
         - Inputs for Stated Investment Amount, Promised Return Rate (%), and Payout Period (Daily, Weekly, Monthly, Annual).
         - Annualized APY Calculation Card with mathematical reality check comparing promised yields against RBI Repo Rate (5.50%) and Top Mutual Funds (15%).
-        - Warning notice citing the Banning of Unregulated Deposit Schemes Act (BUDS Act, 2019).
+        - Warning notice citing the Banning of Unregulated Deposit Schemes Act (BUDS Act, 2019), explicitly decoupled from Scamfy's 24% and 50% product risk heuristics.
       - **Tab 3: RBI Sachet & NBFC Regulatory Verification Guide (`LOAN-03`)**:
         - Interactive step-by-step verification checklist for checking lender registration on RBI Sachet portal (`sachet.rbi.org.in`).
         - Mandatory RBI Digital Lending Compliance audit (KFS delivery, minimal app permissions, direct account-to-account transfer).

@@ -35,6 +35,29 @@ def test_rule_loan_upfront_deduction_positive():
     assert "Hidden Fee Deception" in res.psychological_tactics
 
 
+def test_rule_loan_upfront_deduction_percentage_boundary_and_over_100():
+    """Verify upfront deduction percentage pattern handles >=100% and rejects partial-number matches."""
+    # 1. 100% upfront fee before loan disbursal
+    text_100 = "Pay 100% upfront processing fee before loan disbursement can be completed."
+    res_100 = evaluate_message(text_100, extract_all_entities(text_100))
+    assert any(s.id == "RULE-LOAN-UPFRONT-DEDUCTION" for s in res_100.signals)
+
+    # 2. 120% upfront platform deduction before loan disbursal
+    text_120 = "Terms: 120% upfront platform deduction applies to this personal loan disbursement."
+    res_120 = evaluate_message(text_120, extract_all_entities(text_120))
+    assert any(s.id == "RULE-LOAN-UPFRONT-DEDUCTION" for s in res_120.signals)
+
+    # 3. 35.5% upfront processing charge before loan disbursal
+    text_decimal = "Special loan offer with 35.5% upfront processing charge before loan disbursal."
+    res_decimal = evaluate_message(text_decimal, extract_all_entities(text_decimal))
+    assert any(s.id == "RULE-LOAN-UPFRONT-DEDUCTION" for s in res_decimal.signals)
+
+    # 4. Partial number rejection: 15% upfront fee should NOT match 5% (boundary check)
+    text_15 = "Sanction letter: 15% upfront processing fee applicable on total loan disbursement."
+    res_15 = evaluate_message(text_15, extract_all_entities(text_15))
+    assert not any(s.id == "RULE-LOAN-UPFRONT-DEDUCTION" for s in res_15.signals)
+
+
 def test_rule_loan_contact_harvest_blackmail_positive():
     """Verify detection of loan recovery shaming and contact harvesting extortion."""
     text = (

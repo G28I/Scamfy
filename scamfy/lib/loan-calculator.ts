@@ -242,8 +242,7 @@ export function calculateYieldMetrics(params: YieldInputParams): YieldCalculatio
   if (
     promisedReturnPercentage > 0 &&
     (annualizedSimpleYieldPercentage >= OFFICIAL_BENCHMARKS.extremeYieldRiskThresholdPercentage ||
-      (frequency === "daily" && promisedReturnPercentage > 0.1) ||
-      (frequency === "weekly" && promisedReturnPercentage >= 2.0 && annualizedSimpleYieldPercentage >= OFFICIAL_BENCHMARKS.extremeYieldRiskThresholdPercentage))
+      (frequency === "daily" && promisedReturnPercentage > 0.1))
   ) {
     riskLevel = "PONZI_TRAP";
   } else if (

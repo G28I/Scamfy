@@ -32,7 +32,7 @@ import { PreTransferWarningModal } from "@/components/domain/pre-transfer-warnin
 import { MuleReceivedFundsGuide } from "@/components/domain/mule-received-funds-guide";
 import { LoanTrapAnalyzer } from "@/components/domain/loan-trap-analyzer";
 import { isMoneyMuleRisk } from "@/lib/mule";
-import { isLoanOrYieldRisk } from "@/lib/loan";
+import { isLoanOrYieldRisk, isInvestmentOnlyRisk } from "@/lib/loan";
 import type { AnalysisResultDto } from "@/app/api/check/route";
 import { cn } from "@/lib/utils";
 
@@ -57,6 +57,7 @@ export function ScamCheckResult({
   const [copiedSummary, setCopiedSummary] = React.useState(false);
   const isMuleThreat = React.useMemo(() => isMoneyMuleRisk(result), [result]);
   const isLoanThreat = React.useMemo(() => isLoanOrYieldRisk(result), [result]);
+  const isInvestmentOnlyThreat = React.useMemo(() => isInvestmentOnlyRisk(result), [result]);
   const [showMuleWarningModal, setShowMuleWarningModal] = React.useState(isMuleThreat);
   const [showReceivedFundsGuide, setShowReceivedFundsGuide] = React.useState(false);
   const [showLoanCalculator, setShowLoanCalculator] = React.useState(false);
@@ -163,10 +164,16 @@ export function ScamCheckResult({
           <div className="space-y-1">
             <div className="flex items-center gap-2 font-bold text-amber-600 dark:text-amber-400 text-sm">
               <Calculator className="h-4 w-4 text-amber-500" />
-              <span>Predatory Loan / High-Yield Trap Pattern Detected</span>
+              <span>
+                {isInvestmentOnlyThreat
+                  ? "High-Yield / Ponzi Investment Trap Pattern Detected"
+                  : "Predatory Loan / High-Yield Trap Pattern Detected"}
+              </span>
             </div>
             <p className="text-xs text-muted-foreground max-w-xl leading-relaxed">
-              This message exhibits characteristics of predatory 7-day lending traps, advance-fee approval scams, or unsustainable high-yield returns. Dissect true borrowing costs and verify RBI regulatory compliance before proceeding.
+              {isInvestmentOnlyThreat
+                ? "This message exhibits characteristics of unsustainable high-yield investment traps or unregulated Ponzi return lures. Dissect effective APY projections and compare against regulated benchmarks."
+                : "This message exhibits characteristics of predatory 7-day lending traps, advance-fee approval scams, or unsustainable high-yield returns. Dissect true borrowing costs and verify RBI regulatory compliance before proceeding."}
             </p>
           </div>
           <div className="flex flex-wrap gap-2 shrink-0">
@@ -178,7 +185,11 @@ export function ScamCheckResult({
               className="text-xs font-semibold border-amber-500/40 hover:bg-amber-500/10 text-foreground"
             >
               <Calculator className="h-3.5 w-3.5 text-amber-500 mr-1" />
-              {showLoanCalculator ? "Hide Financial Trap Calculator" : "Launch Loan & Yield Trap Analyzer"}
+              {showLoanCalculator
+                ? "Hide Financial Trap Calculator"
+                : isInvestmentOnlyThreat
+                ? "Launch High-Yield & Ponzi Analyzer"
+                : "Launch Loan & Yield Trap Analyzer"}
             </Button>
           </div>
         </div>
@@ -187,7 +198,7 @@ export function ScamCheckResult({
       {/* 0.3 Embedded Loan Trap Analyzer when toggled */}
       {showLoanCalculator && (
         <div className="pt-2">
-          <LoanTrapAnalyzer />
+          <LoanTrapAnalyzer defaultTab={isInvestmentOnlyThreat ? "yield" : "loan"} />
         </div>
       )}
 

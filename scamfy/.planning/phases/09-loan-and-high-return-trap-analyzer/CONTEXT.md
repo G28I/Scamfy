@@ -23,7 +23,7 @@ Phase 9 establishes Scamfy's **Loan & High-Return Trap Analyzer (Slice 3)** to p
      - Upfront processing deduction traps.
      - Contact book harvesting and recovery harassment threats.
      - Advance fee / deposit demands for loan approval.
-     - Guaranteed daily/weekly compounding investment traps (BUDS Act triggers).
+     - Guaranteed daily/weekly compounding investment traps (flagged via Scamfy's 24%/50% yield heuristics with BUDS Act regulatory verification prompts).
 
 3. **Authoritative Lender & Scheme Verification Checklist (`LOAN-03`)**:
    - Provide an interactive verification guide referencing official regulatory mechanisms:

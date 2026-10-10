@@ -40,9 +40,39 @@ describe("SafetyDisclaimerTicker Component", () => {
     expect(portalLinks[0]?.getAttribute("href")).toBe("https://www.cybercrime.gov.in/");
   });
 
-  it("marks duplicate ticker tracks with aria-hidden to prevent redundant screen reader announcements", () => {
+  it("marks duplicate ticker track with aria-hidden and makes its links keyboard-unfocusable", () => {
     const { container } = render(<SafetyDisclaimerTicker />);
-    const hiddenTracks = container.querySelectorAll('[aria-hidden="true"]');
-    expect(hiddenTracks.length).toBeGreaterThan(0);
+    
+    // Explicit duplicate track container has aria-hidden="true"
+    const duplicateTrack = screen.getByTestId("ticker-duplicate-track");
+    expect(duplicateTrack).toBeDefined();
+    expect(duplicateTrack.getAttribute("aria-hidden")).toBe("true");
+    expect(duplicateTrack.className).toContain("motion-reduce:hidden");
+
+    // Duplicate track links have tabIndex="-1" to prevent keyboard navigation into aria-hidden content
+    const duplicateLinks = duplicateTrack.querySelectorAll("a");
+    expect(duplicateLinks.length).toBe(2);
+    duplicateLinks.forEach((link) => {
+      expect(link.getAttribute("tabindex")).toBe("-1");
+      expect(link.getAttribute("aria-hidden")).toBe("true");
+    });
+
+    // Primary track links are normal and keyboard-focusable
+    const primaryTrack = screen.getByTestId("ticker-primary-track");
+    const primaryLinks = primaryTrack.querySelectorAll("a");
+    expect(primaryLinks.length).toBe(2);
+    primaryLinks.forEach((link) => {
+      expect(link.getAttribute("tabindex")).toBeNull();
+      expect(link.getAttribute("aria-hidden")).toBeNull();
+    });
+
+    // Standard accessible role queries return ONLY the primary links (2 links total, not 4)
+    const accessibleLinks = screen.getAllByRole("link");
+    expect(accessibleLinks.length).toBe(2);
+
+    // Reduced motion classes are present to allow full reading without clipping
+    const aside = container.querySelector("aside");
+    expect(aside?.className).toContain("motion-reduce:overflow-visible");
+    expect(aside?.className).toContain("motion-reduce:select-text");
   });
 });
