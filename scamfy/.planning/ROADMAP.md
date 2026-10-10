@@ -111,6 +111,7 @@ graph TD
 
 ### Phase 13: Pilot Evaluation, Benchmarks & Release
 - **Goal**: Benchmark evaluation across diverse scam/benign test cases, verify precision/recall, configure privacy-safe analytics, and deploy to Vercel/Railway.
-- **Deliverables**: Evaluation benchmark report, Sentry/PostHog integration, production deployment verification.
+- **Deliverables**: Evaluation benchmark report, Sentry/PostHog integration, production deployment verification, live platform cold-start and warm latency benchmarks, Core Web Vitals (LCP/TBT) audit, and fallback resilience verification.
 - **Requirements**: `ENG-04`.
 - **Status**: Planned.
+

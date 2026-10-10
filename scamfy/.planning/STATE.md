@@ -37,10 +37,16 @@
 
 ---
 
+## Deployment-Readiness & Real-World Performance Validation Checklist (Phase 13 Gate)
+*Note: Local production build and Turbopack dev optimization have passed baseline benchmarks. Final real-world performance verification is deferred until preview/staging deployment is provisioned. Do not mark complete until deployed tests have executed against a live endpoint.*
+
+- [ ] **1. Live Deployment Cold-Start & Warm Latency**: Measure actual platform cold-start and warm-request latency across multiple geographical regions.
+- [ ] **2. Browser Core Web Vitals & Bundle Transfer**: Measure real browser LCP, TBT, and initial JavaScript payload transferred over network.
+- [ ] **3. Independent Service Readiness**: Independently measure Frontend (Next.js Edge/SSR) and Backend (FastAPI ASGI) cold boot and health readiness on deployment platform.
+- [ ] **4. End-to-End Triage & Fallback Verification**: Validate the first completed scam analysis on live infrastructure, verifying deterministic pattern matching and Nemotron NIM fallback behavior under load.
+- [ ] **5. Production Regression Verification**: Check security headers, SSR hydration integrity, interactive functionality, and ensure zero client console/runtime errors.
+
+---
+
 ## Immediate Next Actions
 Phase 9 (Slice 3 - Loan & High-Return Trap Analyzer) is 100% complete with 6/6 verification gates passing. Ready to proceed with Phase 10: Official Reporting Gateway & 1930 Route (`/gsd-plan-phase 10`).
-
-
-
-
-

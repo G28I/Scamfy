@@ -697,8 +697,8 @@ export function LoanTrapAnalyzer({
                 },
                 {
                   id: "rbiSachetVerified",
-                  title: "5. Listed on RBI Sachet Portal & Regulated NBFC Directory",
-                  desc: "The lending service provider (LSP) and app name should be publicly listed on the partnering RBI-registered NBFC/Bank official website.",
+                  title: "5. Listed on Regulated Entity's Official DLA/LSP Directory & Checked on RBI Sachet",
+                  desc: "The digital lending app (DLA) and lending service provider (LSP) must be explicitly listed on the partnering RBI-registered Bank/NBFC's official website, and can be cross-checked on the RBI Sachet portal for unauthorized scheme alerts.",
                 },
               ].map((item) => (
                 <div
