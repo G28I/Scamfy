@@ -1,3 +1,23 @@
+---
+phase: 10
+wave: 1
+requirements:
+  - OFF-01
+  - OFF-02
+  - OFF-03
+  - OFF-04
+  - OFF-05
+  - OFF-06
+  - SEC-01
+  - SEC-03
+  - SEC-05
+  - UX-01
+  - UX-02
+  - UX-03
+  - UX-04
+  - UX-05
+---
+
 # Phase 10: Official Reporting Gateway & 1930 Route — Execution Plan (Revised)
 
 ## 1. Plan Overview
@@ -17,14 +37,14 @@
     - National Cyber Crime Reporting Portal & 1930 (`I4C / MHA`)
     - Chakshu Sanchar Saathi (`DoT`)
     - RBI Sachet (`Reserve Bank of India`)
-    - SEBI SCORES 2.0 & Unregistered Tips (`SEBI`)
-    - Bank Internal Grievance & Banking Ombudsman (`RBI / NPCI`)
+    - SEBI SCORES 2.0 & SEBI Market Intelligence Portal (`SEBI`)
+    - Bank Internal Grievance & Reserve Bank - Integrated Ombudsman Scheme, 2026 (`RBI`)
   - Implement pure, deterministic router `resolveReportingChannel(incident: FraudIncidentContext): ChannelRoutingResult`:
     - Evaluates incident type, financial loss presence, and identifier types.
     - *Financial Loss Rule*: If financial loss or unauthorized transfer occurred, 1930 / Cybercrime Portal / Bank Fraud Desk is **always** primary, regardless of elapsed time or delivery channel.
     - *Telecom Rule*: Non-loss suspicious SMS/calls route to Chakshu; loss incidents route to 1930 first with Chakshu secondary.
-    - *Securities Rule*: Distinguishes registered entity disputes (SCORES) from unregistered syndicates (Cybercrime portal + SEBI tip).
-    - *Banking Redressal Rule*: Demarcates immediate freeze requests from formal internal bank grievance and subsequent RBI Ombudsman escalation (under 30-day non-response / rejection rule).
+    - *Securities Rule*: Distinguishes registered entity disputes (SCORES 2.0) from unregistered syndicates (Cybercrime portal 1930 primary + SEBI Market Intelligence Portal confidential regulatory tip secondary).
+    - *Banking Redressal Rule*: Demarcates immediate freeze requests from formal internal bank grievance and subsequent RBI Ombudsman escalation under RB-IOS 2026 (subject to prior bank complaint, applicable response period — guidelines timeline or 30 days, whichever is longer, and 90-day filing period).
     - Returns primary channel recommendation, clear plain-language rationale, and relevant alternative routes.
   - Implement comprehensive unit test suite `lib/__tests__/official-channels.test.ts`:
     - Test transfers reported at 30 minutes, 4 hours, 24 hours, and 7 days (all retain 1930 guidance).

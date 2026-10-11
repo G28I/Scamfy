@@ -27,20 +27,26 @@ This document captures the corrected architectural, product, and legal decisions
      - *If unregulated deposit scheme, unlicensed loan app, or Ponzi offer*: Primary route is RBI Sachet (`sachet.rbi.org.in`), with Cybercrime Portal / 1930 secondary if advance-fee fraud or extortion occurred.
      - *If investment / stock market fraud*:
        - If complaint is against a SEBI-registered entity / listed company: SEBI SCORES 2.0 (`scores.sebi.gov.in`).
-       - If suspected unregistered advisor, fake IPO group, or VIP Telegram syndicate: SEBI Unregistered Entity alert mechanism and Cybercrime Portal.
+       - If suspected unregistered advisor, fake IPO group, or VIP Telegram syndicate: Primary financial loss route is 1930 / Cybercrime Portal; secondary confidential tip route is SEBI Market Intelligence Portal (`miportal.sebi.gov.in`).
      - *If phishing domain / impersonation*: Cybercrime Portal.
   2. **Deterministic Explanation**: Every routing recommendation returns a clear explanation of *why* the channel is suggested and lists relevant alternative/secondary channels.
 
-### Decision 3: 4-Tier Banking Redressal Architecture (Clarifying RBI Ombudsman & Circulars)
+### Decision 3: 4-Tier Banking Redressal Architecture (Clarifying RB-IOS 2026 & RBI Circular 2017-18/15)
 - **Review Finding Addressed**: Correction C.
-- **Context**: Previous drafts cited RBI circular `RBI/2017-18/15` (three working days) as if it were a universal reporting deadline.
+- **Context**: Previous drafts cited RBI circular `RBI/2017-18/15` as a universal police reporting deadline and referenced outdated Ombudsman provisions without limitation periods.
 - **Decision**:
-  1. Clearly document that *RBI/2017-18/15* governs **customer liability limitation for unauthorized electronic banking transactions** (zero customer liability applies where fraud is due to bank negligence or third-party breach without customer fault, reported within three working days). It is not a deadline for filing a police complaint or reporting to 1930.
-  2. Keep four distinct operational phases clearly demarcated in code and UI:
-     - **Stage 1 (Immediate Fraud Reporting)**: Call 1930 and bank 24x7 helpline immediately to request an urgent debit freeze / lien.
-     - **Stage 2 (Formal Cybercrime Report)**: File official complaint on `cybercrime.gov.in` within 24 hours to obtain formal acknowledgment.
-     - **Stage 3 (Bank Internal Grievance Redressal)**: Submit formal written dispute to bank branch / Principal Nodal Officer citing transaction UTR and 1930 acknowledgment.
-     - **Stage 4 (RBI Ombudsman Escalation)**: Under the RBI Integrated Ombudsman Scheme, escalate to the Ombudsman (`cms.rbi.org.in`) only if the bank rejects the grievance, fails to respond within 30 days, or offers an unsatisfactory resolution.
+  1. **Strict Tripartite Liability in RBI Circular *RBI/2017-18/15***:
+     - *Bank Negligence/Deficiency*: Zero customer liability regardless of whether reported.
+     - *Third-Party Breach*: Zero customer liability applies only when the customer notifies the bank within **three working days of receiving the bank's transaction communication** (not from incident occurrence).
+     - *Customer Negligence (e.g. shared OTP/PIN/credentials)*: The customer bears the entire loss until reporting to the bank. Scamfy must **never promise zero liability or automatic reimbursement** when credentials were shared.
+  2. **Reserve Bank - Integrated Ombudsman Scheme, 2026 (Effective July 1, 2026)**:
+     - Four distinct operational stages clearly demarcated:
+       - **Stage 1 (Immediate Fraud Reporting)**: Call 1930 and bank 24x7 fraud desk immediately to alert CFCFRMS and request an urgent debit freeze / lien.
+       - **Stage 2 (Formal Cybercrime Report Registration)**: Log in to `cybercrime.gov.in` using the 1930 SMS ticket reference ID to formalize the complaint and upload evidence, following call-intake instructions.
+       - **Stage 3 (Bank Internal Grievance Redressal)**: Submit a formal dispute to the bank / Principal Nodal Officer citing transaction UTR and 1930 acknowledgment.
+       - **Stage 4 (RBI Ombudsman Escalation under RB-IOS 2026)**: Escalate to the Ombudsman (`cms.rbi.org.in`) only if the bank rejects the complaint, fails to reply within the applicable response period (specified by RBI, NPCI, or card-network guidelines, or 30 days, whichever is longer), or provides an unsatisfactory resolution. Under RB-IOS 2026, the complaint must be filed within **90 days** from the date the applicable response window expires OR the date of the bank's last reply, **whichever is later**, subject to RB-IOS 2026 eligibility conditions.
+     - Transitional rule: Complaints received before July 1, 2026 remain governed by the 2021 scheme.
+     - Product fence: Do not hard-code rigid legal timelines in UI; link directly to official rules on `cms.rbi.org.in`.
 
 ### Decision 4: Strict Data-Minimization in Local Storage & Server Authorization
 - **Review Finding Addressed**: Correction D.

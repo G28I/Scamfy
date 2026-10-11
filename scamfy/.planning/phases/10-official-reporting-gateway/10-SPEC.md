@@ -17,8 +17,8 @@ The gateway provides context-aware official routing based on incident type and f
   1. **National Cyber Crime Reporting Portal & 1930 Helpline (I4C / MHA)**: Primary route for all cyber financial fraud, unauthorized online debits, extortion, impersonation, and identity theft.
   2. **Chakshu — Sanchar Saathi (DoT)**: Reporting suspected telecom fraud communications (calls, SMS, WhatsApp) for telecom intelligence and carrier blocking. *Explicit limitation*: Does not handle bank fund recovery or legal FIRs; incidents involving transferred money are always routed to 1930 / bank fraud desk.
   3. **RBI Sachet Portal (Reserve Bank of India)**: Intelligence gathering on unauthorized deposit-taking, unregistered Digital Lending Apps (DLAs), and illegal collective investment schemes.
-  4. **SEBI SCORES 2.0 & Unregistered Entity Routing (SEBI)**: Grievance redressal against listed companies and SEBI-registered intermediaries via SCORES; distinct guidance routing suspected unregistered tip channels / fake IPO syndicates to SEBI intelligence and cybercrime portals.
-  5. **Bank Internal Grievance Desk & RBI Integrated Ombudsman Framework**: Guidance on lodging initial bank disputes, requesting transaction UTR debit holds, and subsequent escalation to the RBI Ombudsman if the bank rejects or fails to resolve the complaint within 30 days.
+  4. **SEBI SCORES 2.0 & Market Intelligence Portal (SEBI)**: Investor grievance redressal against listed companies and SEBI-registered intermediaries via SCORES 2.0 (`scores.sebi.gov.in`); distinct confidential tip submission for unregistered investment advisors, pump-and-dump syndicates, and fake IPOs via the SEBI Market Intelligence Portal (`miportal.sebi.gov.in`).
+  5. **Bank Internal Grievance Desk & Reserve Bank - Integrated Ombudsman Scheme, 2026**: Guidance on lodging initial bank disputes, requesting transaction UTR debit holds, and subsequent escalation to the RBI Ombudsman under RB-IOS 2026 (`cms.rbi.org.in`) subject to the prior-bank-complaint prerequisite, applicable response period (guidelines timeline or 30 days, whichever is longer), and 90-day filing limitation period.
 - **Acceptance Criteria**:
   - Directory is typed and backed by a single source of truth (`lib/official-channels.ts`).
   - Every channel entry documents governing agency, verified URL, telephone helpline (if applicable), precise scope, accepted identifier types, and operating hours.
@@ -47,7 +47,7 @@ The gateway provides context-aware official routing based on incident type and f
     - *Primary Route*: RBI Sachet (`sachet.rbi.org.in`) and partnering Regulated Entity NBFC verification.
     - *Secondary Context*: 1930 / Cybercrime portal if blackmail, photo extortion, or advance fee payments occurred.
   - **Securities / Investment Traps**:
-    - Distinguish registered intermediary disputes (SEBI SCORES 2.0) from suspected unregistered tipsters / Ponzi schemes (SEBI unregistered alert & Cybercrime portal).
+    - Distinguish registered intermediary disputes (SEBI SCORES 2.0, `scores.sebi.gov.in`) from suspected unregistered tipsters / VIP WhatsApp/Telegram stock syndicates / Ponzi schemes (National Cyber Crime Reporting Portal 1930 as primary financial fraud route, accompanied by secondary confidential regulatory tip submission on SEBI Market Intelligence Portal, `miportal.sebi.gov.in`).
   - **Phishing Domains / Social Media Impersonation**:
     - Cybercrime portal cyber fraud reporting with domain takedown documentation.
 - **Acceptance Criteria**:
@@ -75,9 +75,9 @@ The gateway provides context-aware official routing based on incident type and f
 - **Scope**: Enable victims to record official complaint reference numbers for post-incident tracking with strict data minimization.
 - **Revised Controls (Addressing Review Correction D)**:
   - **Data Minimization**: Persist *only* the minimum metadata necessary for follow-up:
-    - Agency identifier (`CYBERCRIME_1930`, `CHAKSHU_DOT`, `RBI_SACHET`, `SEBI_SCORES`, `BANK_GRIEVANCE`)
+    - Agency identifier (`CYBERCRIME_1930`, `CHAKSHU_DOT`, `RBI_SACHET`, `SEBI_SCORES`, `SEBI_MI_PORTAL`, `BANK_GRIEVANCE`)
     - Reference Number (validated format, e.g. 1930 SMS ticket ID, Cybercrime ACK, Bank dispute reference)
-    - Filing Date, Status (`LODGED`, `UNDER_INVESTIGATION`, `FUNDS_FROZEN`, `CLOSED`), and optional follow-up reminder note.
+    - Filing Date, Status (`LODGED`, `UNDER_INVESTIGATION`, `FUNDS_FROZEN`, `CLOSED`), and optional follow-up reminder note (sanitized, max 500 chars, warning against credentials/PII).
   - **Strict Local Storage Boundary**: Anonymous users cache references in browser `localStorage`. Full complaint narratives, screenshots, transaction details, and credentials are **strictly prohibited** from `localStorage`.
   - **Clear Deletion**: Provide a prominent "Clear Stored Reference" button to completely purge locally cached records.
   - **Server-Side Ownership**: For authenticated users via Prisma (`OfficialComplaintReference`), derive `userId` strictly from the server-authenticated session. Client-supplied user IDs are rejected.
@@ -97,8 +97,27 @@ The gateway provides context-aware official routing based on incident type and f
 ## 4. Quantitative Ambiguity Scoring
 | Dimension | Minimum | Target | Score | Notes |
 |:---|:---:|:---:|:---:|:---|
-| **Domain & Requirements** | 0.85 | 1.00 | 0.99 | Mapped 1:1 against canonical `OFF-01` through `OFF-06` with all 5 review corrections incorporated. |
+| **Domain & Requirements** | 0.85 | 1.00 | 0.99 | Mapped 1:1 against canonical `OFF-01` through `OFF-06` with all review corrections incorporated. |
 | **System Architecture** | 0.85 | 1.00 | 0.98 | Hybrid drawer copier, data-minimized Prisma schema, server auth ownership, and Zod validation locked. |
 | **User Experience & Flow** | 0.85 | 1.00 | 0.97 | Rapid-response guidance, context-aware routing, clear separation between copy/link/submit actions. |
 | **Security & Privacy** | 0.90 | 1.00 | 0.99 | Strict localStorage minimization, server session validation, zero sensitive parameter passing. |
 | **Composite Ambiguity** | $\le 0.15$ | $\le 0.10$ | **0.02** | **PASSED** (Ambiguity well below 0.10 threshold). |
+
+### Reproducible Rubric for Dimensional Confidence Scores:
+Each dimension is scored against a reproducible 3-tier objective rubric:
+- **1.00 (High / Locked)**: Canonical requirements mapped 1:1 to falsifiable acceptance criteria, regulatory instruments verified against primary statutory documents (e.g. gazette notifications/circulars), data schemas locked with runtime validators (Zod/Pydantic), and zero open scope questions.
+- **0.85 (Medium / Conditional)**: Requirements and interfaces identified, but operational edge cases or regulatory exceptions pending secondary source verification.
+- **<= 0.70 (Low / Unclear)**: Core interactions undefined or relying on unverified external third-party integrations.
+
+**Dimensional Evaluation**:
+- **Domain & Requirements ($S_1 = 0.99$)**: All 6 canonical requirements (`OFF-01`..`OFF-06`) mapped to falsifiable acceptance criteria with primary source citations (I4C/MHA, DoT Sanchar Saathi, RBI Sachet, SEBI SCORES/MI Portal, RB-IOS 2026, RBI 2017-18/15).
+- **System Architecture ($S_2 = 0.98$)**: Pure deterministic functions (`resolveReportingChannel`, `buildFactualComplaintPayload`), typed data contracts, Zod schemas, and Prisma models locked without external network coupling.
+- **User Experience & Flow ($S_3 = 0.97$)**: 5 distinct UI surfaces specified with accessibility (WCAG AA), motion tokens (`cubic-bezier(0.16, 1, 0.3, 1)`), tactile copy feedback, and non-guarantee alerts.
+- **Security & Privacy ($S_4 = 0.99$)**: Strict data minimization, `localStorage` fencing (zero narratives/amounts/credentials in local storage), server-session authorization derivation, and 500-char sanitized note limits.
+
+### Mathematical Formula & Rounding Rule:
+The Composite Ambiguity score is calculated directly from the four dimensional confidence scores ($S_1, S_2, S_3, S_4$):
+$$\text{Composite Ambiguity} = 1 - \bar{S} = 1 - \left(\frac{1}{N} \sum_{i=1}^N S_i\right)$$
+- Calculation: $\bar{S} = \frac{0.99 + 0.98 + 0.97 + 0.99}{4} = \frac{3.93}{4} = 0.9825$.
+- Unrounded Ambiguity: $1 - 0.9825 = 0.0175$.
+- Rounding Rule: Standard half-up rounding to two decimal places yields **0.02** (or **0.018** to three decimal places).

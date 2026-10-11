@@ -67,12 +67,16 @@ This specification defines the UI layout, component hierarchy, accessibility rul
   - Bulleted 3-Step Protocol:
     1. Call 1930 and provide transaction UTR / bank account number to trigger CFCFRMS.
     2. Contact your bank's 24x7 emergency fraud helpline to lodge an immediate debit freeze request.
-    3. Note down the 1930 acknowledgment SMS ticket number for formal registration within 24 hours on `cybercrime.gov.in`.
+    3. Note down the 1930 acknowledgment SMS ticket reference number to complete formal registration on `cybercrime.gov.in` per the intake instructions.
   - Non-Guarantee Advisory: *"CFCFRMS alerts beneficiary banks to attempt transaction holds; individual recovery depends on fund availability in recipient accounts."*
   - Dismiss: `"I have already notified my bank / 1930"` (Secondary text button).
 
 ### Screen 5: Complaint Reference Tracker (`ComplaintReferenceTracker`)
-- **Data-Minimized Form**: Agency dropdown, Reference Number input, Filing Date picker, Status dropdown (`LODGED`, `UNDER_INVESTIGATION`, `FUNDS_FROZEN`, `CLOSED`), Follow-up Notes.
+- **Data-Minimized Form**: Agency dropdown (`CYBERCRIME_1930`, `CHAKSHU_DOT`, `RBI_SACHET`, `SEBI_SCORES`, `SEBI_MI_PORTAL`, `BANK_GRIEVANCE`), Reference Number input, Filing Date picker, Status dropdown (`LODGED`, `UNDER_INVESTIGATION`, `FUNDS_FROZEN`, `CLOSED`), Follow-up Notes (textarea, max 500 characters).
+- **Notes Field Validation & Warning**:
+  - Prominent helper text below notes textarea: `"Warning: For your privacy, do not enter passwords, PINs, OTPs, full card/bank numbers, or incident narratives in this note field (max 500 characters)."`
+  - Client-side validation enforcing 500 character limit and stripping dangerous HTML/scripts.
+- **Banking Grievance Link**: Direct link to official Reserve Bank - Integrated Ombudsman Scheme rules on `https://cms.rbi.org.in/` with guidance that the bank response window depends on RBI, NPCI, or card-network guidelines, or 30 days, whichever is longer, and the 90-day escalation window follows RB-IOS 2026 eligibility conditions.
 - **Card View**: Displays saved references with status badges and quick-copy triggers.
 - **Privacy Controls**:
   - Anonymous storage warning: *"Stored locally on this device. Will be cleared if browser history/cache is purged."*
