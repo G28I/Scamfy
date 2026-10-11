@@ -66,11 +66,6 @@ export function SiteFooter() {
                   Victim Assistance Cases
                 </Link>
               </li>
-              <li>
-                <Link href="/design-system" className="hover:text-foreground transition-colors">
-                  Design System Primitives
-                </Link>
-              </li>
             </ul>
           </div>
 

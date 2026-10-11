@@ -33,6 +33,7 @@ import { EmptyState } from "@/components/ui/empty-state";
 
 import { RiskBadge, type RiskLevel } from "@/components/domain/risk-badge";
 import { UrgencyBanner } from "@/components/domain/urgency-banner";
+import { RapidResponseModal, RapidResponseBanner } from "@/components/domain/rapid-response-modal";
 import { IndicatorTag } from "@/components/domain/indicator-tag";
 import { ConfidenceMeter } from "@/components/domain/confidence-meter";
 import { TimelineItem } from "@/components/domain/timeline-item";
@@ -43,6 +44,7 @@ export default function DesignSystemPage() {
   const [isDark, setIsDark] = React.useState(true);
   const [feedbackState, setFeedbackState] = React.useState<"idle" | "loading" | "empty" | "error" | "partial">("idle");
   const [loadingMode, setLoadingMode] = React.useState<"spinner" | "skeleton">("spinner");
+  const [isRapidResponseOpen, setIsRapidResponseOpen] = React.useState(false);
 
   const toggleDarkMode = () => {
     setIsDark((prev) => !prev);
@@ -106,6 +108,24 @@ export default function DesignSystemPage() {
             actionLabel="View Golden-Hour Checklist"
             onActionClick={() => alert("Checklist opened (Presentation only)")}
           />
+
+          <div className="pt-2">
+            <h3 className="text-sm font-semibold text-foreground mb-2">
+              Phase 10 Task 2: Rapid-Response Financial Fraud Protocol (OFF-02, UX-02, UX-03)
+            </h3>
+            <RapidResponseBanner
+              onOpenModal={() => setIsRapidResponseOpen(true)}
+              elapsedHours={2}
+            />
+            <RapidResponseModal
+              isOpen={isRapidResponseOpen}
+              onOpenChange={setIsRapidResponseOpen}
+              transactionUtr="UTR789234120954"
+              elapsedHours={2}
+              financialLossAmount={25000}
+              bankName="HDFC Bank"
+            />
+          </div>
         </section>
 
         {/* Section 2: Scamfy 5 Risk Tiers */}

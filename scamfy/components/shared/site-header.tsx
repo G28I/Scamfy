@@ -18,7 +18,6 @@ const NAV_ITEMS: NavItem[] = [
   { href: "/mule-protection", label: "Mule Shield" },
   { href: "/intel", label: "Threat Intel" },
   { href: "/cases", label: "Victim Cases" },
-  { href: "/design-system", label: "Design System" },
 ];
 
 /**
