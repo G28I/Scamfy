@@ -79,7 +79,7 @@ This specification defines the UI layout, component hierarchy, accessibility rul
 - **Banking Grievance Link**: Direct link to official Reserve Bank - Integrated Ombudsman Scheme rules on `https://cms.rbi.org.in/` with guidance that escalation is permitted if dissatisfied with the bank's reply or resolution (including whole or partial rejection) or if no reply is received within the applicable response period (guidelines timeline or 30 days, whichever is longer), with the 90-day escalation window following RB-IOS 2026 eligibility conditions.
 - **Card View**: Displays saved references with status badges and quick-copy triggers.
 - **Privacy Controls**:
-  - Anonymous storage warning: *"Stored locally on this device. Will be cleared if browser history/cache is purged."*
+  - Anonymous storage warning: *"Stored locally on this device. Use 'Clear Stored Reference' or clear this site's stored data to remove."*
   - One-click deletion: `"Clear Stored Reference"` button with confirmation prompt.
 
 ---

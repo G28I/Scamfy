@@ -129,7 +129,7 @@ model OfficialComplaintReference {
   @@map("official_complaint_references")
 }
 ```
-*Privacy Note*: Full complaint narratives, screenshots, and financial credentials are intentionally excluded from persistence. Anonymous users store this identical schema in browser `localStorage`.
+*Privacy Note*: Full complaint narratives, screenshots, and financial credentials are intentionally excluded from persistence. Anonymous users store only the approved reference fields (`agency`, `referenceNumber`, `filingDate`, `status`, `followUpDate`, `notes`) in browser `localStorage`; Prisma-only metadata such as `id`, `userId`, `createdAt`, and `updatedAt` are strictly excluded from local storage.
 
 ### 2.2 Factual Complaint Narrative Structure & Provenance
 The complaint payload adheres to the following pure structure:

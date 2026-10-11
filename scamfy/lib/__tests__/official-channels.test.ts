@@ -154,6 +154,7 @@ describe('Official Reporting Registry & Deterministic Router (OFF-01, OFF-02, OF
       });
 
       expect(recentResult.urgencyLevel).toBe('EMERGENCY');
+      expect(recentResult.rationale).toContain('within 4 hours');
       expect(delayedResult.urgencyLevel).toBe('HIGH');
 
       // Both retain 1930 and bank fraud desk instructions
@@ -162,6 +163,44 @@ describe('Official Reporting Registry & Deterministic Router (OFF-01, OFF-02, OF
       // Delayed rationale explicitly states immediate reporting remains critical
       expect(delayedResult.rationale).toContain('immediate reporting remains critical');
       expect(delayedResult.rationale).not.toContain('FIR registration');
+    });
+
+    it('validates elapsedHoursSinceLoss and keeps unknown/invalid values eligible for EMERGENCY without claiming specific times', () => {
+      // 1. Omitted / undefined elapsed time
+      const undefinedElapsed = resolveReportingChannel({
+        incidentType: 'UNAUTHORIZED_TRANSFER',
+        hasFinancialLoss: true,
+      });
+      expect(undefinedElapsed.urgencyLevel).toBe('EMERGENCY');
+      expect(undefinedElapsed.rationale).not.toContain('within 4 hours');
+      expect(undefinedElapsed.rationale).toContain('Immediate reporting maximizes the opportunity for banks to act before funds are withdrawn');
+
+      // 2. NaN elapsed time
+      const nanElapsed = resolveReportingChannel({
+        incidentType: 'UNAUTHORIZED_TRANSFER',
+        hasFinancialLoss: true,
+        elapsedHoursSinceLoss: NaN,
+      });
+      expect(nanElapsed.urgencyLevel).toBe('EMERGENCY');
+      expect(nanElapsed.rationale).not.toContain('within 4 hours');
+
+      // 3. Negative elapsed time
+      const negativeElapsed = resolveReportingChannel({
+        incidentType: 'UNAUTHORIZED_TRANSFER',
+        hasFinancialLoss: true,
+        elapsedHoursSinceLoss: -5,
+      });
+      expect(negativeElapsed.urgencyLevel).toBe('EMERGENCY');
+      expect(negativeElapsed.rationale).not.toContain('within 4 hours');
+
+      // 4. Valid non-negative <= 4 hours explicitly includes within 4 hours claim
+      const validRecent = resolveReportingChannel({
+        incidentType: 'UNAUTHORIZED_TRANSFER',
+        hasFinancialLoss: true,
+        elapsedHoursSinceLoss: 3,
+      });
+      expect(validRecent.urgencyLevel).toBe('EMERGENCY');
+      expect(validRecent.rationale).toContain('within 4 hours');
     });
 
     it('ensures universal caveats state that opening RBI CMS is NOT a substitute for notifying bank fraud team', () => {
@@ -251,6 +290,21 @@ describe('Official Reporting Registry & Deterministic Router (OFF-01, OFF-02, OF
 
       expect(result.primaryChannel.id).toBe('SEBI_MI_PORTAL');
       expect(result.rationale).toContain('Market Intelligence');
+    });
+
+    it('preserves uncertainty and asks user to determine whether SCORES applies when isRegisteredEntity is omitted', () => {
+      const result = resolveReportingChannel({
+        incidentType: 'INVESTMENT_SCAM',
+        hasFinancialLoss: false,
+        deliveryChannel: 'TELEGRAM',
+      });
+
+      expect(result.isUncertain).toBe(true);
+      expect(result.uncertaintyReason).toContain('SCORES');
+      expect(result.rationale).toContain('Determine whether SCORES applies before selecting a SEBI route');
+      expect(result.immediateActionSteps.some((step) => step.toLowerCase().includes('determine whether the intermediary holds a valid sebi registration'))).toBe(true);
+      expect(result.secondaryChannels.some((c) => c.id === 'SEBI_SCORES')).toBe(true);
+      expect(result.secondaryChannels.some((c) => c.id === 'CYBERCRIME_1930')).toBe(true);
     });
 
     it('routes investment scam WITH monetary loss to 1930 primary, with SEBI and separated bank channels', () => {

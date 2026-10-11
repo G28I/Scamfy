@@ -329,8 +329,10 @@ export function resolveReportingChannel(incident: FraudIncidentContext): Channel
   }
 
   const hasLoss = incident.hasFinancialLoss || (incident.financialLossAmount !== undefined && incident.financialLossAmount > 0);
-  const elapsedHours = incident.elapsedHoursSinceLoss ?? 0;
-  const isRecent = elapsedHours <= 4;
+  const rawElapsed = incident.elapsedHoursSinceLoss;
+  const hasValidElapsed = typeof rawElapsed === 'number' && Number.isFinite(rawElapsed) && rawElapsed >= 0;
+  // Valid elapsed time <= 4 hours triggers EMERGENCY; unknown/invalid values remain eligible for EMERGENCY
+  const isRecent = !hasValidElapsed || rawElapsed <= 4;
 
   // RULE 1: Financial Loss or Unauthorized Transfer ALWAYS takes absolute precedence
   if (hasLoss || incident.incidentType === 'UNAUTHORIZED_TRANSFER') {
@@ -346,8 +348,13 @@ export function resolveReportingChannel(incident: FraudIncidentContext): Channel
       'Because financial loss or unauthorized transfer occurred, calling 1930 and contacting your bank 24x7 fraud desk is the mandatory primary route regardless of elapsed time. CFCFRMS can facilitate inter-bank alerts and attempted debit holds, though it cannot guarantee a freeze or recovery.';
 
     if (isRecent) {
-      rationale +=
-        ' As the transaction occurred recently (within 4 hours), immediate reporting maximizes the opportunity for banks to act before funds are withdrawn, but victims should seek immediate transaction intervention regardless of elapsed time.';
+      if (hasValidElapsed) {
+        rationale +=
+          ' As the transaction occurred recently (within 4 hours), immediate reporting maximizes the opportunity for banks to act before funds are withdrawn, but victims should seek immediate transaction intervention regardless of elapsed time.';
+      } else {
+        rationale +=
+          ' Immediate reporting maximizes the opportunity for banks to act before funds are withdrawn, and victims should seek immediate transaction intervention regardless of elapsed time.';
+      }
     } else {
       rationale +=
         ' Even when time has elapsed, immediate reporting remains critical to alert beneficiary banks, preserve official evidence on cybercrime.gov.in, and establish formal dispute records with your bank.';
@@ -444,7 +451,7 @@ export function resolveReportingChannel(incident: FraudIncidentContext): Channel
 
   // RULE 4: Securities & Investment Schemes without financial loss
   if (incident.incidentType === 'INVESTMENT_SCAM') {
-    if (incident.isRegisteredEntity) {
+    if (incident.isRegisteredEntity === true) {
       return {
         primaryChannel: OFFICIAL_CHANNELS.SEBI_SCORES,
         rationale:
@@ -462,25 +469,52 @@ export function resolveReportingChannel(incident: FraudIncidentContext): Channel
       };
     }
 
-    // Unregistered syndicate / tip group / fake trading app
+    if (incident.isRegisteredEntity === false) {
+      // Explicitly unregistered syndicate / tip group / fake trading app
+      return {
+        primaryChannel: OFFICIAL_CHANNELS.SEBI_MI_PORTAL,
+        rationale:
+          'Suspected unregistered stock advisors, fraudulent trading apps, and Telegram pump-and-dump syndicates should be reported to the SEBI Market Intelligence Portal for regulatory surveillance.',
+        urgencyLevel: 'STANDARD',
+        immediateActionSteps: [
+          'Save screenshots of social media groups, promotional links, and promised return statements.',
+          'Submit a confidential tip on miportal.sebi.gov.in under Market Intelligence.',
+          'Do not deposit any funds or share bank credentials with the syndicate.',
+        ],
+        secondaryChannels: [
+          OFFICIAL_CHANNELS.CYBERCRIME_1930,
+          OFFICIAL_CHANNELS.CHAKSHU_DOT,
+        ],
+        importantCaveats: [
+          ...UNIVERSAL_CAVEATS,
+          'SEBI Market Intelligence Portal collects regulatory surveillance intelligence; it does not provide individual dispute resolution or refunds.',
+        ],
+      };
+    }
+
+    // isRegisteredEntity is undefined / omitted — preserve uncertainty and guide verification
     return {
       primaryChannel: OFFICIAL_CHANNELS.SEBI_MI_PORTAL,
       rationale:
-        'Suspected unregistered stock advisors, fraudulent trading apps, and Telegram pump-and-dump syndicates should be reported to the SEBI Market Intelligence Portal for regulatory surveillance.',
+        'The applicable regulatory channel depends on whether the entity is registered with SEBI: complaints against registered intermediaries belong on SCORES 2.0, whereas tips about unregistered syndicates or fake advisors belong on the Market Intelligence Portal. Determine whether SCORES applies before selecting a SEBI route.',
       urgencyLevel: 'STANDARD',
       immediateActionSteps: [
-        'Save screenshots of social media groups, promotional links, and promised return statements.',
-        'Submit a confidential tip on miportal.sebi.gov.in under Market Intelligence.',
-        'Do not deposit any funds or share bank credentials with the syndicate.',
+        'Check SEBI official records (sebi.gov.in) to determine whether the intermediary holds a valid SEBI registration before choosing a reporting route.',
+        'If the entity is SEBI-registered, file a formal complaint with the intermediary first and escalate to scores.sebi.gov.in if unresolved.',
+        'If the entity is unregistered or operating via informal channels (e.g. Telegram/WhatsApp), submit a tip to miportal.sebi.gov.in.',
+        'Do not deposit funds, share Demat credentials, or transfer money.',
       ],
       secondaryChannels: [
+        OFFICIAL_CHANNELS.SEBI_SCORES,
         OFFICIAL_CHANNELS.CYBERCRIME_1930,
-        OFFICIAL_CHANNELS.CHAKSHU_DOT,
       ],
       importantCaveats: [
         ...UNIVERSAL_CAVEATS,
-        'SEBI Market Intelligence Portal collects regulatory surveillance intelligence; it does not provide individual dispute resolution or refunds.',
+        'SCORES 2.0 applies only to registered entities, while the Market Intelligence Portal gathers surveillance intelligence on unregistered schemes.',
       ],
+      isUncertain: true,
+      uncertaintyReason:
+        'Registration status is unknown. Determine whether the entity is SEBI-registered to confirm whether SCORES 2.0 or the Market Intelligence Portal applies.',
     };
   }
 
