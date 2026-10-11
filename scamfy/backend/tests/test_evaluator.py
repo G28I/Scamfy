@@ -4,10 +4,10 @@ from backend.app.core.extractors import extract_all_entities
 
 
 def test_rules_count_and_uniqueness():
-    """Verify evaluator contains exactly 18 unique deterministic rule configurations."""
+    """Verify evaluator contains exactly 23 unique deterministic rule configurations."""
     rule_ids = [r["id"] for r in RULES]
-    assert len(rule_ids) == 18
-    assert len(set(rule_ids)) == 18
+    assert len(rule_ids) == 23
+    assert len(set(rule_ids)) == 23
 
 
 def test_rule_upi_pin_reverse():
@@ -86,7 +86,7 @@ def test_rule_bank_kyc_pan_phishing():
 
 def test_rule_crypto_stock_vip_trap():
     """Verify detection of WhatsApp VIP stock trading guaranteed return trap."""
-    text = "Join our VIP stock trading signal group on WhatsApp! Guaranteed profit of 40% daily with institutional upper circuit insider tips."
+    text = "Join our VIP stock trading signal group on WhatsApp! Guaranteed profit of 40% monthly with institutional upper circuit insider tips."
     entities = extract_all_entities(text)
     res = evaluate_message(text, entities)
     assert res.overall_risk == RiskLevel.HIGH_RISK

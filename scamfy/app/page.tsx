@@ -15,11 +15,23 @@ import {
   HelpCircle,
 } from "lucide-react";
 import { SiteHeader } from "@/components/shared/site-header";
+import { SafetyDisclaimerTicker } from "@/components/shared/safety-disclaimer-ticker";
 import { SiteFooter } from "@/components/shared/site-footer";
+import dynamic from "next/dynamic";
 import { ScamCheckForm } from "@/components/domain/scam-check-form";
-import { ScamCheckResult } from "@/components/domain/scam-check-result";
 import { StateFeedback } from "@/components/domain/state-feedback";
 import { ScamfyThreeHero, ScamfyDepthCard } from "@/components/three";
+
+const ScamCheckResult = dynamic(
+  () => import("@/components/domain/scam-check-result").then((mod) => mod.ScamCheckResult),
+  {
+    loading: () => (
+      <div className="p-8 text-center text-sm text-muted-foreground animate-pulse">
+        Loading triage report...
+      </div>
+    ),
+  }
+);
 import {
   Card,
   CardHeader,
@@ -104,6 +116,7 @@ export default function HomePage() {
   return (
     <div className="flex min-h-screen flex-col bg-background text-foreground selection:bg-primary/20">
       <SiteHeader />
+      <SafetyDisclaimerTicker />
 
       <main className="flex-1">
         {/* 1. Hero & Triage Section */}
