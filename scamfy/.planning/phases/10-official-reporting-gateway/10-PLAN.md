@@ -1,79 +1,105 @@
-# Phase 10: Official Reporting Gateway & 1930 Route — Execution Plan
+# Phase 10: Official Reporting Gateway & 1930 Route — Execution Plan (Revised)
 
 ## 1. Plan Overview
 - **Phase**: 10 — Official Reporting Gateway & 1930 Route
 - **Milestone**: Milestone 3 (Slice 3 - Financial Traps & Official Gateway)
 - **Requirements Covered**: `OFF-01`, `OFF-02`, `OFF-03`, `OFF-04`, `OFF-05`, `OFF-06`, `SEC-01`, `SEC-03`, `SEC-05`, `UX-01`, `UX-02`, `UX-03`, `UX-04`, `UX-05`
 - **Estimated Plan Slices**: 5 Core Tasks
-- **Verification Gates**: TypeScript (`npm run typecheck`), ESLint (`npm run lint`), Vitest (`npx vitest run`), Next.js Production Build (`npm run build`), Python Ruff, Pytest (`python -m pytest backend/tests`).
+- **Verification Gates**: Strict TypeScript (`npm run typecheck`), ESLint (`npm run lint`), Vitest (`npx vitest run`), Next.js Production Build (`npm run build`), Python Ruff, Pytest (`python -m pytest backend/tests`).
 
 ---
 
 ## 2. Task Sequence & Deliverables
 
-### Task 1: Authoritative Official Channels Directory & Identifier Router (`lib/official-channels.ts`, `lib/__tests__/official-channels.test.ts`)
+### Task 1: Context-Aware Official Channels Directory & Multi-Factor Router (`lib/official-channels.ts`, `lib/__tests__/official-channels.test.ts`)
 - **Action**:
-  - Implement pure TypeScript definitions and constants for verified Indian fraud reporting authorities:
+  - Implement structured TypeScript directory of verified Indian reporting authorities in `lib/official-channels.ts`:
     - National Cyber Crime Reporting Portal & 1930 (`I4C / MHA`)
     - Chakshu Sanchar Saathi (`DoT`)
     - RBI Sachet (`Reserve Bank of India`)
-    - SEBI SCORES 2.0 (`SEBI`)
-    - Banking Ombudsman & NPCI Grievance (`RBI / NPCI`)
-  - Implement `resolveReportingChannel(identifiers: SuspectIdentifier[]): ReportingChannelRecommendation`:
-    - Pure, deterministic routing matching phone/WhatsApp to Chakshu, UPI/bank to 1930/CFCFRMS, domains to Cybercrime Portal, unregistered loans to Sachet, investment traps to SEBI SCORES.
-  - Implement unit test suite `lib/__tests__/official-channels.test.ts`:
-    - Test channel resolution across all supported identifier types with negative controls for ambiguous inputs.
+    - SEBI SCORES 2.0 & Unregistered Tips (`SEBI`)
+    - Bank Internal Grievance & Banking Ombudsman (`RBI / NPCI`)
+  - Implement pure, deterministic router `resolveReportingChannel(incident: FraudIncidentContext): ChannelRoutingResult`:
+    - Evaluates incident type, financial loss presence, and identifier types.
+    - *Financial Loss Rule*: If financial loss or unauthorized transfer occurred, 1930 / Cybercrime Portal / Bank Fraud Desk is **always** primary, regardless of elapsed time or delivery channel.
+    - *Telecom Rule*: Non-loss suspicious SMS/calls route to Chakshu; loss incidents route to 1930 first with Chakshu secondary.
+    - *Securities Rule*: Distinguishes registered entity disputes (SCORES) from unregistered syndicates (Cybercrime portal + SEBI tip).
+    - *Banking Redressal Rule*: Demarcates immediate freeze requests from formal internal bank grievance and subsequent RBI Ombudsman escalation (under 30-day non-response / rejection rule).
+    - Returns primary channel recommendation, clear plain-language rationale, and relevant alternative routes.
+  - Implement comprehensive unit test suite `lib/__tests__/official-channels.test.ts`:
+    - Test transfers reported at 30 minutes, 4 hours, 24 hours, and 7 days (all retain 1930 guidance).
+    - Test telecom communications with and without financial loss.
+    - Test registered vs unregistered investment schemes.
+    - Negative controls for malformed or ambiguous identifiers.
 - **Requirements Satisfied**: `OFF-01`, `OFF-03`.
 
-### Task 2: Golden-Hour Emergency Protocol & Intercept Modal (`components/domain/golden-hour-modal.tsx`, `components/__tests__/golden-hour-modal.test.tsx`)
+### Task 2: Rapid-Response Financial Fraud Protocol & Intercept Modal (`components/domain/rapid-response-modal.tsx`, `components/__tests__/rapid-response-modal.test.tsx`)
 - **Action**:
-  - Implement `GoldenHourModal` with accessible Radix Dialog (`role="alertdialog"`).
-  - Prominently render direct one-touch dialer `tel:1930` and CFCFRMS inter-bank freeze step instructions.
-  - Implement `GoldenHourBanner`: Sticky top urgency banner for recent ($\le 2-4$ hours) or active loss situations.
-  - Author unit tests `components/__tests__/golden-hour-modal.test.tsx`:
-    - Verify keyboard focus trap, escape handling, `tel:1930` link target, and dismissal state.
+  - Implement `RapidResponseModal` with accessible Radix Dialog (`role="alertdialog"`):
+    - Replaces artificial "2-4 hour golden-hour cutoff" with universal rapid-response protocol.
+    - Surfaces direct click-to-dial `tel:1930` and clear guidance to contact victim bank's 24x7 fraud desk with transaction UTR numbers.
+    - Prominently displays non-guarantee disclosure: Scamfy guides users to alert CFCFRMS, but cannot guarantee that funds will be frozen or recovered (`OOS-02`).
+  - Implement `RapidResponseBanner`: Persistent high-contrast urgency banner for active loss flows.
+  - Author component test suite `components/__tests__/rapid-response-modal.test.tsx`:
+    - Verify keyboard focus trapping, Escape dismissal, `tel:1930` link target, non-guarantee disclosure presence, and accessible screen reader naming.
 - **Requirements Satisfied**: `OFF-02`, `UX-02`, `UX-03`.
 
 ### Task 3: Factual Complaint Payload Builder & Explicit Authorization Gate (`lib/complaint-builder.ts`, `components/domain/complaint-payload-modal.tsx`, `lib/__tests__/complaint-builder.test.ts`)
 - **Action**:
   - Implement `buildFactualComplaintPayload(params: ComplaintPayloadInput): ComplaintPayloadResult`:
-    - Pure function assembling chronological incident facts, financial figures, suspect identifiers, and evidence inventory into standardized complaint narrative.
-    - Zero hallucinated accusations; objective phrasing.
-  - Implement `ComplaintPayloadModal` featuring:
-    - Pre-submission review screen.
-    - Mandatory checkbox confirmation: *"I confirm that this narrative contains truthful, factual information based on my personal experience..."*
-    - Explicit authorization buttons: "Authorize & Open Portal", "Download Complaint Dossier (.txt)", "Copy Narrative".
-  - Implement unit tests for complaint builder and modal.
+    - Pure function formatting victim facts, financial details, suspect identifiers, and evidence inventory into standardized complaint narrative.
+    - Strictly separates provenance: user statements, extracted identifiers, and regulatory notes are demarcated with distinct labels.
+    - Zero unsupported legal conclusions, accusations, or claims of guilt.
+  - Implement `ComplaintPayloadModal`:
+    - Pre-submission preview panel.
+    - Mandatory disclosure notice: *"Notice: Opening an official portal or copying text does NOT submit a report. You must paste or submit your complaint directly on the official portal."*
+    - Separate action triggers:
+      - "Copy Narrative to Clipboard" (with 2000ms checkmark feedback).
+      - "Download Complaint Dossier (.txt)" (client-side text export).
+      - "Open Official Portal (External)" (opens verified URL in new tab with `rel="noopener noreferrer"`).
+  - Implement unit test suite `lib/__tests__/complaint-builder.test.ts`:
+    - Verify narrative formatting, provenance demarcation, non-conflation of user vs automated facts, and sanitization of special characters.
 - **Requirements Satisfied**: `OFF-04`, `UX-01`, `UX-04`.
 
-### Task 4: Hybrid Submission Drawer & Deep Links (`components/domain/reporting-handoff-drawer.tsx`, `components/__tests__/reporting-handoff-drawer.test.tsx`)
+### Task 4: Hybrid Submission Drawer & Verified Deep Links (`components/domain/reporting-handoff-drawer.tsx`, `components/__tests__/reporting-handoff-drawer.test.tsx`)
 - **Action**:
   - Implement `ReportingHandoffDrawer`:
-    - Dockable side drawer displaying official agency details, verified deep link (`target="_blank" rel="noopener noreferrer"`), and field-by-field clipboard copy helpers.
-    - Copy status feedback with accessible `aria-live` announcements.
-    - Field checklist allowing victims to tick off each field as they paste it into the official portal.
-    - Downloadable incident narrative dossier button.
-  - Author component test suite validating copy triggers, drawer controls, and zero fake API claims.
+    - Accessible dockable side drawer that remains open while victim fills out government web forms.
+    - Official agency details, operating hours, and verified deep link button.
+    - Field-by-field copy triggers matching official portal form sections ("Suspect Account", "Transaction Ref", "Suspect Handle", "Narrative").
+    - Tactile copy feedback with `aria-live="polite"` screen reader announcements.
+    - Interactive copy progress checklist tracking which fields the user has copied.
+    - Adheres strictly to `OOS-05` — zero fabricated government APIs; never exposes sensitive complaint data in URL query strings.
+  - Author component test suite `components/__tests__/reporting-handoff-drawer.test.tsx`:
+    - Test drawer docking, field copy triggers, keyboard navigation, and deep link security attributes.
 - **Requirements Satisfied**: `OFF-04`, `OFF-05`, `OOS-05`.
 
-### Task 5: Official Reference Tracker with Prisma Model & API (`prisma/schema.prisma`, `app/api/official-references/route.ts`, `components/domain/complaint-reference-tracker.tsx`, `lib/__tests__/official-references-route.test.ts`)
+### Task 5: Privacy-Safe Complaint Reference Tracker & API (`prisma/schema.prisma`, `app/api/official-references/route.ts`, `components/domain/complaint-reference-tracker.tsx`, `lib/__tests__/official-references-route.test.ts`)
 - **Action**:
-  - Extend `prisma/schema.prisma` with `OfficialComplaintReference` model and run migration.
+  - Extend `prisma/schema.prisma` with data-minimized `OfficialComplaintReference` model:
+    - Stores *only* `{ agency, referenceNumber, filingDate, status, followUpDate, notes }`.
+    - Strictly excludes full complaint narratives, screenshots, and financial credentials.
+    - Run Prisma database migration.
   - Implement Next.js BFF route `app/api/official-references/route.ts`:
-    - `POST`: Validates and saves acknowledgment reference (Zod schema validation, auth user or anonymous session, rate limiting).
-    - `GET`: Retrieves user's recorded references.
+    - Validates request body with strict Zod schemas (`lib/schemas/official-references.ts`).
+    - Enforces server-side authorization: `userId` strictly derived from Clerk session (`auth().userId`). Client-supplied user IDs are rejected.
+    - Rate-limited and sanitized. Zero logging of complaint details or credentials.
   - Implement `ComplaintReferenceTracker` UI component:
-    - Form to record 1930 ticket number, Cybercrime Portal ACK, date lodged, and current status.
-    - Status badges, copy helper, and follow-up guidance.
-    - Automatic `localStorage` sync for anonymous users.
-  - Integrate into `/report` page and add comprehensive test suite.
-- **Requirements Satisfied**: `OFF-06`, `SEC-01`, `SEC-05`.
+    - Form to record 1930 SMS ticket, Cybercrime ACK, or bank dispute reference number.
+    - Client-side `localStorage` fallback for anonymous users with clear disclaimer and prominent "Clear Stored Reference" deletion button.
+    - Non-color-only status badges (`CheckCircle` for Frozen, `Clock` for Under Investigation, `AlertTriangle` for Lodged).
+  - Integrate into `app/report/page.tsx` and author comprehensive test suite.
+- **Requirements Satisfied**: `OFF-06`, `SEC-01`, `SEC-03`, `SEC-05`.
 
 ---
 
 ## 3. Plan-Checker Verification & Quality Gates
 - **GSD Plan-Checker Analysis**:
   - **Traceability**: All 6 canonical requirements (`OFF-01` through `OFF-06`) directly covered across Tasks 1–5.
-  - **Scope Enforcement**: Zero machine-to-machine APIs fabricated (`OOS-05`), zero recovery guarantees (`OOS-02`), zero legal guilt determinations (`AI-05`, `OOS-03`).
-  - **Security & Privacy**: Client and server validation with Zod, rate limiting, data minimization, sanitized errors.
+  - **Review Corrections Satisfied**:
+    - Correction A: Rapid response protocol with zero time cutoffs and clear non-guarantees.
+    - Correction B: Context-aware multi-channel routing based on financial loss, not single identifier triggers.
+    - Correction C: Re-verified banking grievance architecture distinguishing immediate freeze, cybercrime portal, bank grievance, and RBI Ombudsman.
+    - Correction D: Data-minimized persistence excluding narratives from `localStorage`, with clear deletion action and server session authorization.
+    - Correction E: Strict separation between drafting, previewing, downloading, copying, opening links, and submitting.
   - **Quality Gates**: All 6 canonical gates verified at every task.
