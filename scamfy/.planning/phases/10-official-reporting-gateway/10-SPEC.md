@@ -94,30 +94,12 @@ The gateway provides context-aware official routing based on incident type and f
 
 ---
 
-## 4. Quantitative Ambiguity Scoring
-| Dimension | Minimum | Target | Score | Notes |
-|:---|:---:|:---:|:---:|:---|
-| **Domain & Requirements** | 0.85 | 1.00 | 0.99 | Mapped 1:1 against canonical `OFF-01` through `OFF-06` with all review corrections incorporated. |
-| **System Architecture** | 0.85 | 1.00 | 0.98 | Hybrid drawer copier, data-minimized Prisma schema, server auth ownership, and Zod validation locked. |
-| **User Experience & Flow** | 0.85 | 1.00 | 0.97 | Rapid-response guidance, context-aware routing, clear separation between copy/link/submit actions. |
-| **Security & Privacy** | 0.90 | 1.00 | 0.99 | Strict localStorage minimization, server session validation, zero sensitive parameter passing. |
-| **Composite Ambiguity** | $\le 0.15$ | $\le 0.10$ | **0.02** | **PASSED** (Ambiguity well below 0.10 threshold). |
+## 4. Qualitative Planning-Readiness Review
 
-### Reproducible Rubric for Dimensional Confidence Scores:
-Each dimension is scored against a reproducible 3-tier objective rubric:
-- **1.00 (High / Locked)**: Canonical requirements mapped 1:1 to falsifiable acceptance criteria, regulatory instruments verified against primary statutory documents (e.g. gazette notifications/circulars), data schemas locked with runtime validators (Zod/Pydantic), and zero open scope questions.
-- **0.85 (Medium / Conditional)**: Requirements and interfaces identified, but operational edge cases or regulatory exceptions pending secondary source verification.
-- **<= 0.70 (Low / Unclear)**: Core interactions undefined or relying on unverified external third-party integrations.
+Planning readiness for Phase 10 is assessed through demonstrable architectural and regulatory invariants:
 
-**Dimensional Evaluation**:
-- **Domain & Requirements ($S_1 = 0.99$)**: All 6 canonical requirements (`OFF-01`..`OFF-06`) mapped to falsifiable acceptance criteria with primary source citations (I4C/MHA, DoT Sanchar Saathi, RBI Sachet, SEBI SCORES/MI Portal, RB-IOS 2026, RBI 2017-18/15).
-- **System Architecture ($S_2 = 0.98$)**: Pure deterministic functions (`resolveReportingChannel`, `buildFactualComplaintPayload`), typed data contracts, Zod schemas, and Prisma models locked without external network coupling.
-- **User Experience & Flow ($S_3 = 0.97$)**: 5 distinct UI surfaces specified with accessibility (WCAG AA), motion tokens (`cubic-bezier(0.16, 1, 0.3, 1)`), tactile copy feedback, and non-guarantee alerts.
-- **Security & Privacy ($S_4 = 0.99$)**: Strict data minimization, `localStorage` fencing (zero narratives/amounts/credentials in local storage), server-session authorization derivation, and 500-char sanitized note limits.
-
-### Mathematical Formula & Rounding Rule:
-The Composite Ambiguity score is calculated directly from the four dimensional confidence scores ($S_1, S_2, S_3, S_4$):
-$$\text{Composite Ambiguity} = 1 - \bar{S} = 1 - \left(\frac{1}{N} \sum_{i=1}^N S_i\right)$$
-- Calculation: $\bar{S} = \frac{0.99 + 0.98 + 0.97 + 0.99}{4} = \frac{3.93}{4} = 0.9825$.
-- Unrounded Ambiguity: $1 - 0.9825 = 0.0175$.
-- Rounding Rule: Standard half-up rounding to two decimal places yields **0.02** (or **0.018** to three decimal places).
+1. **Requirement Mapping**: Every canonical requirement (`OFF-01` through `OFF-06`) maps directly to falsifiable acceptance criteria in this specification and to a specific execution task in `10-PLAN.md`.
+2. **Authoritative Source Grounding**: All applicable regulatory and official reporting claims cite verified primary sources (MHA/I4C 1930, DoT Sanchar Saathi, RBI Sachet, SEBI SCORES 2.0, SEBI Market Intelligence Portal, RB-IOS 2026, and RBI Circular 2017-18/15) along with their specific procedural limitations and exclusions.
+3. **Safety & Privacy Boundaries**: Strict boundaries are established: zero fabricated government APIs (`OOS-05`), complete separation between drafting/copying/linking actions and submission authorization, zero fund recovery guarantees (`OOS-02`), and complete exclusion of complaint narratives, credentials, and evidence files from `localStorage`.
+4. **Structural Verification**: GSD Core planning validators (`ui-plan-gate`, `ui-safety-gate`, and `validate consistency`) pass cleanly with all frontmatter requirements satisfied.
+5. **Recorded Implementation & Deployment Risks**: Outstanding technical risks (such as Prisma schema migration in production environments and cross-platform desktop telephony protocol fallback) are explicitly tracked in planning records rather than prematurely treated as resolved.
