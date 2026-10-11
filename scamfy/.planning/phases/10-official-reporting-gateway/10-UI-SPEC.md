@@ -76,7 +76,7 @@ This specification defines the UI layout, component hierarchy, accessibility rul
 - **Notes Field Validation & Warning**:
   - Prominent helper text below notes textarea: `"Warning: For your privacy, do not enter passwords, PINs, OTPs, full card/bank numbers, or incident narratives in this note field (max 500 characters)."`
   - Client-side validation enforcing 500 character limit and stripping dangerous HTML/scripts.
-- **Banking Grievance Link**: Direct link to official Reserve Bank - Integrated Ombudsman Scheme rules on `https://cms.rbi.org.in/` with guidance that the bank response window depends on RBI, NPCI, or card-network guidelines, or 30 days, whichever is longer, and the 90-day escalation window follows RB-IOS 2026 eligibility conditions.
+- **Banking Grievance Link**: Direct link to official Reserve Bank - Integrated Ombudsman Scheme rules on `https://cms.rbi.org.in/` with guidance that escalation is permitted if dissatisfied with the bank's reply or resolution (including whole or partial rejection) or if no reply is received within the applicable response period (guidelines timeline or 30 days, whichever is longer), with the 90-day escalation window following RB-IOS 2026 eligibility conditions.
 - **Card View**: Displays saved references with status badges and quick-copy triggers.
 - **Privacy Controls**:
   - Anonymous storage warning: *"Stored locally on this device. Will be cleared if browser history/cache is purged."*

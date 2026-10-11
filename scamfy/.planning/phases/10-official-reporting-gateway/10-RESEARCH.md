@@ -88,10 +88,9 @@ Authoritative research conducted on Indian cyber financial crime reporting frame
 - **Filing Prerequisites & Conditions**:
   1. *Mandatory Prior Bank Complaint*: The customer must first file a formal written complaint with the Regulated Entity (RE) and allow the RE the applicable statutory/regulatory response window.
   2. *Applicable Response Period*: The applicable response period for the RE may be the period specified by RBI, NPCI, or card-network guidelines (if any), or 30 days, **whichever is longer**. Thirty days is therefore not presented as a universal unconditional deadline across all payment and dispute types.
-  3. *Permitted Escalation Grounds*: The customer may escalate to the RBI Ombudsman only if:
-     - The complaint is rejected wholly or in part by the RE; OR
-     - The RE fails to reply within the applicable response period (specified guideline timeline or 30 days, whichever is longer); OR
-     - The customer is not satisfied with the reply/resolution provided by the RE.
+  3. *Permitted Escalation Grounds*: Following a formal complaint to the Regulated Entity (RE), the customer may escalate to the RBI Ombudsman only if:
+     - The customer is not satisfied with the reply or resolution provided by the RE (which includes scenarios where the complaint has been rejected wholly or in part); OR
+     - The RE fails to reply within the applicable response period (specified guideline timeline or 30 days, whichever is longer). Rejection is not a separate unconditional route, but an instance of a bank reply/resolution with which the complainant is dissatisfied.
   4. *90-Day Limitation Period (RB-IOS 2026 Rule)*:
      - Under the 2026 scheme, the complaint to the Ombudsman must be filed **within 90 days** from:
        - The date on which the applicable response period for the RE to respond expires; OR

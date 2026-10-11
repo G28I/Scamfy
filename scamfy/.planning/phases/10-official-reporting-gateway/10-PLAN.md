@@ -44,7 +44,7 @@ requirements:
     - *Financial Loss Rule*: If financial loss or unauthorized transfer occurred, 1930 / Cybercrime Portal / Bank Fraud Desk is **always** primary, regardless of elapsed time or delivery channel.
     - *Telecom Rule*: Non-loss suspicious SMS/calls route to Chakshu; loss incidents route to 1930 first with Chakshu secondary.
     - *Securities Rule*: Distinguishes registered entity disputes (SCORES 2.0) from unregistered syndicates (Cybercrime portal 1930 primary + SEBI Market Intelligence Portal confidential regulatory tip secondary).
-    - *Banking Redressal Rule*: Demarcates immediate freeze requests from formal internal bank grievance and subsequent RBI Ombudsman escalation under RB-IOS 2026 (subject to prior bank complaint, applicable response period — guidelines timeline or 30 days, whichever is longer, and 90-day filing period).
+    - *Banking Redressal Rule*: Demarcates immediate freeze requests from formal internal bank grievance and subsequent RBI Ombudsman escalation under RB-IOS 2026 (escalation permitted when dissatisfied with the bank's reply/resolution, including whole or partial rejection, or if no reply is received within the applicable response period — guidelines timeline or 30 days, whichever is longer; subject to prior bank complaint and 90-day filing period).
     - Returns primary channel recommendation, clear plain-language rationale, and relevant alternative routes.
   - Implement comprehensive unit test suite `lib/__tests__/official-channels.test.ts`:
     - Test transfers reported at 30 minutes, 4 hours, 24 hours, and 7 days (all retain 1930 guidance).
